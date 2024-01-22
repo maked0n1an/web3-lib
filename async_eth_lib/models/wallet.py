@@ -19,7 +19,7 @@ class Wallet:
         token_address: str | ChecksumAddress | None = None,
         address: str | ChecksumAddress | None = None,
         decimals: int = 18
-    ) -> None:
+    ) -> TokenAmount:
         if not address:
             address = self.client.account.address
 
