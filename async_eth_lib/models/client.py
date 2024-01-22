@@ -41,7 +41,7 @@ class Client:
             modules={'eth': (AsyncEth, )},
             middlewares=[]
         )
-        self._initialize_private_key(private_key)
+        self._initialize_account(private_key)
 
         self.wallet = Wallet(self)
         self.contracts = Contracts(self)
@@ -69,7 +69,7 @@ class Client:
             'User-Agent': UserAgent().random
         }
 
-    def _initialize_private_key(self, private_key: str | None):
+    def _initialize_account(self, private_key: str | None):
         if private_key:
             self.account = self.w3.eth.account.from_key(
                 private_key=private_key)

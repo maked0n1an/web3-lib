@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 from eth_typing import ChecksumAddress
 from web3 import Web3
 
-from async_eth_lib.models.token_amount import TokenAmount
+from .token_amount import TokenAmount
 
 if TYPE_CHECKING:
     from .client import Client
@@ -25,14 +25,14 @@ class Wallet:
 
         address = Web3.to_checksum_address(address)
 
-        if not token_address:
-            amount = await self.client.w3.eth.get_balance(account=address)
-        else:
+        if token_address:
             token_address = Web3.to_checksum_address(token_address)
             contract = await self.client.contracts.default_token(contract_address=token_address)
 
             amount = await contract.functions.balanceOf(address).call()
-            decimals = await contract.functions.decimals().call
+            decimals = await contract.functions.decimals().call()
+        else:
+            amount = await self.client.w3.eth.get_balance(account=address)
 
         return TokenAmount(
             amount=amount,

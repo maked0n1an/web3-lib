@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from async_eth_lib.models.token_amount import TokenAmount
+from .token_amount import TokenAmount
 
 if TYPE_CHECKING:
     from .client import Client
