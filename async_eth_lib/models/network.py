@@ -1,7 +1,7 @@
 import requests
 from web3 import Web3
 
-import async_eth_modules.utils.exceptions as exceptions
+import async_eth_lib.utils.exceptions as exceptions
 
 
 class Network:

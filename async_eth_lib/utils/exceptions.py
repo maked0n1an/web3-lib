@@ -4,3 +4,7 @@ class WrongChainId(Exception):
 
 class WrongCoinSymbol(Exception):
     pass
+
+
+class InvalidProxy(Exception):
+    pass
