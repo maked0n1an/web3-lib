@@ -1,4 +1,7 @@
+import random
 import requests
+
+from typing import List
 from web3 import Web3
 
 import async_eth_lib.utils.exceptions as exceptions
@@ -12,14 +15,14 @@ class Network:
     def __init__(
         self,
         name: str,
-        rpc: str,
+        rpc: str | List[str],
         chain_id: int | None = None,
         tx_type: int = 0,
         coin_symbol: str | None = None,
         explorer: str | None = None
     ) -> None:
         self.name: str = name.lower()
-        self.rpc: str = rpc
+        self.rpc: str = rpc if isinstance(rpc, str) else random.choice(rpc)
         self.chain_id: int | None = chain_id
         self.tx_type: int = tx_type
         self.coin_symbol: str | None = coin_symbol
@@ -60,7 +63,7 @@ class Networks:
     # Mainnet
     Ethereum = Network(
         name='ethereum',
-        rpc='https://rpc.ankr.com/eth/',
+        rpc='https://rpc.ankr.com/eth/720840b6beda865781b7beb539459137b7da7a657a58524b341d980a0a510f48',
         chain_id=1,
         tx_type=2,
         coin_symbol='ETH',
@@ -69,7 +72,10 @@ class Networks:
 
     Arbitrum = Network(
         name='arbitrum',
-        rpc='https://rpc.ankr.com/arbitrum',
+        rpc=[
+            'https://rpc.ankr.com/arbitrum/720840b6beda865781b7beb539459137b7da7a657a58524b341d980a0a510f48',
+            'https://rpc.ankr.com/arbitrum/a711c35e9e092e57fed201c2960689957eaf1ad37b7e7ec4eca11accd776e5a9'
+        ],
         chain_id=42161,
         tx_type=2,
         coin_symbol='eth',
