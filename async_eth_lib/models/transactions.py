@@ -14,7 +14,7 @@ class Transactions:
         self.client = client
 
     @staticmethod
-    async def gas_price(w3: Web3) -> TokenAmount:
+    async def get_gas_price(w3: Web3) -> TokenAmount:
         amount = await w3.eth.gas_price
 
         return TokenAmount(amount, wei=True)
