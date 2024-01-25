@@ -3,15 +3,24 @@ import requests
 
 from web3 import Web3
 from web3.eth import AsyncEth
-from fake_useragent import UserAgent
+from web3.types import (
+    TxReceipt, 
+    _Hash32, 
+    TxParams
+)
+from eth_account.datastructures import (
+    SignedTransaction,
+    SignedMessage
+)
 from eth_typing import ChecksumAddress
 from eth_account.signers.local import LocalAccount
+from fake_useragent import UserAgent
 
-from .network import Network, Networks
+from .networks import Network, Networks
 import async_eth_lib.utils.exceptions as exceptions
 
 
-class Account:
+class AccountManager:
     network: Network
     account: LocalAccount | None
     w3: Web3
@@ -74,10 +83,3 @@ class Account:
         else:
             self.account = self.w3.eth.account.create(
                 extra_entropy=str(random.randint(1, 999_999_999)))
-
-    async def get_nonce(self, address: str | ChecksumAddress | None = None) -> int:
-        if not address:
-            address = self.account.address
-        nonce = await self.w3.eth.get_transaction_count(address)
-
-        return nonce
