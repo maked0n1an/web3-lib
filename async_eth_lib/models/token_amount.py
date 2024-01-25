@@ -22,4 +22,4 @@ class TokenAmount:
         self.decimals = decimals
 
     def __str__(self) -> str:
-        return f'{self.Ether}'
+        return f'{self.Wei}'
