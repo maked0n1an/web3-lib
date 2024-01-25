@@ -44,16 +44,13 @@ class Transactions:
             
         if not tx_params['from']:
             tx_params['from'] = self.account.address
-        
+                
+        gas_price = (await self.get_gas_price()).Wei
+                
         if not tx_params['gasPrice'] and not tx_params['maxFeePerGas']:
-            gas_price = (await self.get_gas_price()).Wei
-            
-            if self.account.network.tx_type == 2:
-                tx_params['maxFeePerGas'] = gas_price
-            else:
-                tx_params['gasPrice'] = gas_price
+            tx_params['maxFeePerGas' if self.account.network.tx_type == 2 else 'gasPrice'] = gas_price
         elif tx_params['gasPrice'] and not int(tx_params['gasPrice']):
-            tx_params['gasPrice'] = (await self.get_gas_price()).Wei
+            tx_params['gasPrice'] = gas_price
             
         if tx_params['maxFeePerGas'] and not tx_params['maxPriorityFeePerGas']:
             tx_params['maxPriorityFeePerGas'] = (await self.get_max_priority_fee()).Wei
