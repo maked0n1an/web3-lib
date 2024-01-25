@@ -8,3 +8,7 @@ class WrongCoinSymbol(Exception):
 
 class InvalidProxy(Exception):
     pass
+
+
+class TransactionException(Exception):
+    pass
