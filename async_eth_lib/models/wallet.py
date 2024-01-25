@@ -26,7 +26,6 @@ class Wallet:
         address = Web3.to_checksum_address(address)
 
         if token_address:
-            token_address = Web3.to_checksum_address(token_address)
             contract = await self.client.contracts.default_token(contract_address=token_address)
 
             amount = await contract.functions.balanceOf(address).call()
