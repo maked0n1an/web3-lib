@@ -1,26 +1,17 @@
-import random
-import requests
-
 from web3 import Web3
-from web3.eth import AsyncEth
-from fake_useragent import UserAgent
-from eth_account.signers.local import LocalAccount
+from eth_typing import ChecksumAddress
 
+from .token_amount import TokenAmount
+from .account import Account
 from .transactions import Transactions
-from .wallet import Wallet
 from .contracts import Contracts
 from .network import (
     Network,
     Networks
 )
-import async_eth_lib.utils.exceptions as exceptions
 
 
 class Client:
-    network: Network
-    account: LocalAccount | None
-    w3: Web3
-
     def __init__(
         self,
         private_key: str | None = None,
@@ -28,53 +19,37 @@ class Client:
         proxy: str | None = None,
         check_proxy: bool = True
     ) -> None:
-        self.network = network
-        self.proxy = proxy
-        self._initialize_proxy(check_proxy)
-        self._initialize_headers()
-
-        self.w3 = Web3(
-            provider=Web3.AsyncHTTPProvider(
-                endpoint_uri=self.network.rpc,
-                request_kwargs={'proxy': self.proxy, 'headers': self.headers}
-            ),
-            modules={'eth': (AsyncEth, )},
-            middlewares=[]
+        self.account = Account(
+            private_key=private_key,
+            network=network,
+            proxy=proxy,
+            check_proxy=check_proxy
         )
-        self._initialize_account(private_key)
 
-        self.wallet = Wallet(self)
-        self.contracts = Contracts(self)
-        self.transactions = Transactions(self)
+        self.contracts = Contracts(self.account)
+        self.transactions = Transactions(self.account)
 
-    def _initialize_proxy(self, check_proxy: bool):
-        if not self.proxy:
-            return
-        if 'http' not in self.proxy:
-            self.proxy = f'http://{self.proxy}'
+    async def get_balance(
+        self,
+        token_address: str | ChecksumAddress | None = None,
+        address: str | ChecksumAddress | None = None,
+        decimals: int = 18
+    ) -> TokenAmount:
+        if not address:
+            address = self.account.address
 
-        if check_proxy:
-            your_ip = requests.get(
-                'http://eth0.me', proxies={'http': self.proxy, 'https': self.proxy}, timeout=10
-            ).text.rstrip()
-            if your_ip not in self.proxy:
-                raise exceptions.InvalidProxy(
-                    f"Proxy doesn't work! It's IP is {your_ip}")
+        address = Web3.to_checksum_address(address)
 
-    def _initialize_headers(self):
-        self.headers = {
-            'Accept': '*/*',
-            'Accept-Language': 'en-US,en;q=0.9',
-            'Content-Type': 'application/json',
-            'User-Agent': UserAgent().random
-        }
+        if token_address:
+            contract = await self.contracts.default_token(contract_address=token_address)
 
-    def _initialize_account(self, private_key: str | None):
-        if private_key:
-            self.account = self.w3.eth.account.from_key(
-                private_key=private_key)
-        elif private_key == '':
-            self.account = None
+            amount = await contract.functions.balanceOf(address).call()
+            decimals = await contract.functions.decimals().call()
         else:
-            self.account = self.w3.eth.account.create(
-                extra_entropy=str(random.randint(1, 999_999_999)))
+            amount = await self.account.w3.eth.get_balance(account=address)
+
+        return TokenAmount(
+            amount=amount,
+            decimals=decimals,
+            wei=True
+        )
