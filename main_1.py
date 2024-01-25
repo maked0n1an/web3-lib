@@ -81,39 +81,34 @@ async def main():
 
     contract = web3.eth.contract(address=contract_address, abi=abi)
 
-    from_token = Web3.to_checksum_address(
+    from_token_address = Web3.to_checksum_address(
         '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE')
-    usdc_address = Web3.to_checksum_address(
+    to_token_address = Web3.to_checksum_address(
         '0xaf88d065e77c8cC2239327C5EDb3A432268e5831')
 
-    eth_amount = 0.00004
-    min_usdc_amount = eth_amount * await get_min_to_amount(from_token='ETH', to_token='USDC')
+    from_token = 'ETH'
+    to_token = 'USDC'
+    amount = 0.0004
     
-    usdc_amount = 1.05
-    min_eth_amount = usdc_amount / await get_min_to_amount(from_token='ETH', to_token='USDC')
-
+    if from_token == 'ETH':      
+        min_to_amount = amount * await get_min_to_amount(from_token=from_token, to_token=to_token)
+        eth_decimals = int(amount * 10 ** 18)
+        token_decimals = int(min_to_amount * 10 ** 6)
+        
+        args = [from_token_address, to_token_address, eth_decimals, token_decimals]
+    else:
+        min_to_amount = amount / await get_min_to_amount(from_token=from_token, to_token=to_token)
+        token_decimals = int(min_to_amount * 10 ** 6),
+        eth_decimals = int(amount * 10 ** 18),
+        
+        args = [to_token_address, from_token_address, token_decimals, eth_decimals]
+    
+    args.append(wallet_address)
+    args.append(wallet_address)
+    
     data = contract.encodeABI(
         'swap',
-        args=(
-            from_token,
-            usdc_address,
-            int(eth_amount * 10 ** 18),
-            int(min_usdc_amount * 10 ** 6),
-            wallet_address,
-            wallet_address
-        )
-    )
-    
-    data2 = contract.encodeABI(
-        'swap',
-        args=(
-            usdc_address,
-            from_token,
-            int(min_eth_amount * 10 ** 6),
-            int(eth_amount * 10 ** 18),
-            wallet_address,
-            wallet_address
-        )
+        args=args
     )
 
     tx_data = {
@@ -122,9 +117,11 @@ async def main():
         'nonce': await web3.eth.get_transaction_count(wallet_address),
         'from': web3.to_checksum_address(wallet_address),
         'to': web3.to_checksum_address(contract_address),
-        'data': data2,
-        'value': int(eth_amount * 10 ** 18)
+        'data': data,
     }
+    
+    if from_token == 'ETH':
+        tx_data['value'] = int(amount * 10 ** 18)
 
     tx_data['gas'] = await web3.eth.estimate_gas(tx_data)
 
