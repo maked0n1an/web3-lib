@@ -62,7 +62,13 @@ class Tx(AutoRepr):
         self.receipt = None
         self.function_identifier = None
         self.input_data = None
-
+        
+    async def parse_params(self, account_manager: AccountManager) -> dict[str, Any]: 
+        tx_data = await account_manager.w3.eth.get_transaction(transaction_hash=self.hash)
+        self.params = {
+            'chainId': account_manager.network.chain_id,
+        }
+        
 
 class Transactions:
     def __init__(self, account_manager: AccountManager) -> None:
