@@ -2,10 +2,10 @@ from web3 import Web3
 from eth_typing import ChecksumAddress
 
 from .token_amount import TokenAmount
-from .account import Account
+from .account_manager import AccountManager
 from .transactions import Transactions
 from .contracts import Contracts
-from .network import (
+from .networks import (
     Network,
     Networks
 )
@@ -19,12 +19,12 @@ class Client:
         proxy: str | None = None,
         check_proxy: bool = True
     ) -> None:
-        self.account = Account(
+        self.account_manager = AccountManager(
             private_key=private_key,
             network=network,
             proxy=proxy,
             check_proxy=check_proxy
         )
 
-        self.contracts = Contracts(self.account)
-        self.transactions = Transactions(self.account)
+        self.contracts = Contracts(self.account_manager)
+        self.transactions = Transactions(self.account_manager)
