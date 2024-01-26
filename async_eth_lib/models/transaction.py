@@ -10,13 +10,15 @@ from eth_account.datastructures import (
     SignedMessage
 )
 
+from async_eth_lib.models.others.params_types import ParamsTypes
+
 from .others.common import AutoRepr
 from .account_manager import AccountManager
 from .others.token_amount import TokenAmount
 import async_eth_lib.models.others.exceptions as exceptions
 
 
-class Transactions:
+class Transaction:
     def __init__(self, account_manager: AccountManager) -> None:
         self.account_manager = account_manager
 

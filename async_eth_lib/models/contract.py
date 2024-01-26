@@ -15,7 +15,7 @@ from async_eth_lib.utils.helpers import (
 )
 
 
-class Contracts:
+class Contract:
     def __init__(self, account_manager: AccountManager):
         self.account_manager = account_manager
 
@@ -86,10 +86,12 @@ class Contracts:
         Returns:
             tuple[ChecksumAddress, list | None]: the checksummed contract address and ABI.
         """
+        abi = None
+        address = contract
         if isinstance(contract, (AsyncContract, RawContract)):
-            return contract.address, contract.abi
+            address, abi = contract.address, contract.abi
 
-        return Web3.to_checksum_address(contract), None
+        return Web3.to_checksum_address(address), abi
 
     async def get(
         self,
@@ -112,10 +114,10 @@ class Contracts:
             raise ValueError("Can not get contract ABI")
         if not abi:
             abi = contract_abi
-            
+
         if abi:
             return self.account_manager.w3.eth.contract(address=contract_address, abi=abi)
-        
+
         return self.account_manager.w3.eth.contract(address=contract_address)
 
     async def get_balance(
@@ -143,11 +145,37 @@ class Contracts:
             wei=True
         )
 
-    # async def get_approved_amount(
-    #     self,
-    #     token: types.Contract,
+    async def get_approved_amount(
+        self,
+        token: ParamsTypes.Contract,
+        spender: ParamsTypes.Contract,
+        owner: ParamsTypes.Address | None = None
+    ) -> TokenAmount:
+        """
+        Get approved amount of token.
 
-    # )
+        Args:
+            token (Contract): the contract address or instance of token.
+            spender (Contract): the spender address, contract address or instance.
+            owner (Optional[Address]): the owner address. (imported to client address)
+
+        Returns:
+            TokenAmount: the approved amount.
+
+        """
+        contract_address, _ = await self.get_contract_attributes(contract=token)
+        contract = await self.default_token(contract_address=contract_address)
+        spender,  = await self.get_contract_attributes(spender=spender)
+        if not owner:
+            owner = self.account_manager.account.address
+
+        amount = await contract.functions.allowance(
+            owner,
+            spender,
+        ).call()
+        decimals = await contract.functions.decimals().call()
+
+        return TokenAmount(amount, decimals, wei=True)
 
     async def default_token(self, contract_address: ChecksumAddress | str) -> Contract | AsyncContract:
         contract_address = Web3.to_checksum_address(contract_address)
