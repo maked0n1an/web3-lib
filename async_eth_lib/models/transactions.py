@@ -111,7 +111,14 @@ class Tx(AutoRepr):
         
         return self.receipt
 
-    async def 
+    async def decode_input_data(self):
+        pass
+    
+    async def cancel(self):
+        pass
+
+    async def speed_up(self):
+        pass
 
 class Transactions:
     def __init__(self, account_manager: AccountManager) -> None:
