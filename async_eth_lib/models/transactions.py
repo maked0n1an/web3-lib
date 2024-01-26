@@ -49,26 +49,69 @@ class Tx(AutoRepr):
             params (Optional[dict]): a dictionary with transaction parameters. (None)
 
         """
-
         if not tx_hash and not params:
             raise exceptions.TransactionException(
                 "Specify 'tx_hash' or 'params' argument values!")
-            
+
         if isinstance(tx_hash, str):
             tx_hash = HexBytes(tx_hash)
-        
+
         self.hash = tx_hash
         self.params = params
         self.receipt = None
         self.function_identifier = None
         self.input_data = None
-        
-    async def parse_params(self, account_manager: AccountManager) -> dict[str, Any]: 
+
+    async def parse_params(self, account_manager: AccountManager) -> dict[str, Any]:
+        """
+        Parse the parameters of a sent transaction.
+
+        Args:
+            account_manager (AccountManager): the AccountManager instance.
+
+        Returns:
+            Dict[str, Any]: the parameters of a sent transaction.
+
+        """
         tx_data = await account_manager.w3.eth.get_transaction(transaction_hash=self.hash)
         self.params = {
             'chainId': account_manager.network.chain_id,
+            'nonce': int(tx_data.get('nonce')),
+            'gasPrice': int(tx_data.get('gasPrice')),
+            'gas': int(tx_data.get('gas')),
+            'from': tx_data.get('from'),
+            'to': tx_data.get('to'),
+            'data': tx_data.get('input'),
+            'value': int(tx_data.get('value'))
         }
+
+        return self.params
+    
+    async def wait_for_transaction_receipt(
+        self,
+        account_manager: AccountManager,
+        timeout: int | float = 120, 
+        poll_latency: float = 0.1
+    ) -> dict[str, Any]: 
+        """
+        Wait for the transaction receipt.
+
+        Args:
+            account_manager (AccountManager): the AccountManager instance.
+            timeout (Union[int, float]): the receipt waiting timeout. (120 sec)
+            poll_latency (float): the poll latency. (0.1 sec)
+
+        Returns:
+            Dict[str, Any]: the transaction receipt.
+
+        """
+        self.receipt = dict(await account_manager.w3.eth.wait_for_transaction_receipt(
+            transaction_hash=self.hash, timeout=timeout, poll_latency=poll_latency
+        ))
         
+        return self.receipt
+
+    async def 
 
 class Transactions:
     def __init__(self, account_manager: AccountManager) -> None:
@@ -125,28 +168,29 @@ class Transactions:
             TxParams: parameters of the transaction with added values.
 
         """
-        if not tx_params['chainId']:
+        if 'chainId' not in tx_params:
             tx_params['chainId'] = self.account_manager.network.chain_id
 
-        if not tx_params['nonce']:
-            tx_params['nonce'] = self.account_manager.get_nonce()
+        if 'nonce' not in tx_params:
+            tx_params['nonce'] = self.account_manager.w3.eth.get_transaction_count(
+                self.account_manager.account.address)
 
-        if not tx_params['from']:
-            tx_params['from'] = self.account_manager.address
+        if 'from' not in tx_params:
+            tx_params['from'] = self.account_manager.account.address
 
         gas_price = (await self.get_gas_price()).Wei
 
-        if not tx_params['gasPrice'] and not tx_params['maxFeePerGas']:
+        if 'gasPrice' not in tx_params and 'maxFeePerGas' not in tx_params:
             tx_params['maxFeePerGas' if self.account_manager.network.tx_type ==
                       2 else 'gasPrice'] = gas_price
-        elif tx_params['gasPrice'] and not int(tx_params['gasPrice']):
+        elif 'gasPrice' in tx_params and not int(tx_params['gasPrice']):
             tx_params['gasPrice'] = gas_price
 
-        if tx_params['maxFeePerGas'] and not tx_params['maxPriorityFeePerGas']:
+        if 'maxFeePerGas' not in tx_params and 'maxPriorityFeePerGas' not in tx_params:
             tx_params['maxPriorityFeePerGas'] = (await self.get_max_priority_fee()).Wei
             tx_params['maxFeePerGas'] += tx_params['maxPriorityFeePerGas']
 
-        if not tx_params['gas'] or not int(tx_params['gas']):
+        if 'gas' not in tx_params or not int(tx_params['gas']):
             tx_params['gas'] = (await self.get_estimate_gas(tx_params=tx_params)).Wei
 
         return tx_params
