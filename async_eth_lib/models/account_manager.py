@@ -9,7 +9,7 @@ from eth_account.signers.local import LocalAccount
 from fake_useragent import UserAgent
 
 from .networks import Network, Networks
-import async_eth_lib.utils.exceptions as exceptions
+import async_eth_lib.models.others.exceptions as exceptions
 
 
 class AccountManager:

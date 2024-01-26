@@ -1,9 +1,4 @@
 from dataclasses import dataclass
-from typing import (
-    List,
-    Dict,
-    Any
-)
 
 
 @dataclass
@@ -81,3 +76,14 @@ class DefaultAbis:
             'type': 'function'
         }
     ]
+
+
+@dataclass
+class CommonValues:
+    """
+    An instance with common values used in transactions.
+    """
+    Null: str = '0x0000000000000000000000000000000000000000000000000000000000000000'
+    InfinityStr: str = '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
+    InfinityInt: int = int(
+        '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 16)
