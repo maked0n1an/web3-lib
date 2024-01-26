@@ -86,13 +86,13 @@ class Tx(AutoRepr):
         }
 
         return self.params
-    
+
     async def wait_for_transaction_receipt(
         self,
         account_manager: AccountManager,
-        timeout: int | float = 120, 
+        timeout: int | float = 120,
         poll_latency: float = 0.1
-    ) -> dict[str, Any]: 
+    ) -> dict[str, Any]:
         """
         Wait for the transaction receipt.
 
@@ -108,17 +108,18 @@ class Tx(AutoRepr):
         self.receipt = dict(await account_manager.w3.eth.wait_for_transaction_receipt(
             transaction_hash=self.hash, timeout=timeout, poll_latency=poll_latency
         ))
-        
+
         return self.receipt
 
     async def decode_input_data(self):
         pass
-    
+
     async def cancel(self):
         pass
 
     async def speed_up(self):
         pass
+
 
 class Transactions:
     def __init__(self, account_manager: AccountManager) -> None:
