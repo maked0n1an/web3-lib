@@ -3,6 +3,7 @@ import requests
 
 from typing import List
 from web3 import Web3
+from async_eth_lib.models.others.common import Singleton
 
 import async_eth_lib.models.others.exceptions as exceptions
 
@@ -59,7 +60,7 @@ class Network:
             self.coin_symbol = self.coin_symbol.upper()
 
 
-class Networks:
+class Networks(Singleton):
     # Mainnet
     Ethereum = Network(
         name='ethereum',
