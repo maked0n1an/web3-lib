@@ -1,18 +1,10 @@
 import random
 import requests
 
+
+from aiohttp import ClientSession
 from web3 import Web3
 from web3.eth import AsyncEth
-from web3.types import (
-    TxReceipt, 
-    _Hash32, 
-    TxParams
-)
-from eth_account.datastructures import (
-    SignedTransaction,
-    SignedMessage
-)
-from eth_typing import ChecksumAddress
 from eth_account.signers.local import LocalAccount
 from fake_useragent import UserAgent
 
@@ -24,10 +16,7 @@ class AccountManager:
     network: Network
     account: LocalAccount | None
     w3: Web3
-
-    @property
-    def address(self):
-        return self.account.address
+    session: ClientSession
 
     def __init__(
         self,
@@ -40,6 +29,8 @@ class AccountManager:
         self.proxy = proxy
         self._initialize_proxy(check_proxy)
         self._initialize_headers()
+        
+        self.session = ClientSession(headers=self.headers)
         self.w3 = Web3(
             Web3.AsyncHTTPProvider(
                 endpoint_uri=self.network.rpc,
