@@ -9,11 +9,19 @@ class WrongCoinSymbol(Exception):
     pass
 
 
-class InvalidProxy(Exception):
+class ClientException(Exception):
+    pass
+
+
+class InvalidProxy(ClientException):
     pass
 
 
 class TransactionException(Exception):
+    pass
+
+
+class GasPriceTooHigh(Exception):
     pass
 
 

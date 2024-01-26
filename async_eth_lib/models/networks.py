@@ -4,7 +4,7 @@ import requests
 from typing import List
 from web3 import Web3
 
-import async_eth_lib.utils.exceptions as exceptions
+import async_eth_lib.models.others.exceptions as exceptions
 
 
 class Network:

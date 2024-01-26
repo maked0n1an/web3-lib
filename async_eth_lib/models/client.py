@@ -1,7 +1,7 @@
 from web3 import Web3
 from eth_typing import ChecksumAddress
 
-from .token_amount import TokenAmount
+from .others.token_amount import TokenAmount
 from .account_manager import AccountManager
 from .transactions import Transactions
 from .contracts import Contracts
