@@ -4,20 +4,24 @@ from web3 import Web3
 from web3.contract import Contract, AsyncContract
 from eth_typing import ChecksumAddress
 
+from async_eth_lib.models.transaction import Transaction, Tx, TxArgs
+
 from .account_manager import AccountManager
 from .others.common import AutoRepr
 from .others.params_types import ParamsTypes
-from .others.dataclasses import DefaultAbis
+from .others.dataclasses import CommonValues, DefaultAbis
 from .others.token_amount import TokenAmount
 from async_eth_lib.utils.helpers import (
     make_request,
     text_between
 )
+import async_eth_lib.models.others.exceptions as exceptions
 
 
 class Contract:
     def __init__(self, account_manager: AccountManager):
         self.account_manager = account_manager
+        self.transaction = Transaction(account_manager)
 
     @staticmethod
     async def get_signature(hex_signature: str) -> list | None:
@@ -31,7 +35,6 @@ class Contract:
             url = f'https://www.4byte.directory/api/v1/signatures/?hex_signature={hex_signature}'
             response = await make_request(method="GET", url=url)
             results = response['results']
-
             return [m['text_signature'] for m in sorted(results, key=lambda result: result['created_at'])]
         except:
             return
@@ -90,7 +93,6 @@ class Contract:
         address = contract
         if isinstance(contract, (AsyncContract, RawContract)):
             address, abi = contract.address, contract.abi
-
         return Web3.to_checksum_address(address), abi
 
     async def get(
@@ -136,6 +138,7 @@ class Contract:
 
             amount = await contract.functions.balanceOf(address).call()
             decimals = await contract.functions.decimals().call()
+
         else:
             amount = await self.account_manager.w3.eth.get_balance(account=address)
 
@@ -144,6 +147,77 @@ class Contract:
             decimals=decimals,
             wei=True
         )
+
+    async def approve(
+        self,
+        token: ParamsTypes.Contract,
+        spender: ParamsTypes.Address,
+        amount: ParamsTypes.Amount | None = None,
+        gas_price: ParamsTypes.GasPrice | None = None,
+        gas_limit: ParamsTypes.GasLimit | None = None,
+        nonce: int | None = None,
+        check_gas_price: bool = False
+    ) -> Tx:
+        """
+        Approve token spending for specified address.
+
+        Args:
+            token (Contract): the contract address or instance of token to approve.
+            spender (Address): the spender address, contract address or instance.
+            amount (Optional[TokenAmount]): an amount to approve. (infinity)
+            gas_price (Optional[GasPrice]): the gas price in TokenAmount. (parsed from the network)
+            gas_limit (Optional[GasLimit]): the gas limit in Wei. (parsed from the network)
+            nonce (Optional[int]): a nonce of the sender address. (get it using the 'nonce' function)
+            check_gas_price (bool): if True and the gas price is higher than that specified in the 'gas_price'
+                argument, the 'GasPriceTooHigh' error will raise. (False)
+
+        Returns:
+            Tx: the instance of the sent transaction.
+
+        """
+        contract_address, _ = await self.get_contract_attributes(contract=token)
+        contract = await self.default_token(contract_address=contract_address)
+        spender = Web3.to_checksum_address(spender)
+        
+        if not amount:
+            amount = CommonValues.InfinityInt
+
+        elif isinstance(amount, (int, float)):
+            decimals = await contract.functions.decimals().call()
+            amount = TokenAmount(amount=amount, decimals=decimals).Wei
+
+        else:
+            amount = amount.Wei
+                
+        current_gas_price = await self.transaction.get_gas_price()
+        
+        if not gas_price:
+            gas_price = current_gas_price
+
+        elif isinstance(gas_price, int):
+            gas_price = TokenAmount(amount=gas_price, wei=True)      
+
+        if check_gas_price and current_gas_price.Wei > gas_price.Wei:
+            raise exceptions.GasPriceTooHigh()
+        
+        if isinstance(gas_limit, int):
+            gas_limit = TokenAmount(amount=gas_limit, wei=True)
+
+        data = contract.encodeABI('approve', 
+                                  args=TxArgs(
+                                      spender=spender,
+                                      amount=amount
+                                  ).tuple())
+        tx_params = {
+            'to': contract.address,
+            'data': data,
+            'gasPrice': gas_price.Wei,
+            'gas': gas_limit,
+            'nonce': nonce,
+        }        
+        tx_params = self.transaction.auto_add_params(tx_params)
+        return self.transaction.sign_and_send(tx_params=tx_params)
+            
 
     async def get_approved_amount(
         self,
@@ -165,7 +239,7 @@ class Contract:
         """
         contract_address, _ = await self.get_contract_attributes(contract=token)
         contract = await self.default_token(contract_address=contract_address)
-        spender,  = await self.get_contract_attributes(spender=spender)
+        spender, _ = await self.get_contract_attributes(spender=spender)
         if not owner:
             owner = self.account_manager.account.address
 
