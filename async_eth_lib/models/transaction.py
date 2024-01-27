@@ -134,7 +134,7 @@ class Transaction:
             Tx: the instance of the sent transaction.
 
         """
-        await self.auto_add_params(tx_params)
+        tx_params = await self.auto_add_params(tx_params)
         signed_tx = await self.sign_transaction(tx_params)
         tx_hash = await self.account_manager.w3.eth.send_raw_transaction(transaction=signed_tx.rawTransaction)
 
