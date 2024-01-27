@@ -1,16 +1,16 @@
 from typing import Any
 from hexbytes import HexBytes
+
 from web3.types import (
     TxReceipt,
     _Hash32,
     TxParams,
 )
+from eth_typing import ChecksumAddress
 from eth_account.datastructures import (
     SignedTransaction,
     SignedMessage
 )
-
-from async_eth_lib.models.others.params_types import ParamsTypes
 
 from .others.common import AutoRepr
 from .account_manager import AccountManager
@@ -21,11 +21,11 @@ import async_eth_lib.models.others.exceptions as exceptions
 class Transaction:
     def __init__(self, account_manager: AccountManager) -> None:
         self.account_manager = account_manager
-        
-    async def get_nonce(self, address: ParamsTypes.Address | None = None):
+
+    async def get_nonce(self, address: ChecksumAddress | None = None) -> int:
         if not address:
             address = self.account_manager.account.address
-        
+            
         nonce = await self.account_manager.w3.eth.get_transaction_count(address)
         return nonce
 
@@ -83,7 +83,7 @@ class Transaction:
         if 'chainId' not in tx_params:
             tx_params['chainId'] = self.account_manager.network.chain_id
 
-        if 'nonce' not in tx_params:
+        if not tx_params.get('nonce'):
             tx_params['nonce'] = self.get_nonce()
 
         if 'from' not in tx_params:
@@ -101,7 +101,7 @@ class Transaction:
             tx_params['maxPriorityFeePerGas'] = (await self.get_max_priority_fee()).Wei
             tx_params['maxFeePerGas'] += tx_params['maxPriorityFeePerGas']
 
-        if 'gas' not in tx_params or not int(tx_params['gas']):
+        if not tx_params.get('gas') or not int(tx_params['gas']):
             tx_params['gas'] = (await self.get_estimate_gas(tx_params=tx_params)).Wei
 
         return tx_params
