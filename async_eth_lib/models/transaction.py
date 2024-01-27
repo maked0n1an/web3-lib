@@ -276,7 +276,7 @@ class TxArgs(AutoRepr):
         """
         return list(self.__dict__.values())
 
-    def tuple(self) -> tuple[str, ...]:
+    def tuple(self) -> tuple[str, Any]:
         """
         Get tuple of transaction arguments.
 
