@@ -21,6 +21,13 @@ import async_eth_lib.models.others.exceptions as exceptions
 class Transaction:
     def __init__(self, account_manager: AccountManager) -> None:
         self.account_manager = account_manager
+        
+    async def get_nonce(self, address: ParamsTypes.Address | None = None):
+        if not address:
+            address = self.account_manager.account.address
+        
+        nonce = await self.account_manager.w3.eth.get_transaction_count(address)
+        return nonce
 
     async def get_gas_price(self) -> TokenAmount:
         """
@@ -77,8 +84,7 @@ class Transaction:
             tx_params['chainId'] = self.account_manager.network.chain_id
 
         if 'nonce' not in tx_params:
-            tx_params['nonce'] = self.account_manager.w3.eth.get_transaction_count(
-                self.account_manager.account.address)
+            tx_params['nonce'] = self.get_nonce()
 
         if 'from' not in tx_params:
             tx_params['from'] = self.account_manager.account.address
@@ -91,7 +97,7 @@ class Transaction:
         elif 'gasPrice' in tx_params and not int(tx_params['gasPrice']):
             tx_params['gasPrice'] = gas_price
 
-        if 'maxFeePerGas' not in tx_params and 'maxPriorityFeePerGas' not in tx_params:
+        if 'maxFeePerGas' in tx_params and 'maxPriorityFeePerGas' not in tx_params:
             tx_params['maxPriorityFeePerGas'] = (await self.get_max_priority_fee()).Wei
             tx_params['maxFeePerGas'] += tx_params['maxPriorityFeePerGas']
 
