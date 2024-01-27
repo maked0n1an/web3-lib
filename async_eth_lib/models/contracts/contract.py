@@ -1,17 +1,16 @@
-import json
-from typing import Any
 from web3 import Web3
 from web3.contract import Contract, AsyncContract
 from eth_typing import ChecksumAddress
 
-from async_eth_lib.models.transaction import Transaction, Tx, TxArgs
-
-from .account_manager import AccountManager
-from .others.common import AutoRepr
-from .others.params_types import ParamsTypes
-from .others.dataclasses import CommonValues, DefaultAbis
-from .others.token_amount import TokenAmount
-from async_eth_lib.utils.helpers import (
+from .raw_contract import RawContract
+from ..account.account_manager import AccountManager
+from ..others.params_types import ParamsTypes
+from ..others.dataclasses import CommonValues, DefaultAbis
+from ..others.token_amount import TokenAmount
+from ...models.transactions.transaction import Transaction
+from ...models.transactions.tx import Tx
+from ...models.transactions.tx_args import TxArgs
+from ...utils.helpers import (
     make_request,
     text_between
 )
@@ -175,49 +174,46 @@ class Contract:
             Tx: the instance of the sent transaction.
 
         """
-        contract_address, _ = await self.get_contract_attributes(contract=token)
-        contract = await self.default_token(contract_address=contract_address)
+        token_address, _ = await self.get_contract_attributes(contract=token)
+        token_contract = await self.default_token(contract_address=token_address)
         spender = Web3.to_checksum_address(spender)
-        
+
         if not amount:
             amount = CommonValues.InfinityInt
 
         elif isinstance(amount, (int, float)):
-            decimals = await contract.functions.decimals().call()
+            decimals = await token_contract.functions.decimals().call()
             amount = TokenAmount(amount=amount, decimals=decimals).Wei
 
         else:
             amount = amount.Wei
-                
-        current_gas_price = await self.transaction.get_gas_price()
-        
-        if not gas_price:
-            gas_price = current_gas_price
 
-        elif isinstance(gas_price, int):
-            gas_price = TokenAmount(amount=gas_price, wei=True)      
+        current_gas_price = await self.transaction.get_gas_price()
 
         if check_gas_price and current_gas_price.Wei > gas_price.Wei:
             raise exceptions.GasPriceTooHigh()
-        
+
+        elif isinstance(gas_price, int):
+            gas_price = TokenAmount(amount=gas_price, wei=True)
+
         if isinstance(gas_limit, int):
             gas_limit = TokenAmount(amount=gas_limit, wei=True)
 
-        data = contract.encodeABI('approve', 
+        data = token_contract.encodeABI('approve',
                                   args=TxArgs(
                                       spender=spender,
                                       amount=amount
-                                  ).tuple())
+                                  ).get_tuple())
         tx_params = {
-            'to': contract.address,
+            'to': token_contract.address,
             'data': data,
             'gasPrice': gas_price.Wei,
             'gas': gas_limit,
             'nonce': nonce,
-        }        
-        tx_params = self.transaction.auto_add_params(tx_params)
-        return self.transaction.sign_and_send(tx_params=tx_params)
-            
+        }
+        
+        tx = await self.transaction.sign_and_send(tx_params=tx_params)
+        return tx
 
     async def get_approved_amount(
         self,
@@ -257,37 +253,3 @@ class Contract:
             address=contract_address, abi=DefaultAbis.Token)
 
         return contract
-
-
-class RawContract(AutoRepr):
-    """
-    An instance of a raw contract.
-
-    Attributes:
-        title str: a contract title.
-        address (ChecksumAddress): a contract address.
-        abi list[dict[str, Any]] | str: an ABI of the contract.
-
-    """
-    title: str
-    address: ChecksumAddress
-    abi: list[dict[str, Any]]
-
-    def __init__(
-        self,
-        title: str,
-        address: str,
-        abi: list[dict[str, Any]] | str
-    ) -> None:
-        """
-        Initialize the class.
-
-        Args:
-            title (str): a contract title.
-            address (str): a contract address.
-            abi (Union[List[Dict[str, Any]], str]): an ABI of the contract.
-
-        """
-        self.title = title
-        self.address = Web3.to_checksum_address(address)
-        self.abi = json.loads(abi) if isinstance(abi, str) else abi

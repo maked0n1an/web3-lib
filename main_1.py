@@ -55,8 +55,8 @@ async def verif_tx(web3: Web3, tx_hash: HexBytes, timeout=180):
 
         if data['status'] and data['status'] == 1:
             print(f"Successfull hash! - https://arbiscan.io/tx/{tx_hash.hex()}")
-
             return True
+        
         else:
             print("Tx failed")
     except Exception as e:

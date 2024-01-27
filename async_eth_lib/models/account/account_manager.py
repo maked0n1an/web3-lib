@@ -1,14 +1,14 @@
 import random
 import requests
 
-
 from aiohttp import ClientSession
 from web3 import Web3
 from web3.eth import AsyncEth
 from eth_account.signers.local import LocalAccount
 from fake_useragent import UserAgent
 
-from .networks import Network, Networks
+from ..networks.network import Network
+from ..networks.networks import Networks
 import async_eth_lib.models.others.exceptions as exceptions
 
 
@@ -16,7 +16,6 @@ class AccountManager:
     network: Network
     account: LocalAccount | None
     w3: Web3
-    session: ClientSession
 
     def __init__(
         self,
@@ -29,8 +28,7 @@ class AccountManager:
         self.proxy = proxy
         self._initialize_proxy(check_proxy)
         self._initialize_headers()
-        
-        self.session = ClientSession(headers=self.headers)
+
         self.w3 = Web3(
             Web3.AsyncHTTPProvider(
                 endpoint_uri=self.network.rpc,
@@ -69,8 +67,10 @@ class AccountManager:
         if private_key:
             self.account = self.w3.eth.account.from_key(
                 private_key=private_key)
+
         elif private_key == '':
             self.account = None
+
         else:
             self.account = self.w3.eth.account.create(
                 extra_entropy=str(random.randint(1, 999_999_999)))

@@ -15,6 +15,7 @@ class TokenAmount:
         if wei:
             self.Wei: int = int(amount)
             self.Ether: Decimal = Decimal(str(amount)) / 10 ** decimals
+            
         else:
             self.Wei: int = int(Decimal(str(amount)) * 10 ** decimals)
             self.Ether: Decimal = Decimal(str(amount))
