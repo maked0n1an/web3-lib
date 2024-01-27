@@ -21,6 +21,10 @@ import async_eth_lib.models.others.exceptions as exceptions
 class Transaction:
     def __init__(self, account_manager: AccountManager) -> None:
         self.account_manager = account_manager
+    
+    @staticmethod
+    async def decode_input_data():
+        pass
 
     async def get_nonce(self, address: ChecksumAddress | None = None) -> int:
         if not address:
@@ -121,6 +125,9 @@ class Transaction:
             transaction_dict=tx_params)
 
         return signed_tx
+
+    async def sign_message(self, message: str):
+        pass
 
     async def sign_and_send(self, tx_params: TxParams):
         """
