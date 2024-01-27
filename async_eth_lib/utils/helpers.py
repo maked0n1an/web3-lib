@@ -1,10 +1,16 @@
 import json
 import os
+from typing import List
 from aiohttp import (
     ClientSession
 )
 
 import async_eth_lib.models.others.exceptions as exceptions
+
+def read_txt(path: str | tuple | list) -> List[str]:
+    path = join_path(path)
+    with open(path, 'r') as file:
+        return [row.strip() for row in file]
 
 def join_path(path: str | tuple | list) -> str:
     if isinstance(path, str):

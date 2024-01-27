@@ -1,14 +1,7 @@
-from web3 import Web3
-from eth_typing import ChecksumAddress
-
-from .others.token_amount import TokenAmount
-from .account_manager import AccountManager
-from .transactions import Transactions
-from .contracts import Contracts
-from .networks import (
-    Network,
-    Networks
-)
+from async_eth_lib.models.networks.network import Network
+from async_eth_lib.models.networks.networks import Networks
+from .account.account_manager import AccountManager
+from .contracts.contract import Contract
 
 
 class Client:
@@ -26,5 +19,4 @@ class Client:
             check_proxy=check_proxy
         )
 
-        self.contracts = Contracts(self.account_manager)
-        self.transactions = Transactions(self.account_manager)
+        self.contract = Contract(self.account_manager)

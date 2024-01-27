@@ -1,9 +1,8 @@
-from typing import Union
 from web3 import types
 from web3.contract import AsyncContract
 
 from .token_amount import TokenAmount
-from async_eth_lib.models.contracts import RawContract
+from ..contracts.raw_contract import RawContract
 
 
 class ParamsTypes:
