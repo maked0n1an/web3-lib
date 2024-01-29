@@ -189,29 +189,32 @@ class Contract:
             amount = amount.Wei
 
         current_gas_price = await self.transaction.get_gas_price()
+        tx_params = {}
 
-        if check_gas_price and current_gas_price.Wei > gas_price.Wei:
-            raise exceptions.GasPriceTooHigh()
+        if gas_price:
+            if check_gas_price and current_gas_price.Wei > gas_price.Wei:
+                raise exceptions.GasPriceTooHigh()
 
-        elif isinstance(gas_price, int):
-            gas_price = TokenAmount(amount=gas_price, wei=True)
+            elif isinstance(gas_price, int):
+                gas_price = TokenAmount(amount=gas_price, wei=True)
+            tx_params['gasPrice'] = gas_price.Wei
 
-        if isinstance(gas_limit, int):
-            gas_limit = TokenAmount(amount=gas_limit, wei=True)
+        if gas_limit:
+            if isinstance(gas_limit, int):
+                gas_limit = TokenAmount(amount=gas_limit, wei=True)
+            tx_params['gas'] = gas_limit.Wei
 
         data = token_contract.encodeABI('approve',
-                                  args=TxArgs(
-                                      spender=spender,
-                                      amount=amount
-                                  ).get_tuple())
-        tx_params = {
+                                        args=TxArgs(
+                                            spender=spender,
+                                            amount=amount
+                                        ).get_tuple())
+        tx_params.update({
             'to': token_contract.address,
             'data': data,
-            'gasPrice': gas_price.Wei,
-            'gas': gas_limit,
             'nonce': nonce,
-        }
-        
+        })
+
         tx = await self.transaction.sign_and_send(tx_params=tx_params)
         return tx
 

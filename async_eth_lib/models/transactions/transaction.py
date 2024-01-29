@@ -86,13 +86,31 @@ class Transaction:
         if 'from' not in tx_params:
             tx_params['from'] = self.account_manager.account.address
 
-        gas_price = (await self.get_gas_price()).Wei
+        is_eip_1559_tx_type = self.account_manager.network.tx_type == 2
+        current_gas_price = await self.get_gas_price()
+        
+        if is_eip_1559_tx_type:
+            if 'gasPrice' in tx_params:
+                tx_params['maxFeePerGas'] = tx_params['gasPrice']
+                del tx_params['gasPrice']
+            tx_params['maxFeePerGas'] = current_gas_price.Wei
+        
+        elif 'gasPrice' not in tx_params:
+            tx_params['gasPrice'] = current_gas_price
+            
+                
+        # gas_price = (await self.get_gas_price()).Wei
+        
+        # if 'gasPrice' not in tx_params and 'maxFeePerGas' not in tx_params:
+        #     if is_eip_1559_tx_type:
+        #         tx_params['maxFeePerGas'] = gas_price
 
-        if 'gasPrice' not in tx_params and 'maxFeePerGas' not in tx_params:
-            tx_params['maxFeePerGas' if self.account_manager.network.tx_type ==
-                      2 else 'gasPrice'] = gas_price
-        elif 'gasPrice' in tx_params and not int(tx_params['gasPrice']):
-            tx_params['gasPrice'] = gas_price
+        #     else:
+        #         tx_params['gasPrice'] = gas_price
+
+        # elif 'gasPrice' in tx_params and is_eip_1559_tx_type:
+        #     del tx_params['gasPrice']
+        #     tx_params['maxFeePerGas'] = gas_price
 
         if 'maxFeePerGas' in tx_params and 'maxPriorityFeePerGas' not in tx_params:
             tx_params['maxPriorityFeePerGas'] = (await self.get_max_priority_fee()).Wei
