@@ -3,6 +3,7 @@ import json
 import aiohttp
 
 from async_eth_lib.models.client import Client
+from async_eth_lib.models.contracts.raw_contract import RawContract
 from async_eth_lib.models.networks.networks import Networks
 from async_eth_lib.models.others.token_amount import TokenAmount
 from async_eth_lib.models.transactions.tx_args import TxArgs
@@ -11,13 +12,15 @@ from data.models import Contracts
 
 pk: list = read_txt('private_key.txt')
 
-async def get_token_price(from_token, to_token) -> float | None:
+
+async def get_token_price(from_token: str, to_token: str) -> float | None:
     from_token, to_token = from_token.upper(), to_token.upper()
 
     async with aiohttp.ClientSession() as session:
         price = await get_price(session, f'{from_token}{to_token}')
         if price is None:
             price = await get_price(session, f'{to_token}{from_token}')
+            return 1 / price
 
         return price
 
@@ -34,26 +37,35 @@ async def get_price(session: aiohttp.ClientSession, symbol) -> float | None:
     return None
 
 
-async def get_min_to_amount(from_token: str, to_token: str, decimals: float = 0.5):
-    token_price = await get_token_price(from_token=from_token, to_token=to_token)
-    token_price = token_price * (1 - decimals / 100)
+async def get_min_to_amount(
+    from_amount: TokenAmount,
+    from_token: RawContract,
+    to_token: RawContract,
+    decimals: int,
+    slippage: float = 0.5
+) -> TokenAmount:
+    to_token_price = await get_token_price(from_token=from_token.title, to_token=to_token.title)
 
-    return token_price
+    min_to_amount = TokenAmount(float(
+        from_amount.Ether) * to_token_price * (1 - slippage / 100), decimals=decimals)
+
+    return min_to_amount
+
 
 async def main():
     client = Client(private_key=pk[0], network=Networks.Arbitrum)
-    
-    from_token = Contracts.ARBITRUM_ETH
-    to_token = Contracts.ARBITRUM_USDC
-    
+
+    from_token = Contracts.ARBITRUM_USDC
+    to_token = Contracts.ARBITRUM_ETH
+
     woofi_contract = await client.contract.get(contract_address=Contracts.ARBITRUM_WOOFI)
-    
-    from_amount = TokenAmount(2)
-    min_to_amount = TokenAmount(
-        amount=float(from_amount.Ether) * await get_min_to_amount(from_token=from_token.title, to_token=to_token.title),
-        # decimals=6
+
+    from_amount = TokenAmount(
+        2.26,
+        decimals=6
     )
-    
+    min_to_amount = await get_min_to_amount(from_amount, from_token, to_token, 6)
+
     tx_args = TxArgs(
         fromToken=Contracts.ARBITRUM_USDC.address,
         toToken=Contracts.ARBITRUM_ETH.address,
@@ -61,27 +73,32 @@ async def main():
         minToAmount=min_to_amount.Wei,
         to=client.account_manager.account.address,
         rebateTo=client.account_manager.account.address
-    )    
+    )
     data = woofi_contract.encodeABI('swap', args=tx_args.get_tuple())
-    
+
     tx_params = {
         'to': Contracts.ARBITRUM_WOOFI.address,
         'data': data,
-        'value': from_amount.Wei
+        # 'value': from_amount.Wei
     }
-    
-    tx = await client.contract.approve(
-        token=Contracts.ARBITRUM_USDC.address,
-        spender=Contracts.ARBITRUM_WOOFI.address,
-        amount=2.5
-    )
+
+    # tx = await client.contract.approve(
+    #     token=Contracts.ARBITRUM_USDC.address,
+    #     spender=Contracts.ARBITRUM_WOOFI.address,
+    #     amount=from_amount
+    # )
+    # receipt = await tx.wait_for_transaction_receipt(account_manager=client.account_manager, timeout=200)
+    # if receipt:
+    #     print(f'Success: https://arbiscan.io/tx/{tx.hash.hex()}')
+    # else:
+    #     print(f'Error: https://arbiscan.io/tx/{tx.hash.hex()}')
     
     tx = await client.contract.transaction.sign_and_send(tx_params=tx_params)
     receipt = await tx.wait_for_transaction_receipt(account_manager=client.account_manager, timeout=200)
     if receipt:
-        print(f'Success: https://arbiscan.com/tx/{tx.hash.hex()}')
+        print(f'Success: https://arbiscan.io/tx/{tx.hash.hex()}')
     else:
-        print(f'Error: https://arbiscan.com/tx/{tx.hash.hex()}')
-    
-if __name__ == '__main__': 
+        print(f'Error: https://arbiscan.io/tx/{tx.hash.hex()}')
+
+if __name__ == '__main__':
     asyncio.run(main())
