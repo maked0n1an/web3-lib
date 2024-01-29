@@ -140,7 +140,7 @@ class Transaction:
     async def sign_message(self, message: str):
         pass
 
-    async def sign_and_send(self, tx_params: TxParams):
+    async def sign_and_send(self, tx_params: TxParams) -> Tx:
         """
         Sign and send a transaction. Additionally, add 'chainId', 'nonce', 'from', 'gasPrice' or
             'maxFeePerGas' + 'maxPriorityFeePerGas' and 'gas' parameters to transaction parameters if they are missing.

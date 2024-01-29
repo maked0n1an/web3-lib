@@ -238,7 +238,7 @@ class Contract:
         """
         contract_address, _ = await self.get_contract_attributes(contract=token)
         contract = await self.default_token(contract_address=contract_address)
-        spender, _ = await self.get_contract_attributes(spender=spender)
+        spender, _ = await self.get_contract_attributes(contract=spender)
         if not owner:
             owner = self.account_manager.account.address
 
@@ -250,7 +250,7 @@ class Contract:
 
         return TokenAmount(amount, decimals, wei=True)
 
-    async def default_token(self, contract_address: ChecksumAddress | str) -> Contract | AsyncContract:
+    async def default_token(self, contract_address: ParamsTypes.Address) -> Contract | AsyncContract:
         contract_address = Web3.to_checksum_address(contract_address)
         contract = self.account_manager.w3.eth.contract(
             address=contract_address, abi=DefaultAbis.Token)
