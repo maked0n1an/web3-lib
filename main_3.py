@@ -94,7 +94,7 @@ async def main():
     #     print(f'Error: https://arbiscan.io/tx/{tx.hash.hex()}')
     
     tx = await client.contract.transaction.sign_and_send(tx_params=tx_params)
-    receipt = await tx.wait_for_transaction_receipt(account_manager=client.account_manager, timeout=200)
+    receipt = await tx.wait_for_tx_receipt(web3=client.account_manager.w3, timeout=200)
     if receipt:
         print(f'Success: https://arbiscan.io/tx/{tx.hash.hex()}')
     else:

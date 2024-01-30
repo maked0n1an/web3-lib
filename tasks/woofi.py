@@ -43,7 +43,7 @@ class WooFi(BaseTask):
         )
 
         tx = await self.client.contract.transaction.sign_and_send(tx_params=tx_params)
-        receipt = await tx.wait_for_tx_receipt(account_manager=self.client.account_manager, timeout=150)
+        receipt = await tx.wait_for_tx_receipt(web3=self.client.account_manager.w3, timeout=150)
 
         if receipt:
             account_network = self.client.account_manager.network
@@ -91,7 +91,7 @@ class WooFi(BaseTask):
         )
         
         tx = await self.client.contract.transaction.sign_and_send(tx_params=tx_params)
-        receipt = await tx.wait_for_tx_receipt(account_manager=self.client.account_manager)
+        receipt = await tx.wait_for_tx_receipt(web3=self.client.account_manager.w3)
         if receipt:
             account_network = self.client.account_manager.network
             full_path = account_network.explorer + account_network.TxPath

@@ -12,8 +12,9 @@ async def main():
     client = Client(private_key=pk[0], network=Networks.Arbitrum)
     woofi = WooFi(client=client)
 
-    usdc_amount = TokenAmount(amount=0.0005)
-    res = await woofi.swap_usdc_to_eth()
+    usdc_amount = TokenAmount(amount=0.000012)
+    # res = await woofi.swap_usdc_to_eth()
+    res = await woofi.swap_eth_to_usdc(usdc_amount)
     print(res)
     
 if __name__ == '__main__':
