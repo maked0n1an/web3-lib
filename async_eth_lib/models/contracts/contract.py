@@ -94,59 +94,6 @@ class Contract:
             address, abi = contract.address, contract.abi
         return Web3.to_checksum_address(address), abi
 
-    async def get(
-        self,
-        contract_address: ParamsTypes.Contract,
-        abi: list | str | None = None
-    ) -> AsyncContract | Contract:
-        """
-        Get a contract instance.
-
-        Args:
-            contract_address (ParamsTypes.Contract): the contract address or instance.
-            abi (list | str | None, optional): the contract ABI. (get it using the 'get_abi' function)
-
-        Returns:
-            AsyncContract | Contract: the contract instance.
-        """
-        contract_address, contract_abi = await self.get_contract_attributes(contract_address)
-        if not abi and not contract_abi:
-            # todo: сделаем подгрузку abi из эксплорера (в том числе через proxy_address)
-            raise ValueError("Can not get contract ABI")
-        if not abi:
-            abi = contract_abi
-
-        if abi:
-            return self.account_manager.w3.eth.contract(address=contract_address, abi=abi)
-
-        return self.account_manager.w3.eth.contract(address=contract_address)
-
-    async def get_balance(
-        self,
-        token_address: str | ChecksumAddress | None = None,
-        address: str | ChecksumAddress | None = None,
-        decimals: int = 18
-    ) -> TokenAmount:
-        if not address:
-            address = self.account_manager.account.address
-
-        address = Web3.to_checksum_address(address)
-
-        if token_address:
-            contract = await self.default_token(contract_address=token_address)
-
-            amount = await contract.functions.balanceOf(address).call()
-            decimals = await contract.functions.decimals().call()
-
-        else:
-            amount = await self.account_manager.w3.eth.get_balance(account=address)
-
-        return TokenAmount(
-            amount=amount,
-            decimals=decimals,
-            wei=True
-        )
-
     async def approve(
         self,
         token: ParamsTypes.Contract,
@@ -218,6 +165,33 @@ class Contract:
         tx = await self.transaction.sign_and_send(tx_params=tx_params)
         return tx
 
+    async def get(
+        self,
+        contract_address: ParamsTypes.Contract,
+        abi: list | str | None = None
+    ) -> AsyncContract | Contract:
+        """
+        Get a contract instance.
+
+        Args:
+            contract_address (ParamsTypes.Contract): the contract address or instance.
+            abi (list | str | None, optional): the contract ABI. (get it using the 'get_abi' function)
+
+        Returns:
+            AsyncContract | Contract: the contract instance.
+        """
+        contract_address, contract_abi = await self.get_contract_attributes(contract_address)
+        if not abi and not contract_abi:
+            # todo: сделаем подгрузку abi из эксплорера (в том числе через proxy_address)
+            raise ValueError("Can not get contract ABI")
+        if not abi:
+            abi = contract_abi
+
+        if abi:
+            return self.account_manager.w3.eth.contract(address=contract_address, abi=abi)
+
+        return self.account_manager.w3.eth.contract(address=contract_address)
+
     async def get_approved_amount(
         self,
         token: ParamsTypes.Contract,
@@ -246,9 +220,41 @@ class Contract:
             owner,
             spender,
         ).call()
-        decimals = await contract.functions.decimals().call()
+        decimals = await self.get_decimals(contract.address)
 
         return TokenAmount(amount, decimals, wei=True)
+
+    async def get_balance(
+        self,
+        token_address: str | ChecksumAddress | None = None,
+        address: str | ChecksumAddress | None = None,
+        decimals: int = 18
+    ) -> TokenAmount:
+        if not address:
+            address = self.account_manager.account.address
+
+        address = Web3.to_checksum_address(address)
+
+        if token_address:
+            contract = await self.default_token(contract_address=token_address)
+
+            amount = await contract.functions.balanceOf(address).call()
+            decimals = await self.get_decimals(contract.address)
+
+        else:
+            amount = await self.account_manager.w3.eth.get_balance(account=address)
+
+        return TokenAmount(
+            amount=amount,
+            decimals=decimals,
+            wei=True
+        )
+
+    async def get_decimals(self, contract_address: ParamsTypes.Address) -> int:
+        contract = await self.default_token(contract_address)
+        decimals = await contract.functions.decimals().call()
+
+        return decimals
 
     async def default_token(self, contract_address: ParamsTypes.Address) -> Contract | AsyncContract:
         contract_address = Web3.to_checksum_address(contract_address)

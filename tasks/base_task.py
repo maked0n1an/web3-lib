@@ -46,11 +46,6 @@ class BaseTask:
             return True
         
         return False
- 
-    async def get_decimals(self, contract_address: ParamsTypes.Address) -> int:
-        contract = await self.client.contract.default_token(contract_address=contract_address)
-        decimals = await contract.functions.decimals().call()
-        return decimals
 
     async def _get_price_from_binance(
             self,
