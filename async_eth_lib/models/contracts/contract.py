@@ -102,7 +102,6 @@ class Contract:
         gas_price: ParamsTypes.GasPrice | None = None,
         gas_limit: ParamsTypes.GasLimit | None = None,
         nonce: int | None = None,
-        check_gas_price: bool = False
     ) -> Tx:
         """
         Approve token spending for specified address.
@@ -129,20 +128,16 @@ class Contract:
             amount = CommonValues.InfinityInt
 
         elif isinstance(amount, (int, float)):
-            decimals = await token_contract.functions.decimals().call()
+            decimals = await self.get_decimals(contract_address=token_address)
             amount = TokenAmount(amount=amount, decimals=decimals).Wei
 
         else:
             amount = amount.Wei
 
-        current_gas_price = await self.transaction.get_gas_price()
         tx_params = {}
 
         if gas_price:
-            if check_gas_price and current_gas_price.Wei > gas_price.Wei:
-                raise exceptions.GasPriceTooHigh()
-
-            elif isinstance(gas_price, int):
+            if isinstance(gas_price, int):
                 gas_price = TokenAmount(amount=gas_price, wei=True)
             tx_params['gasPrice'] = gas_price.Wei
 
@@ -220,7 +215,7 @@ class Contract:
             owner,
             spender,
         ).call()
-        decimals = await self.get_decimals(contract.address)
+        decimals = await self.get_decimals(contract_address=contract.address)
 
         return TokenAmount(amount, decimals, wei=True)
 
@@ -239,7 +234,7 @@ class Contract:
             contract = await self.default_token(contract_address=token_address)
 
             amount = await contract.functions.balanceOf(address).call()
-            decimals = await self.get_decimals(contract.address)
+            decimals = await self.get_decimals(contract_address=contract.address)
 
         else:
             amount = await self.account_manager.w3.eth.get_balance(account=address)
