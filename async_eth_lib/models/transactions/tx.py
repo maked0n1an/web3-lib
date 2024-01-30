@@ -80,7 +80,7 @@ class Tx(AutoRepr):
 
         return self.params
 
-    async def wait_for_transaction_receipt(
+    async def wait_for_tx_receipt(
         self,
         account_manager: AccountManager,
         timeout: int | float = 120,
