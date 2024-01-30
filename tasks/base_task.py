@@ -41,7 +41,7 @@ class BaseTask:
             spender=spender,
             amount=amount
         )
-        receipt = await tx.wait_for_tx_receipt(account_manager=self.client.account_manager, timeout=300)
+        receipt = await tx.wait_for_tx_receipt(web3=self.client.account_manager.w3, timeout=300)
         if receipt: 
             return True
         
