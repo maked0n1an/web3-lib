@@ -24,7 +24,7 @@ class WooFi(BaseTask):
         eth_price = await self.get_token_price(from_token.title, to_token.title)
         min_to_amount = TokenAmount(
             amount=float(amount.Ether) * eth_price * (1 - slippage / 100),
-            decimals=await self.get_decimals(to_token.address)
+            decimals=await self.client.contract.get_decimals(to_token.address)
         )
 
         args = TxArgs(
