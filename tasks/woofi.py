@@ -32,9 +32,9 @@ class WooFi(BaseTask):
             balance = await self.client.contract.get_balance()
 
             if not swap_info.amount:
-                native_from = balance
+                amount_from = balance
             else:
-                native_from = TokenAmount(
+                amount_from = TokenAmount(
                     amount=swap_info.amount
                 )
         else:
@@ -42,20 +42,20 @@ class WooFi(BaseTask):
                 token_address=from_token.address
             )
             if not swap_info.amount:
-                native_from = balance
+                amount_from = balance
             else:
-                native_from = TokenAmount(
+                amount_from = TokenAmount(
                     amount=swap_info.amount,
                     decimals=await self.client.contract.get_decimals(contract_address=from_token.address)
                 )
 
-        if native_from.Wei > balance.Wei:
-            native_from = balance
+        if amount_from.Wei > balance.Wei:
+            amount_from = balance
 
         to_token_price = await contract.functions.tryQuerySwap(
             from_token.address,
             to_token.address,
-            native_from.Wei
+            amount_from.Wei
         ).call()
 
         if to_token.is_native_token:
@@ -73,7 +73,7 @@ class WooFi(BaseTask):
         return SwapQuery(
             from_token=from_token,
             to_token=to_token,
-            from_amount=swap_info.amount,
+            from_amount=amount_from,
             min_to_amount=min_to_amount
         )
 
@@ -81,6 +81,9 @@ class WooFi(BaseTask):
         self,
         swap_info: SwapInfo
     ) -> str:
+        if swap_info.from_token == swap_info.to_token:
+            return 'Incorrect input for swap(): token1 == token2'
+        
         swap_contract = self._get_network_swap_contract(
             network=self.client.account_manager.network.name
         )
