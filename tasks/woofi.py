@@ -1,4 +1,5 @@
 import asyncio
+from decimal import Decimal
 
 from web3.contract import Contract, AsyncContract
 from web3.types import (
@@ -26,31 +27,37 @@ class WooFi(BaseTask):
             network=swap_info.network,
             token_ticker=swap_info.to_token
         )
-        
+
         if from_token.is_native_token:
+            balance = await self.client.contract.get_balance()
+
             if not swap_info.amount:
-                native_from = await self.client.contract.get_balance()
-            else:                            
+                native_from = balance
+            else:
                 native_from = TokenAmount(
                     amount=swap_info.amount
                 )
         else:
+            balance = await self.client.contract.get_balance(
+                token_address=from_token.address
+            )
             if not swap_info.amount:
-                native_from = await self.client.contract.get_balance(
-                    token_address=from_token.address
-                )
-            else:                
+                native_from = balance
+            else:
                 native_from = TokenAmount(
                     amount=swap_info.amount,
                     decimals=await self.client.contract.get_decimals(contract_address=from_token.address)
                 )
+
+        if native_from.Wei > balance.Wei:
+            native_from = balance
 
         to_token_price = await contract.functions.tryQuerySwap(
             from_token.address,
             to_token.address,
             native_from.Wei
         ).call()
-        
+
         if to_token.is_native_token:
             min_to_amount = TokenAmount(
                 amount=to_token_price * (1 - swap_info.slippage / 100),
@@ -105,7 +112,6 @@ class WooFi(BaseTask):
                 is_approve_infinity=False
             )
             await asyncio.sleep(3)
-        
 
         tx = await self.client.contract.transaction.sign_and_send(tx_params=tx_params)
         receipt = await tx.wait_for_tx_receipt(web3=self.client.account_manager.w3)
