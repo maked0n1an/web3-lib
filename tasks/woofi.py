@@ -27,30 +27,41 @@ class WooFi(BaseTask):
             token_ticker=swap_info.to_token
         )
         
-        # from_token_amount = await self.get_token_amount(contract=from_token)
-        # to_token_amount = await self.get_token_amount(contract=to_token)
-
-        if not swap_info.amount:
-            swap_info.amount = await self.client.contract.get_balance(
-                token_address=from_token.address
-            )
+        if from_token.is_native_token:
+            if not swap_info.amount:
+                native_from = await self.client.contract.get_balance()
+            else:                            
+                native_from = TokenAmount(
+                    amount=swap_info.amount
+                )
+        else:
+            if not swap_info.amount:
+                native_from = await self.client.contract.get_balance(
+                    token_address=from_token.address
+                )
+            else:                
+                native_from = TokenAmount(
+                    amount=swap_info.amount,
+                    decimals=await self.client.contract.get_decimals(contract_address=from_token.address)
+                )
 
         to_token_price = await contract.functions.tryQuerySwap(
             from_token.address,
             to_token.address,
-            swap_info.amount.Wei
+            native_from.Wei
         ).call()
         
-        # from_amount=TokenAmount(
-        #     amount=swap_info.amount,
-        #     decimals=swap_info.amount.decimals
-        # )
-
-        min_to_amount = TokenAmount(
-            amount=to_token_price * (1 - swap_info.slippage / 100),
-            decimals=await self.client.contract.get_decimals(contract_address=to_token.address),
-            wei=True
-        )
+        if to_token.is_native_token:
+            min_to_amount = TokenAmount(
+                amount=to_token_price * (1 - swap_info.slippage / 100),
+                wei=True
+            )
+        else:
+            min_to_amount = TokenAmount(
+                amount=to_token_price * (1 - swap_info.slippage / 100),
+                decimals=await self.client.contract.get_decimals(contract_address=to_token.address),
+                wei=True
+            )
 
         return SwapQuery(
             from_token=from_token,
