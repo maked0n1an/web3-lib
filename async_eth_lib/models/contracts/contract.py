@@ -14,7 +14,6 @@ from ...utils.helpers import (
     make_request,
     text_between
 )
-import async_eth_lib.models.others.exceptions as exceptions
 
 
 class Contract:
@@ -102,6 +101,7 @@ class Contract:
         gas_price: ParamsTypes.GasPrice | None = None,
         gas_limit: ParamsTypes.GasLimit | None = None,
         nonce: int | None = None,
+        is_approve_infinity: bool = False
     ) -> Tx:
         """
         Approve token spending for specified address.
@@ -125,7 +125,10 @@ class Contract:
         spender = Web3.to_checksum_address(spender)
 
         if not amount:
-            amount = CommonValues.InfinityInt
+            if is_approve_infinity:
+                amount = CommonValues.InfinityInt
+            else:                
+                amount = await self.get_balance(token_address=token_address)
 
         elif isinstance(amount, (int, float)):
             decimals = await self.get_decimals(contract_address=token_address)
@@ -162,20 +165,20 @@ class Contract:
 
     async def get(
         self,
-        contract_address: ParamsTypes.Contract,
+        contract: ParamsTypes.Contract,
         abi: list | str | None = None
     ) -> AsyncContract | Contract:
         """
         Get a contract instance.
 
         Args:
-            contract_address (ParamsTypes.Contract): the contract address or instance.
+            contract (ParamsTypes.Contract): the contract address or instance.
             abi (list | str | None, optional): the contract ABI. (get it using the 'get_abi' function)
 
         Returns:
             AsyncContract | Contract: the contract instance.
         """
-        contract_address, contract_abi = await self.get_contract_attributes(contract_address)
+        contract, contract_abi = await self.get_contract_attributes(contract)
         if not abi and not contract_abi:
             # todo: сделаем подгрузку abi из эксплорера (в том числе через proxy_address)
             raise ValueError("Can not get contract ABI")
@@ -183,9 +186,9 @@ class Contract:
             abi = contract_abi
 
         if abi:
-            return self.account_manager.w3.eth.contract(address=contract_address, abi=abi)
+            return self.account_manager.w3.eth.contract(address=contract, abi=abi)
 
-        return self.account_manager.w3.eth.contract(address=contract_address)
+        return self.account_manager.w3.eth.contract(address=contract)
 
     async def get_approved_amount(
         self,
