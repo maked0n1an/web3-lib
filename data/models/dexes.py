@@ -27,35 +27,34 @@ class Dexes(Singleton):
             }
         }
     )
-    
+
     STARGATE = DexInfo(
         contracts_dict={
-            'Stargate: Finance Router': {
+            'USDC': {
                 Networks.Arbitrum.name: RawContract(
-                    title='StargateFinanceRouter_Arbitrum',
+                    title='StargateFinanceRouter_Arbitrum_USDC',
                     address='0x53bf833a5d6c4dda888f69c22c88c9f356a41614',
                     abi=read_json(
                         path=('data', 'abis', 'stargate', 'abi.json')
                     )
                 ),
                 Networks.Avalanche.name: RawContract(
-                    title='StargateFinanceRouter_Avalanche',
+                    title='StargateFinanceRouter_Avalanche_USDC',
                     address='0x45A01E4e04F14f7A4a6702c74187c5F6222033cd',
                     abi=read_json(
                         path=('data', 'abis', 'stargate', 'abi.json')
                     )
                 ),
                 Networks.Polygon.name: RawContract(
-                    title='StargateFinanceRouter_Polygon',
+                    title='StargateFinanceRouter_Polygon_USDC',
                     address='0x45A01E4e04F14f7A4a6702c74187c5F6222033cd',
                     abi=read_json(
                         path=('data', 'abis', 'stargate', 'abi.json')
                     )
-                ),                
+                ),
             }
         }
     )
-    
 
     @staticmethod
     def get_dex(dex_name: str) -> DexInfo:

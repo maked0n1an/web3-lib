@@ -62,12 +62,12 @@ class BaseTask:
 
         return token_amount
 
-    def get_network_swap_contract(self, dex_router: str, network: str) -> RawContract:
+    def get_dex_contract(self, key_name: str, network: str) -> RawContract:
         """
         Get the contract for the specified DEX router and network.
 
         Args:
-            dex_router (str): The DEX router name.
+            key_name (str): The key name to search the contract.
             network (str): The network name.
 
         Returns:
@@ -76,7 +76,7 @@ class BaseTask:
         """
         network = network.lower()
         dex = Dexes.get_dex(dex_name=self.__class__.__name__.upper())
-        dex_contract = dex.contracts_dict[dex_router][network]
+        dex_contract = dex.contracts_dict[key_name][network]
 
         return dex_contract
 
