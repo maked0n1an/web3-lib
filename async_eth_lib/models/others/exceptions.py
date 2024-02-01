@@ -25,6 +25,13 @@ class GasPriceTooHigh(Exception):
     pass
 
 
+class ContractNotExists(Exception):
+    pass
+
+class DexNotExists(Exception):
+    pass
+
+
 class HTTPException(Exception):
     """
     An exception that occurs when an HTTP request is unsuccessful.

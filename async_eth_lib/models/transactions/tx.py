@@ -1,7 +1,7 @@
 from typing import Any
 from hexbytes import HexBytes
 
-from web3 import Web3
+from web3 import Web3, AsyncWeb3
 from web3.types import (
     TxReceipt,
     _Hash32,
@@ -83,7 +83,7 @@ class Tx(AutoRepr):
 
     async def wait_for_tx_receipt(
         self,
-        web3: Web3,
+        web3: Web3 | AsyncWeb3,
         timeout: int | float = 120,
         poll_latency: float = 0.1
     ) -> dict[str, Any]:
@@ -91,7 +91,7 @@ class Tx(AutoRepr):
         Wait for the transaction receipt.
 
         Args:
-            account_manager (AccountManager): the AccountManager instance.
+            web3 (Union[Web3, AsyncWeb3]): the Web3 instance.
             timeout (Union[int, float]): the receipt waiting timeout. (120 sec)
             poll_latency (float): the poll latency. (0.1 sec)
 
