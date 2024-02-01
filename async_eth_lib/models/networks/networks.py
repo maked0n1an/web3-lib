@@ -49,6 +49,7 @@ class Networks(Singleton):
         tx_type=0,
         coin_symbol='BNB',
         explorer='https://bscscan.com/',
+        decimals=8
     )
 
     Polygon = Network(

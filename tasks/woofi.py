@@ -38,6 +38,7 @@ class WooFi(BaseTask):
         if to_token.is_native_token:
             min_to_amount = TokenAmount(
                 amount=to_token_price * (1 - swap_info.slippage / 100),
+                decimals=self.client.account_manager.network.decimals,
                 wei=True
             )
         else:

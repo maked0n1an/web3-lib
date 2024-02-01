@@ -141,12 +141,20 @@ class Contract:
 
         if gas_price:
             if isinstance(gas_price, int):
-                gas_price = TokenAmount(amount=gas_price, wei=True)
+                gas_price = TokenAmount(
+                    amount=gas_price, 
+                    decimals=self.account_manager.network.decimals,
+                    wei=True
+                )
             tx_params['gasPrice'] = gas_price.Wei
 
         if gas_limit:
             if isinstance(gas_limit, int):
-                gas_limit = TokenAmount(amount=gas_limit, wei=True)
+                gas_limit = TokenAmount(
+                    amount=gas_limit,
+                    decimals=self.account_manager.network.decimals,
+                    wei=True
+                )
             tx_params['gas'] = gas_limit.Wei
 
         data = token_contract.encodeABI('approve',
@@ -241,6 +249,7 @@ class Contract:
 
         else:
             amount = await self.account_manager.w3.eth.get_balance(account=address)
+            decimals = self.account_manager.network.decimals
 
         return TokenAmount(
             amount=amount,

@@ -19,7 +19,8 @@ class Network:
         chain_id: int | None = None,
         tx_type: int = 0,
         coin_symbol: str | None = None,
-        explorer: str | None = None
+        explorer: str | None = None,
+        decimals: int = 18,
     ) -> None:
         self.name: str = name.lower()
         self.rpc: str = rpc if isinstance(rpc, str) else random.choice(rpc)
@@ -27,6 +28,7 @@ class Network:
         self.tx_type: int = tx_type
         self.coin_symbol: str | None = coin_symbol
         self.explorer: str | None = explorer
+        self.decimals: int | None = decimals
 
         self._initialize_chain_id()
         self._initialize_coin_symbol()
