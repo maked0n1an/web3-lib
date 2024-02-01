@@ -2,7 +2,8 @@ import random
 
 
 class SwapInfo:
-    network: str
+    from_network: str
+    to_network: str
     from_token: str
     to_token: str
     amount: float
@@ -12,7 +13,7 @@ class SwapInfo:
         self,
         from_token: str,
         to_token: str,
-        amount: float = 0,
+        amount: float | None = None,
         slippage: float = 0.5,
         from_amount: float | None = None,
         to_amount: float | None = None,
