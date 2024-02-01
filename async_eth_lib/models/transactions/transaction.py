@@ -36,7 +36,11 @@ class Transaction:
         """
         amount = await self.account_manager.w3.eth.gas_price
 
-        return TokenAmount(amount, wei=True)
+        return TokenAmount(
+            amount,
+            decimals=self.account_manager.network.decimals,
+            wei=True
+        )
 
     async def get_max_priority_fee(self) -> TokenAmount:
         """
@@ -48,7 +52,11 @@ class Transaction:
         """
         max_priority_fee = await self.account_manager.w3.eth.max_priority_fee
 
-        return TokenAmount(max_priority_fee, wei=True)
+        return TokenAmount(
+            max_priority_fee,
+            decimals=self.account_manager.network.decimals,
+            wei=True
+        )
 
     async def get_estimate_gas(self, tx_params: TxParams) -> TokenAmount:
         """
@@ -63,7 +71,11 @@ class Transaction:
         """
         gas_price = await self.account_manager.w3.eth.estimate_gas(transaction=tx_params)
 
-        return TokenAmount(gas_price, wei=True)
+        return TokenAmount(
+            gas_price,
+            decimals=self.account_manager.network.decimals,
+            wei=True
+        )
 
     async def auto_add_params(self, tx_params: TxParams) -> TxParams:
         """

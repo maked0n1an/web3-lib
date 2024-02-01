@@ -24,7 +24,8 @@ class BaseTask:
                 token_amount = balance
             else:
                 token_amount = TokenAmount(
-                    amount=swap_info.amount
+                    amount=swap_info.amount,
+                    decimals=self.client.account_manager.network.decimals
                 )
         else:
             balance = await self.client.contract.get_balance(
