@@ -1,16 +1,13 @@
 import async_eth_lib.models.others.exceptions as exceptions
+
 from async_eth_lib.models.others.common import Singleton
 from async_eth_lib.models.others.dataclasses import DefaultAbis
 from async_eth_lib.models.contracts.raw_contract import RawContract
+from async_eth_lib.models.contracts.native_contract_token import NativeTokenContract
 
 
 class Contracts(Singleton):
-    ARBITRUM_ETH = RawContract(
-        title='ETH',
-        address='0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
-        abi=DefaultAbis.Token,
-        is_native_token=True
-    )
+    ARBITRUM_ETH = NativeTokenContract(title='ETH')
 
     ARBITRUM_USDC = RawContract(
         title='USDC',
@@ -24,12 +21,7 @@ class Contracts(Singleton):
         abi=DefaultAbis.Token
     )
 
-    POLYGON_MATIC = RawContract(
-        title='MATIC',
-        address='0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
-        abi=DefaultAbis.Token,
-        is_native_token=True
-    )
+    POLYGON_MATIC = NativeTokenContract(title='MATIC')
 
     POLYGON_USDC = RawContract(
         title='USDC',
