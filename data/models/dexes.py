@@ -11,14 +11,14 @@ class Dexes(Singleton):
         contracts_dict={
             'WooRouterV2': {
                 Networks.Arbitrum.name: RawContract(
-                    title='WooFi_Arbitrum',
+                    title='WooRouterV2_Arbitrum',
                     address='0x9aed3a8896a85fe9a8cac52c9b402d092b629a30',
                     abi=read_json(
                         path=('data', 'abis', 'woofi', 'abi.json')
                     )
                 ),
                 Networks.Polygon.name: RawContract(
-                    title='Woofi_Polygon',
+                    title='WooRouterV2_Polygon',
                     address='0x817Eb46D60762442Da3D931Ff51a30334CA39B74',
                     abi=read_json(
                         path=('data', 'abis', 'woofi', 'abi.json')
@@ -27,6 +27,35 @@ class Dexes(Singleton):
             }
         }
     )
+    
+    STARGATE = DexInfo(
+        contracts_dict={
+            'Stargate: Finance Router': {
+                Networks.Arbitrum.name: RawContract(
+                    title='StargateFinanceRouter_Arbitrum',
+                    address='0x53bf833a5d6c4dda888f69c22c88c9f356a41614',
+                    abi=read_json(
+                        path=('data', 'abis', 'stargate', 'abi.json')
+                    )
+                ),
+                Networks.Avalanche.name: RawContract(
+                    title='StargateFinanceRouter_Avalanche',
+                    address='0x45A01E4e04F14f7A4a6702c74187c5F6222033cd',
+                    abi=read_json(
+                        path=('data', 'abis', 'stargate', 'abi.json')
+                    )
+                ),
+                Networks.Polygon.name: RawContract(
+                    title='StargateFinanceRouter_Polygon',
+                    address='0x45A01E4e04F14f7A4a6702c74187c5F6222033cd',
+                    abi=read_json(
+                        path=('data', 'abis', 'stargate', 'abi.json')
+                    )
+                ),                
+            }
+        }
+    )
+    
 
     @staticmethod
     def get_dex(dex_name: str) -> DexInfo:
