@@ -51,10 +51,10 @@ class BaseTask:
 
         return token_amount
 
-    def get_network_swap_contract(self, network: str) -> RawContract:
+    def get_network_swap_contract(self, dex_router: str, network: str) -> RawContract:
         network = network.lower()
         dex = Dexes.get_dex(dex_name=self.__class__.__name__.upper())
-        dex_contract = dex.contracts[network]
+        dex_contract = dex.contracts_list[dex_router][network]
 
         return dex_contract
 

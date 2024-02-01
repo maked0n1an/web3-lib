@@ -63,6 +63,7 @@ class WooFi(BaseTask):
             return 'Incorrect input for swap(): token1 == token2'
 
         swap_contract = self.get_network_swap_contract(
+            dex_router='WooRouterV2',
             network=self.client.account_manager.network.name
         )
 
