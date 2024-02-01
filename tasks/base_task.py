@@ -39,9 +39,8 @@ class BaseTask:
                 )
                 
         if swap_info.amount_by_percent:
-            wei = balance.Wei * swap_info.amount_by_percent
             token_amount = TokenAmount(
-                amount=wei,
+                amount=balance.Wei * swap_info.amount_by_percent,
                 decimals=token_amount.decimals,
                 wei=True
             )
