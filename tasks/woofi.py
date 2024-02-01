@@ -115,6 +115,8 @@ class WooFi(BaseTask):
                 is_approve_infinity=False
             )
             await asyncio.sleep(3)
+        else:
+            tx_params['value'] = swap_query.from_amount.Wei
 
         tx = await self.client.contract.transaction.sign_and_send(tx_params=tx_params)
         receipt = await tx.wait_for_tx_receipt(web3=self.client.account_manager.w3)
