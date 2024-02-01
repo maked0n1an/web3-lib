@@ -4,6 +4,7 @@ import aiohttp
 from async_eth_lib.models.client import Client
 from async_eth_lib.models.contracts.raw_contract import RawContract
 from async_eth_lib.models.others.token_amount import TokenAmount
+from async_eth_lib.models.swap.swap_info import SwapInfo
 from data.models.dexes import Dexes
 
 
@@ -11,7 +12,46 @@ class BaseTask:
     def __init__(self, client: Client):
         self.client = client
 
-    def _get_network_swap_contract(self, network: str) -> RawContract:
+    async def calculate_amount_from_for_swap(
+        self,
+        from_token: RawContract,
+        swap_info: SwapInfo
+    ) -> TokenAmount:
+        if from_token.is_native_token:
+            balance = await self.client.contract.get_balance()
+
+            if not swap_info.amount:
+                token_amount = balance
+            else:
+                token_amount = TokenAmount(
+                    amount=swap_info.amount
+                )
+        else:
+            balance = await self.client.contract.get_balance(
+                token_address=from_token.address
+            )
+            if not swap_info.amount:
+                token_amount = balance
+            else:
+                token_amount = TokenAmount(
+                    amount=swap_info.amount,
+                    decimals=await self.client.contract.get_decimals(contract_address=from_token.address)
+                )
+                
+        if swap_info.amount_by_percent:
+            wei = balance.Wei * swap_info.amount_by_percent
+            token_amount = TokenAmount(
+                amount=wei,
+                decimals=token_amount.decimals,
+                wei=True
+            )
+
+        if token_amount.Wei > balance.Wei:
+            token_amount = balance
+
+        return token_amount
+
+    def get_network_swap_contract(self, network: str) -> RawContract:
         network = network.lower()
         dex = Dexes.get_dex(dex_name=self.__class__.__name__.upper())
         dex_contract = dex.contracts[network]
