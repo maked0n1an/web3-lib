@@ -19,37 +19,15 @@ class WooFi(BaseTask):
         swap_info: SwapInfo
     ) -> SwapQuery:
         from_token = Contracts.get_token(
-            network=swap_info.network,
+            network=swap_info.from_network,
             token_ticker=swap_info.from_token
         )
         to_token = Contracts.get_token(
-            network=swap_info.network,
+            network=swap_info.from_network,
             token_ticker=swap_info.to_token
         )
-
-        if from_token.is_native_token:
-            balance = await self.client.contract.get_balance()
-
-            if not swap_info.amount:
-                amount_from = balance
-            else:
-                amount_from = TokenAmount(
-                    amount=swap_info.amount
-                )
-        else:
-            balance = await self.client.contract.get_balance(
-                token_address=from_token.address
-            )
-            if not swap_info.amount:
-                amount_from = balance
-            else:
-                amount_from = TokenAmount(
-                    amount=swap_info.amount,
-                    decimals=await self.client.contract.get_decimals(contract_address=from_token.address)
-                )
-
-        if amount_from.Wei > balance.Wei:
-            amount_from = balance
+        
+        amount_from = await self.calculate_amount_from_for_swap(from_token=from_token, swap_info=swap_info)
 
         to_token_price = await contract.functions.tryQuerySwap(
             from_token.address,
@@ -82,13 +60,13 @@ class WooFi(BaseTask):
     ) -> str:
         if swap_info.from_token == swap_info.to_token:
             return 'Incorrect input for swap(): token1 == token2'
-        
-        swap_contract = self._get_network_swap_contract(
+
+        swap_contract = self.get_network_swap_contract(
             network=self.client.account_manager.network.name
         )
 
         dex_contract = await self.client.contract.get(contract=swap_contract)
-        swap_info.network = self.client.account_manager.network.name
+        swap_info.from_network = self.client.account_manager.network.name
 
         swap_query = await self.get_min_to_amount(contract=dex_contract, swap_info=swap_info)
 
