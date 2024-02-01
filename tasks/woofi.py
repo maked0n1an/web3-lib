@@ -18,6 +18,17 @@ class WooFi(BaseTask):
         contract: AsyncContract | Contract,
         swap_info: SwapInfo
     ) -> SwapQuery:
+        """
+        Get the minimum amount of tokens to receive after the swap.
+
+        Args:
+            contract (AsyncContract | Contract): The contract instance for the swap.
+            swap_info (SwapInfo): Information about the swap.
+
+        Returns:
+            SwapQuery: The query for the swap.
+
+        """
         from_token = Contracts.get_token(
             network=swap_info.from_network,
             token_ticker=swap_info.from_token
@@ -59,6 +70,17 @@ class WooFi(BaseTask):
         self,
         swap_info: SwapInfo
     ) -> str:
+        """
+        Get the minimum amount of tokens to receive after the swap.
+
+        Args:
+            contract (AsyncContract | Contract): The contract instance for the swap.
+            swap_info (SwapInfo): Information about the swap.
+
+        Returns:
+            SwapQuery: The query for the swap.
+
+        """
         if swap_info.from_token.upper() == swap_info.to_token.upper():
             return 'Incorrect input for swap(): token1 == token2'
 

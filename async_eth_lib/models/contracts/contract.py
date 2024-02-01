@@ -45,8 +45,6 @@ class Contract:
         :param str text_signature: a text signature, e.g. approve(address,uint256).
         :return dict: the function dictionary for the ABI.
         """
-        # swap(address,address,uint256,uint256,address,address)
-
         name, sign = text_signature.split('(', 1)
         sign = sign[:-1]
         tuples = []
@@ -236,6 +234,28 @@ class Contract:
         address: str | ChecksumAddress | None = None,
         decimals: int = 18
     ) -> TokenAmount:
+        """
+        Get the balance of an Ethereum address.
+
+        Parameters:
+        - `token_address` (str | ChecksumAddress | None): The address of the token. If provided, retrieves the token balance.
+        - `address` (str | ChecksumAddress | None): The Ethereum address for which to retrieve the balance.
+        - `decimals` (int): The number of decimals for the token (default is 18).
+
+        Returns:
+        - `TokenAmount`: An object representing the token balance, including the amount and decimals.
+
+        Note:
+        - If `token_address` is provided, it retrieves the token balance using the specified token address.
+        - If `token_address` is not provided, it retrieves the ETH balance using the Ethereum address.
+
+        Example:
+        ```python
+        balance = await client.wallet.get_balance(token_address='0x123abc...', address='0x456def...')
+        print(balance)
+        # Output: TokenAmount(amount=123.45, decimals=18, wei=True)
+        ```
+        """
         if not address:
             address = self.account_manager.account.address
 
@@ -258,12 +278,42 @@ class Contract:
         )
 
     async def get_decimals(self, contract_address: ParamsTypes.Address) -> int:
+        """
+        Get the number of decimals for a given token.
+
+        Parameters:
+        - `contract_address` (str | ChecksumAddress): The address of the token contract.
+
+        Returns:
+        - `int`: The number of decimals for the token.
+
+        Example:
+        ```python
+        decimals = await client.wallet.get_decimals(contract_address='0x123abc...')
+        print(decimals)
+        # Output: 18
+        """
         contract = await self.default_token(contract_address)
         decimals = await contract.functions.decimals().call()
 
         return decimals
 
     async def default_token(self, contract_address: ParamsTypes.Address) -> Contract | AsyncContract:
+        """
+        Get the default token contract instance for a given token address.
+
+        Parameters:
+        - `contract_address` (str | ChecksumAddress): The address of the token contract.
+
+        Returns:
+        - `Contract` | `AsyncContract`: The contract instance representing the token.
+
+        Example:
+        ```python
+        token_contract = await client.wallet.default_token(contract_address='0x123abc...')
+        print(token_contract)
+        # Output: <Contract object at 0x...>
+        """
         contract_address = Web3.to_checksum_address(contract_address)
         contract = self.account_manager.w3.eth.contract(
             address=contract_address, abi=DefaultAbis.Token)

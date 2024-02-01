@@ -36,7 +36,7 @@ class RawContract(AutoRepr):
             title (str): a contract title.
             address (str): a contract address.
             abi (Union[List[Dict[str, Any]], str]): an ABI of the contract.
-
+            is_native_token (bool): is this contract native token of network (False)
         """
         self.title = title
         self.address = Web3.to_checksum_address(address)
