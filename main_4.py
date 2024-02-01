@@ -15,7 +15,7 @@ async def main():
 
     swap_info = SwapInfo(
         'USDC',
-        'WBTC',
+        'MATIC',
         amount=1.5
     )
 
