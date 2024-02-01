@@ -37,8 +37,7 @@ class Contracts(Singleton):
 
     @staticmethod
     def get_token(network: str, token_ticker: str) -> RawContract:
-        network = network.upper()
-        contract_name = f'{network}_{token_ticker}'
+        contract_name = f'{network.upper()}_{token_ticker.upper()}'
 
         attr = getattr(Contracts, contract_name, None)
 
