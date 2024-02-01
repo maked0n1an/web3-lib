@@ -8,7 +8,8 @@ from async_eth_lib.models.networks.networks import Networks
 from async_eth_lib.models.others.token_amount import TokenAmount
 from async_eth_lib.models.transactions.tx_args import TxArgs
 from async_eth_lib.utils.helpers import read_txt
-from data.models import Contracts
+from data.models.contracts import Contracts
+from data.models.dexes import Dexes
 
 pk: list = read_txt('private_key.txt')
 
@@ -58,7 +59,7 @@ async def main():
     from_token = Contracts.ARBITRUM_USDC
     to_token = Contracts.ARBITRUM_ETH
 
-    woofi_contract = await client.contract.get(contract_address=Contracts.ARBITRUM_WOOFI)
+    woofi_contract = await client.contract.get(contract=Dexes.WOOFI)
 
     from_amount = TokenAmount(
         2.26,
