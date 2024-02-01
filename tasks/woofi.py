@@ -58,7 +58,7 @@ class WooFi(BaseTask):
         self,
         swap_info: SwapInfo
     ) -> str:
-        if swap_info.from_token == swap_info.to_token:
+        if swap_info.from_token.upper() == swap_info.to_token.upper():
             return 'Incorrect input for swap(): token1 == token2'
 
         swap_contract = self.get_network_swap_contract(
