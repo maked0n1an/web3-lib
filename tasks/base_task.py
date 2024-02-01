@@ -17,6 +17,17 @@ class BaseTask:
         from_token: RawContract,
         swap_info: SwapInfo
     ) -> TokenAmount:
+        """
+        Calculate the amount of tokens to be swapped based on the provided swap information.
+
+        Args:
+            from_token (RawContract): The source token for the swap.
+            swap_info (SwapInfo): Information about the swap.
+
+        Returns:
+            TokenAmount: The calculated amount of token to be swapped.
+
+        """
         if from_token.is_native_token:
             balance = await self.client.contract.get_balance()
 
@@ -52,6 +63,17 @@ class BaseTask:
         return token_amount
 
     def get_network_swap_contract(self, dex_router: str, network: str) -> RawContract:
+        """
+        Get the contract for the specified DEX router and network.
+
+        Args:
+            dex_router (str): The DEX router name.
+            network (str): The network name.
+
+        Returns:
+            RawContract: The contract for the specified DEX router and network.
+
+        """
         network = network.lower()
         dex = Dexes.get_dex(dex_name=self.__class__.__name__.upper())
         dex_contract = dex.contracts_list[dex_router][network]
@@ -75,6 +97,19 @@ class BaseTask:
         amount: TokenAmount | None = None,
         is_approve_infinity: bool = True
     ) -> bool:
+        """
+        Approve the specified spender to spend the specified amount of tokens on behalf of the account.
+
+        Args:
+            token_address (str): The token contract address.
+            spender (str): The address of the spender.
+            amount (TokenAmount | None): The amount of tokens to be approved. If None, the maximum available balance will be approved.
+            is_approve_infinity (bool): Whether to approve an infinite amount.
+
+        Returns:
+            bool: True if the approval is successful, False otherwise.
+
+        """
         balance = await self.client.contract.get_balance(token_address=token_address)
         if balance.Wei <= 0:
             return False

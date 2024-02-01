@@ -20,6 +20,17 @@ class Transaction:
         pass
 
     async def get_nonce(self, address: ChecksumAddress | None = None) -> int:
+        """
+        Get the nonce for a given Ethereum address.
+
+        Args:
+            address (ChecksumAddress | None): The Ethereum address for which to retrieve the nonce.
+                If None, the address from the account manager will be used.
+
+        Returns:
+            int: The nonce for the specified address.
+
+        """
         if not address:
             address = self.account_manager.account.address
 
