@@ -22,4 +22,4 @@ class DexInfo:
             contracts_dict (Dict[str, Dict[str, RawContract]]): A dictionary containing information about contracts.
 
         """
-        self.contracts_list = contracts_dict
+        self.contracts_dict = contracts_dict

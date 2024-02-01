@@ -76,7 +76,7 @@ class BaseTask:
         """
         network = network.lower()
         dex = Dexes.get_dex(dex_name=self.__class__.__name__.upper())
-        dex_contract = dex.contracts_list[dex_router][network]
+        dex_contract = dex.contracts_dict[dex_router][network]
 
         return dex_contract
 
