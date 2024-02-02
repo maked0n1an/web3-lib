@@ -1,12 +1,13 @@
 from async_eth_lib.models.networks.networks import Networks
+from async_eth_lib.models.others.common import Singleton
 from async_eth_lib.models.others.constants import CurrencySymbol
 from data.models.contracts import Contracts
 from tasks.stargate.models import StargateNetworkInfo, TokenData
 
 
-class StargateData:    
-    networks_list = {
-        Networks.Arbitrum.name : StargateNetworkInfo(
+class StargateData(Singleton):    
+    networks_dict = {
+        Networks.Arbitrum.name: StargateNetworkInfo(
             chain_id=110,
             token_dict={
                 CurrencySymbol.USDC: TokenData(
@@ -34,7 +35,7 @@ class StargateData:
         Networks.Avalanche.name: StargateNetworkInfo(
             chain_id=106,
             token_dict={
-                CurrencySymbol.USDC : TokenData(
+                CurrencySymbol.USDC: TokenData(
                     token_address=Contracts.AVALANCHE_USDC.address,
                     bridge_address='0x002b8491765536B7D4FE3e59dB46596e1F577eCb',
                     pool_id=1
@@ -70,7 +71,7 @@ class StargateData:
                     pool_id=21
                 )
             }
-        ),    
+        ),
         Networks.Optimism.name: StargateNetworkInfo(
             chain_id=111,
             token_dict={
@@ -110,6 +111,18 @@ class StargateData:
                     pool_id=3
                 )
             }
-        ),    
+        )
     }
-    
+
+    @classmethod
+    def get_data(cls, network: str, token: str) -> tuple[int, TokenData] | None:
+        network = network.lower()
+        token = token.upper()
+        
+        if network in cls.networks_dict:
+            network_data = cls.networks_dict[network]
+
+            if token in network_data.token_dict:
+                return (network_data.chain_id, network_data.token_dict[token])
+
+        return None
