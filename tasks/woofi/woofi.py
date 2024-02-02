@@ -8,7 +8,7 @@ from async_eth_lib.models.swap.swap_info import SwapInfo
 from async_eth_lib.models.others.token_amount import TokenAmount
 from async_eth_lib.models.swap.swap_query import SwapQuery
 from async_eth_lib.models.transactions.tx_args import TxArgs
-from data.models.contracts import Contracts
+from async_eth_lib.models.contracts.contracts import Contracts
 from tasks.base_task import BaseTask
 from tasks.woofi.woofi_data import WoofiData
 
