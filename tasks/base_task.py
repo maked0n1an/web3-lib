@@ -12,9 +12,9 @@ class BaseTask:
     def __init__(self, client: Client):
         self.client = client
         
-    def validate_swap_inputs(first_arg: str, second_arg: str, type: str = 'args'):
+    def validate_swap_inputs(self, first_arg: str, second_arg: str, arg_type: str = 'args'):
         if first_arg.upper() == second_arg.upper():
-            return f'The {type} for swap() are equal: {first_arg} == {second_arg}'
+            return f'The {arg_type} for swap() are equal: {first_arg} == {second_arg}'
 
     async def calculate_amount_from_for_swap(
         self,
