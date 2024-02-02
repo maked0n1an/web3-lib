@@ -14,8 +14,6 @@ class SwapInfo:
         multiplier_of_gas (int): A multiplier for gas calculation (default is None).
 
     """
-    from_network: str
-    to_network: str
     from_token: str
     to_token: str
     amount: float
@@ -25,6 +23,7 @@ class SwapInfo:
         self,
         from_token: str,
         to_token: str,
+        to_network: str | None = None,
         amount: float | None = None,
         slippage: float = 0.5,
         from_amount: float | None = None,
@@ -54,6 +53,7 @@ class SwapInfo:
         """
         self.from_token = from_token
         self.to_token = to_token
+        self.to_network = to_network
         self.amount = amount
         self.slippage = slippage
         self.amount_by_percent = 0
