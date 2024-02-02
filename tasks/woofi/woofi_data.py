@@ -33,7 +33,7 @@ class WoofiData(Singleton):
         if name in cls.contracts_dict:
             router_data = cls.contracts_dict[name]
 
-            if network in router_data[network]:
+            if network in router_data:
                 return router_data[network]
 
         return None
