@@ -14,59 +14,6 @@ from tasks.woofi.woofi_data import WoofiData
 
 
 class WooFi(BaseTask):
-    async def get_min_to_amount(
-        self,
-        contract: AsyncContract | Contract,
-        swap_info: SwapInfo
-    ) -> SwapQuery:
-        """
-        Get the minimum amount of tokens to receive after the swap.
-
-        Args:
-            contract (AsyncContract | Contract): The contract instance for the swap.
-            swap_info (SwapInfo): Information about the swap.
-
-        Returns:
-            SwapQuery: The query for the swap.
-
-        """
-        from_token = Contracts.get_token(
-            network=swap_info.from_network,
-            token_ticker=swap_info.from_token
-        )
-        to_token = Contracts.get_token(
-            network=swap_info.from_network,
-            token_ticker=swap_info.to_token
-        )
-        
-        amount_from = await self.calculate_amount_from_for_swap(from_token=from_token, swap_info=swap_info)
-
-        to_token_price = await contract.functions.tryQuerySwap(
-            from_token.address,
-            to_token.address,
-            amount_from.Wei
-        ).call()
-
-        if to_token.is_native_token:
-            min_to_amount = TokenAmount(
-                amount=to_token_price * (1 - swap_info.slippage / 100),
-                decimals=self.client.account_manager.network.decimals,
-                wei=True
-            )
-        else:
-            min_to_amount = TokenAmount(
-                amount=to_token_price * (1 - swap_info.slippage / 100),
-                decimals=await self.client.contract.get_decimals(contract_address=to_token.address),
-                wei=True
-            )
-
-        return SwapQuery(
-            from_token=from_token,
-            to_token=to_token,
-            from_amount=amount_from,
-            min_to_amount=min_to_amount
-        )
-
     async def swap(
         self,
         swap_info: SwapInfo
@@ -82,7 +29,8 @@ class WooFi(BaseTask):
             SwapQuery: The query for the swap.
 
         """
-        self.validate_swap_inputs(swap_info.from_token, swap_info.to_token, type='tokens')
+        self.validate_swap_inputs(
+            swap_info.from_token, swap_info.to_token, type='tokens')
 
         swap_contract = WoofiData.get_dex_contract(
             name='WooRouterV2',
@@ -92,7 +40,7 @@ class WooFi(BaseTask):
         dex_contract = await self.client.contract.get(contract=swap_contract)
         swap_info.from_network = self.client.account_manager.network.name
 
-        swap_query = await self.get_min_to_amount(contract=dex_contract, swap_info=swap_info)
+        swap_query = await self._get_min_to_amount(contract=dex_contract, swap_info=swap_info)
 
         args = TxArgs(
             fromToken=swap_query.from_token.address,
@@ -135,4 +83,57 @@ class WooFi(BaseTask):
         return (
             f'Failed swap {swap_query.from_amount.Ether} to {swap_query.to_token.title}'
             f'via {swap_contract.title}'
+        )
+
+    async def _get_min_to_amount(
+        self,
+        contract: AsyncContract | Contract,
+        swap_info: SwapInfo
+    ) -> SwapQuery:
+        """
+        Get the minimum amount of tokens to receive after the swap.
+
+        Args:
+            contract (AsyncContract | Contract): The contract instance for the swap.
+            swap_info (SwapInfo): Information about the swap.
+
+        Returns:
+            SwapQuery: The query for the swap.
+
+        """
+        from_token = Contracts.get_token(
+            network=swap_info.from_network,
+            token_ticker=swap_info.from_token
+        )
+        to_token = Contracts.get_token(
+            network=swap_info.from_network,
+            token_ticker=swap_info.to_token
+        )
+
+        amount_from = await self.calculate_amount_from_for_swap(from_token=from_token, swap_info=swap_info)
+
+        to_token_price = await contract.functions.tryQuerySwap(
+            from_token.address,
+            to_token.address,
+            amount_from.Wei
+        ).call()
+
+        if to_token.is_native_token:
+            min_to_amount = TokenAmount(
+                amount=to_token_price * (1 - swap_info.slippage / 100),
+                decimals=self.client.account_manager.network.decimals,
+                wei=True
+            )
+        else:
+            min_to_amount = TokenAmount(
+                amount=to_token_price * (1 - swap_info.slippage / 100),
+                decimals=await self.client.contract.get_decimals(contract_address=to_token.address),
+                wei=True
+            )
+
+        return SwapQuery(
+            from_token=from_token,
+            to_token=to_token,
+            from_amount=amount_from,
+            min_to_amount=min_to_amount
         )
