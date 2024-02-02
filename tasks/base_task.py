@@ -12,7 +12,12 @@ class BaseTask:
     def __init__(self, client: Client):
         self.client = client
         
-    def validate_swap_inputs(self, first_arg: str, second_arg: str, arg_type: str = 'args'):
+    def validate_swap_inputs(
+        self,                              
+        first_arg: str, 
+        second_arg: str, 
+        arg_type: str = 'args'
+    ) -> str:
         if first_arg.upper() == second_arg.upper():
             return f'The {arg_type} for swap() are equal: {first_arg} == {second_arg}'
 
@@ -66,12 +71,15 @@ class BaseTask:
 
         return token_amount
 
-    async def get_binance_ticker_price(self, from_token: str, to_token: str) -> float | None:
-        first_token, second_token = from_token.upper(), to_token.upper()
+    async def get_binance_ticker_price(
+        self, 
+        first_token: str = CurrencySymbol.ETH,
+        second_token: str = CurrencySymbol.USDT
+    ) -> float | None:        
         async with aiohttp.ClientSession() as session:
             price = await self._get_price_from_binance(session, first_token, second_token)
             if price is None:
-                price = await self._get_price_from_binance(session, second_token, first_token)
+                price = await self._get_price_from_binance(session, first_token, second_token)
                 return 1 / price
 
             return price
@@ -127,9 +135,10 @@ class BaseTask:
     async def _get_price_from_binance(
         self,
         session: aiohttp.ClientSession,
-        first_token: str = CurrencySymbol.ETH,
-        second_token: str = CurrencySymbol.USDT
+        first_token: str,
+        second_token: str
     ) -> float | None:
+        first_token, second_token = first_token.upper(), second_token.upper()        
         for _ in range(5):
             try:
                 response = await session.get(

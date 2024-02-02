@@ -28,7 +28,12 @@ class GasPriceTooHigh(Exception):
 class ContractNotExists(Exception):
     pass
 
+
 class DexNotExists(Exception):
+    pass
+
+
+class NetworkNotAdded(Exception):
     pass
 
 
