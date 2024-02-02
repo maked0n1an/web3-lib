@@ -20,4 +20,4 @@ class StargateNetworkInfo:
         token_dict: dict[str, TokenData],
     ) -> None:
         self.chain_id = chain_id
-        self.token_list = token_dict
+        self.token_dict = token_dict
