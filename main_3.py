@@ -8,8 +8,7 @@ from async_eth_lib.models.networks.networks import Networks
 from async_eth_lib.models.others.token_amount import TokenAmount
 from async_eth_lib.models.transactions.tx_args import TxArgs
 from async_eth_lib.utils.helpers import read_txt
-from data.models.contracts import Contracts
-from data.models.dexes import Dexes
+from async_eth_lib.models.contracts.contracts import Contracts
 
 pk: list = read_txt('private_key.txt')
 
