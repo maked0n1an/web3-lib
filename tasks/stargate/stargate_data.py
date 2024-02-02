@@ -1,33 +1,35 @@
+import async_eth_lib.models.others.exceptions as exceptions
 from async_eth_lib.models.networks.networks import Networks
 from async_eth_lib.models.others.common import Singleton
 from async_eth_lib.models.others.constants import CurrencySymbol
-from data.models.contracts import Contracts
-from tasks.stargate.models import StargateNetworkInfo, TokenData
+from async_eth_lib.models.contracts.contracts import Contracts
+from tasks.stargate.models import StargateNetworkInfo, BridgeData
+from tasks.stargate.stargate_contracts import StargateContracts
 
 
-class StargateData(Singleton):    
+class StargateData(Singleton):
     networks_dict = {
         Networks.Arbitrum.name: StargateNetworkInfo(
             chain_id=110,
             token_dict={
-                CurrencySymbol.USDC: TokenData(
-                    token_address=Contracts.ARBITRUM_USDC.address,
-                    bridge_address='0x53bf833a5d6c4dda888f69c22c88c9f356a41614',
+                CurrencySymbol.USDC: BridgeData(
+                    token_contract=Contracts.ARBITRUM_USDC,
+                    bridge_contract=StargateContracts.ARBITRUM_UNIVERSAL,
                     pool_id=1
                 ),
-                CurrencySymbol.USDT: TokenData(
-                    token_address=Contracts.ARBITRUM_USDT.address,
-                    bridge_address='0x53bf833a5d6c4dda888f69c22c88c9f356a41614',
+                CurrencySymbol.USDT: BridgeData(
+                    token_contract=Contracts.ARBITRUM_USDT,
+                    bridge_contract=StargateContracts.ARBITRUM_UNIVERSAL,
                     pool_id=2
                 ),
-                CurrencySymbol.DAI: TokenData(
-                    token_address=Contracts.ARBITRUM_DAI.address,
-                    bridge_address='0x53bf833a5d6c4dda888f69c22c88c9f356a41614',
+                CurrencySymbol.DAI: BridgeData(
+                    token_contract=Contracts.ARBITRUM_DAI,
+                    bridge_contract=StargateContracts.ARBITRUM_UNIVERSAL,
                     pool_id=3
                 ),
-                CurrencySymbol.ETH: TokenData(
-                    token_address=Contracts.ARBITRUM_ETH.address,
-                    bridge_address='0xbf22f0f184bCcbeA268dF387a49fF5238dD23E40',
+                CurrencySymbol.ETH: BridgeData(
+                    token_contract=Contracts.ARBITRUM_ETH,
+                    bridge_contract=StargateContracts.ARBITRUM_ETH,
                     pool_id=13
                 )
             }
@@ -35,14 +37,14 @@ class StargateData(Singleton):
         Networks.Avalanche.name: StargateNetworkInfo(
             chain_id=106,
             token_dict={
-                CurrencySymbol.USDC: TokenData(
-                    token_address=Contracts.AVALANCHE_USDC.address,
-                    bridge_address='0x002b8491765536B7D4FE3e59dB46596e1F577eCb',
+                CurrencySymbol.USDC: BridgeData(
+                    token_contract=Contracts.AVALANCHE_USDC,
+                    bridge_contract=StargateContracts.AVALANCHE_UNIVERSAL,
                     pool_id=1
                 ),
-                CurrencySymbol.USDT: TokenData(
-                    token_address=Contracts.AVALANCHE_USDT.address,
-                    bridge_address='0x45A01E4e04F14f7A4a6702c74187c5F6222033cd',
+                CurrencySymbol.USDT: BridgeData(
+                    token_contract=Contracts.AVALANCHE_USDT,
+                    bridge_contract=StargateContracts.AVALANCHE_UNIVERSAL,
                     pool_id=2
                 ),
             }
@@ -50,14 +52,14 @@ class StargateData(Singleton):
         Networks.BSC.name: StargateNetworkInfo(
             chain_id=102,
             token_dict={
-                CurrencySymbol.USDT: TokenData(
-                    token_address=Contracts.BSC_USDT.address,
-                    bridge_address='0x4a364f8c717cAAD9A442737Eb7b8A55cc6cf18D8',
+                CurrencySymbol.USDT: BridgeData(
+                    token_contract=Contracts.BSC_USDT,
+                    bridge_contract=StargateContracts.BSC_USDT,
                     pool_id=2
                 ),
-                CurrencySymbol.BUSD: TokenData(
-                    token_address=Contracts.BSC_BUSD.address,
-                    bridge_address='0xB16f5A073d72cB0CF13824d65aA212a0e5c17D63',
+                CurrencySymbol.BUSD: BridgeData(
+                    token_contract=Contracts.BSC_BUSD,
+                    bridge_contract=StargateContracts.BSC_BUSD,
                     pool_id=5
                 )
             }
@@ -65,9 +67,9 @@ class StargateData(Singleton):
         Networks.Fantom.name: StargateNetworkInfo(
             chain_id=112,
             token_dict={
-                CurrencySymbol.USDC: TokenData(
-                    token_address=Contracts.FANTOM_USDC.address,
-                    bridge_address='0xAf5191B0De278C7286d6C7CC6ab6BB8A73bA2Cd6',
+                CurrencySymbol.USDC: BridgeData(
+                    token_contract=Contracts.FANTOM_USDC,
+                    bridge_contract=StargateContracts.FANTOM_USDC,
                     pool_id=21
                 )
             }
@@ -75,19 +77,19 @@ class StargateData(Singleton):
         Networks.Optimism.name: StargateNetworkInfo(
             chain_id=111,
             token_dict={
-                CurrencySymbol.USDC: TokenData(
-                    token_address=Contracts.ARBITRUM_USDC.address,
-                    bridge_address='0xb0d502e938ed5f4df2e681fe6e419ff29631d62b',
+                CurrencySymbol.USDC: BridgeData(
+                    token_contract=Contracts.ARBITRUM_USDC,
+                    bridge_contract='0xb0d502e938ed5f4df2e681fe6e419ff29631d62b',
                     pool_id=1
                 ),
-                CurrencySymbol.DAI: TokenData(
-                    token_address=Contracts.ARBITRUM_DAI.address,
-                    bridge_address='0xb0d502e938ed5f4df2e681fe6e419ff29631d62b',
+                CurrencySymbol.DAI: BridgeData(
+                    token_contract=Contracts.ARBITRUM_DAI,
+                    bridge_contract='0xb0d502e938ed5f4df2e681fe6e419ff29631d62b',
                     pool_id=3
                 ),
-                CurrencySymbol.ETH: TokenData(
-                    token_address=Contracts.ARBITRUM_ETH.address,
-                    bridge_address='0xb49c4e680174e331cb0a7ff3ab58afc9738d5f8b',
+                CurrencySymbol.ETH: BridgeData(
+                    token_contract=Contracts.ARBITRUM_ETH,
+                    bridge_contract='0xb49c4e680174e331cb0a7ff3ab58afc9738d5f8b',
                     pool_id=13
                 )
             }
@@ -95,19 +97,19 @@ class StargateData(Singleton):
         Networks.Polygon.name: StargateNetworkInfo(
             chain_id=109,
             token_dict={
-                CurrencySymbol.USDC: TokenData(
-                    token_address=Contracts.ARBITRUM_USDC.address,
-                    bridge_address='0x45A01E4e04F14f7A4a6702c74187c5F6222033cd',
+                CurrencySymbol.USDC: BridgeData(
+                    token_contract=Contracts.POLYGON_USDC,
+                    bridge_contract=StargateContracts.POLYGON_UNIVERSAL,
                     pool_id=1
                 ),
-                CurrencySymbol.USDT: TokenData(
-                    token_address=Contracts.ARBITRUM_USDT.address,
-                    bridge_address='0x45A01E4e04F14f7A4a6702c74187c5F6222033cd',
+                CurrencySymbol.USDT: BridgeData(
+                    token_contract=Contracts.POLYGON_USDT,
+                    bridge_contract=StargateContracts.POLYGON_UNIVERSAL,
                     pool_id=2
                 ),
-                CurrencySymbol.DAI: TokenData(
-                    token_address=Contracts.ARBITRUM_DAI.address,
-                    bridge_address='0x45A01E4e04F14f7A4a6702c74187c5F6222033cd',
+                CurrencySymbol.DAI: BridgeData(
+                    token_contract=Contracts.POLYGON_DAI,
+                    bridge_contract=StargateContracts.POLYGON_UNIVERSAL,
                     pool_id=3
                 )
             }
@@ -115,14 +117,30 @@ class StargateData(Singleton):
     }
 
     @classmethod
-    def get_data(cls, network: str, token: str) -> tuple[int, TokenData] | None:
+    def get_chain_id(cls, network: str) -> int | None:
+        if network not in cls.networks_dict:
+            raise exceptions.NetworkNotAdded(
+                f"The requested network has not been",
+                f"added to StargateData networks dict"
+            )
+        return cls.networks_dict[network].chain_id
+
+    @classmethod
+    def get_token_data(cls, network: str, token: str) -> tuple[int, BridgeData] | None:
         network = network.lower()
         token = token.upper()
-        
-        if network in cls.networks_dict:
-            network_data = cls.networks_dict[network]
 
-            if token in network_data.token_dict:
-                return (network_data.chain_id, network_data.token_dict[token])
+        if network not in cls.networks_dict:
+            raise exceptions.NetworkNotAdded(
+                f"The requested network has not been",
+                f"added to StargateData networks dict"
+            )
 
-        return None
+        network_data = cls.networks_dict[network]
+        if token not in network_data.token_dict:
+            raise exceptions.ContractNotExists(
+                f"This contract has not been added",
+                f"to StargateData token contracts"
+            )
+
+        return (network_data.chain_id, network_data.token_dict[token])

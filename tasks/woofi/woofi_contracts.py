@@ -1,4 +1,3 @@
-from async_eth_lib.models.dexes.dex_info import DexInfo
 import async_eth_lib.models.others.exceptions as exceptions
 
 from async_eth_lib.models.contracts.raw_contract import RawContract
@@ -23,6 +22,11 @@ class WoofiContracts(Singleton):
                 title='WooRouterV2_Polygon',
                 address='0x817Eb46D60762442Da3D931Ff51a30334CA39B74',
                 abi=WOOFI_ROUTER_V2_ABI
+            ),
+            Networks.BSC.name: RawContract(
+                title='WooRouterV2_BSC',
+                address='0x5bf2d391ef1e5f4de528288eb46265b55cf83cb6',
+                abi=WOOFI_ROUTER_V2_ABI
             )
         }
     }
@@ -30,10 +34,12 @@ class WoofiContracts(Singleton):
     @classmethod
     def get_dex_contract(cls, name: str, network: str) -> RawContract | None:
         
-        if name in cls.contracts_dict:
-            router_data = cls.contracts_dict[name]
+        if name not in cls.contracts_dict:            
+            raise exceptions.DexNotExists(
+                "This router has not been added to WooFiContracts")
 
-            if network in router_data:
-                return router_data[network]
+        router_data = cls.contracts_dict[name]
 
-        return None
+        if network in router_data:
+            
+            return router_data[network]
