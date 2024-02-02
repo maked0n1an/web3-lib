@@ -81,8 +81,7 @@ class WooFi(BaseTask):
             SwapQuery: The query for the swap.
 
         """
-        if swap_info.from_token.upper() == swap_info.to_token.upper():
-            return 'Incorrect input for swap(): token1 == token2'
+        self.validate_swap_inputs(swap_info.from_token, swap_info.to_token, type='tokens')
 
         swap_contract = self.get_dex_contract(
             key_name='WooRouterV2',
