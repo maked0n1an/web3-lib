@@ -3,20 +3,19 @@ import asyncio
 from async_eth_lib.models.client import Client
 from async_eth_lib.models.swap.swap_info import SwapInfo
 from async_eth_lib.models.networks.networks import Networks
-from async_eth_lib.utils.helpers import read_txt
-from tasks.woofi import WooFi
+from data.config import PRIVATE_KEY
+from tasks.woofi.woofi import WooFi
 
 
 async def main():
-    pk: list = read_txt('private_key.txt')
-
-    client = Client(private_key=pk[0], network=Networks.Polygon)
+    client = Client(private_key=PRIVATE_KEY, network=Networks.Polygon)
     woofi = WooFi(client=client)
 
     swap_info = SwapInfo(
-        'USDC',
-        'MATIC',
-        amount=1.5
+        from_token='MATIC',
+        to_token='WBTC',
+        min_percent=40,
+        max_percent=50,        
     )
 
     res = await woofi.swap(swap_info)
