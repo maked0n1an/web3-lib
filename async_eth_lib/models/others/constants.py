@@ -5,7 +5,7 @@ class CurrencySymbol(Singleton):
     ETH = 'ETH'
     USDT = 'USDT'
     USDC = 'USDC'
-    USDC_e = 'USDC_e'
+    USDC_e = 'USDC_E'
 
     ARB = 'ARB'
     AVAX = 'AVAX'

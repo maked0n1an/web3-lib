@@ -8,11 +8,11 @@ class BridgeData:
     def __init__(
         self,
         token_contract: RawContract,
-        bridge_address: str | ChecksumAddress,
+        bridge_contract: RawContract,
         pool_id: int
     ) -> None:
         self.token_contract = token_contract
-        self.bridge_contract = Web3.to_checksum_address(bridge_address)
+        self.bridge_contract = bridge_contract
         self.pool_id = pool_id
 
 class StargateNetworkInfo:

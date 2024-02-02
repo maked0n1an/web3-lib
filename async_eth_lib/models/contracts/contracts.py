@@ -39,8 +39,8 @@ class Contracts(Singleton):
         abi=DefaultAbis.Token
     )
 
-    ARBITRUM_USDC_e = RawContract(
-        title='USDC.e',
+    ARBITRUM_USDC_E = RawContract(
+        title=CurrencySymbol.USDC_e,
         address='0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
         abi=DefaultAbis.Token
     )
@@ -150,7 +150,7 @@ class Contracts(Singleton):
         abi=DefaultAbis.Token
     )
 
-    POLYGON_USDC_e = RawContract(
+    POLYGON_USDC_E = RawContract(
         title=CurrencySymbol.USDC_e,
         address='0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
         abi=DefaultAbis.Token

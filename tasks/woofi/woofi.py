@@ -1,9 +1,8 @@
 import asyncio
 
 from web3.contract import Contract, AsyncContract
-from web3.types import (
-    TxParams
-)
+from web3.types import TxParams
+
 from async_eth_lib.models.swap.swap_info import SwapInfo
 from async_eth_lib.models.others.token_amount import TokenAmount
 from async_eth_lib.models.swap.swap_query import SwapQuery
@@ -29,11 +28,13 @@ class WooFi(BaseTask):
             SwapQuery: The query for the swap.
 
         """
-        self.validate_swap_inputs(
+        check = self.validate_swap_inputs(
             first_arg=swap_info.from_token, 
             second_arg=swap_info.to_token, 
             arg_type='tokens'
         )
+        if check:
+            return check 
 
         swap_contract = WoofiContracts.get_dex_contract(
             name='WooRouterV2',
@@ -41,7 +42,6 @@ class WooFi(BaseTask):
         )
 
         dex_contract = await self.client.contract.get(contract=swap_contract)
-        swap_info.from_network = self.client.account_manager.network.name
 
         swap_query = await self._get_min_to_amount(contract=dex_contract, swap_info=swap_info)
 
@@ -105,11 +105,11 @@ class WooFi(BaseTask):
 
         """
         from_token = Contracts.get_token(
-            network=swap_info.from_network,
+            network=self.client.account_manager.network.name,
             token_ticker=swap_info.from_token
         )
         to_token = Contracts.get_token(
-            network=swap_info.from_network,
+            network=self.client.account_manager.network.name,
             token_ticker=swap_info.to_token
         )
 
