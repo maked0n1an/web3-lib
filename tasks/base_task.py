@@ -6,7 +6,6 @@ from async_eth_lib.models.contracts.raw_contract import RawContract
 from async_eth_lib.models.others.constants import CurrencySymbol
 from async_eth_lib.models.others.token_amount import TokenAmount
 from async_eth_lib.models.swap.swap_info import SwapInfo
-from data.models.dexes import Dexes
 
 
 class BaseTask:
@@ -16,24 +15,6 @@ class BaseTask:
     def validate_swap_inputs(first_arg: str, second_arg: str, type: str = 'args'):
         if first_arg.upper() == second_arg.upper():
             return f'The {type} for swap() are equal: {first_arg} == {second_arg}'
-
-    def get_dex_contract(self, key_name: str, network: str) -> RawContract:
-        """
-        Get the contract for the specified DEX router and network.
-
-        Args:
-            key_name (str): The key name to search the contract.
-            network (str): The network name.
-
-        Returns:
-            RawContract: The contract for the specified DEX router and network.
-
-        """
-        network = network.lower()
-        dex = Dexes.get_dex(dex_name=self.__class__.__name__.upper())
-        dex_contract = dex.contracts_dict[key_name][network]
-
-        return dex_contract
 
     async def calculate_amount_from_for_swap(
         self,
