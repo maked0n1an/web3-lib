@@ -1,16 +1,13 @@
 import asyncio
 import json
-from typing import Optional
 import aiohttp
 from hexbytes import HexBytes
 
 from web3 import Web3
 from web3.eth import AsyncEth
 from eth_account.signers.local import LocalAccount
-from async_eth_lib import (
-    Client,
-    Networks
-)
+
+from async_eth_lib.models.networks.networks import Networks
 
 contract_address = Web3.to_checksum_address(
     '0x9aed3a8896a85fe9a8cac52c9b402d092b629a30')
@@ -54,9 +51,10 @@ async def verif_tx(web3: Web3, tx_hash: HexBytes, timeout=180):
         data = await web3.eth.wait_for_transaction_receipt(tx_hash, timeout=timeout)
 
         if data['status'] and data['status'] == 1:
-            print(f"Successfull hash! - https://arbiscan.io/tx/{tx_hash.hex()}")
+            print(
+                f"Successfull hash! - https://arbiscan.io/tx/{tx_hash.hex()}")
             return True
-        
+
         else:
             print("Tx failed")
     except Exception as e:
@@ -88,7 +86,7 @@ async def main():
 
     eth_amount = 0.00004
     min_usdc_amount = eth_amount * await get_min_to_amount(from_token='ETH', to_token='USDC')
-    
+
     usdc_amount = 1.05
     min_eth_amount = usdc_amount / await get_min_to_amount(from_token='ETH', to_token='USDC')
 
@@ -103,7 +101,7 @@ async def main():
             wallet_address
         )
     )
-    
+
     data2 = contract.encodeABI(
         'swap',
         args=(
