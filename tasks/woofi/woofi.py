@@ -10,7 +10,7 @@ from async_eth_lib.models.swap.swap_query import SwapQuery
 from async_eth_lib.models.transactions.tx_args import TxArgs
 from async_eth_lib.models.contracts.contracts import Contracts
 from tasks.base_task import BaseTask
-from tasks.woofi.woofi_data import WoofiData
+from tasks.woofi.woofi_contracts import WoofiContracts
 
 
 class WooFi(BaseTask):
@@ -30,9 +30,12 @@ class WooFi(BaseTask):
 
         """
         self.validate_swap_inputs(
-            swap_info.from_token, swap_info.to_token, type='tokens')
+            first_arg=swap_info.from_token, 
+            second_arg=swap_info.to_token, 
+            arg_type='tokens'
+        )
 
-        swap_contract = WoofiData.get_dex_contract(
+        swap_contract = WoofiContracts.get_dex_contract(
             name='WooRouterV2',
             network=self.client.account_manager.network.name
         )
