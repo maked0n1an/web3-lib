@@ -6,7 +6,7 @@ from async_eth_lib.models.others.common import Singleton
 from async_eth_lib.utils.helpers import read_json
 
 
-class Dexes(Singleton):
+class Dexes:
     WOOFI = DexInfo(
         contracts_dict={
             'WooRouterV2': {
@@ -28,41 +28,16 @@ class Dexes(Singleton):
         }
     )
 
-    STARGATE = DexInfo(
-        contracts_dict={
-            'USDC': {
-                Networks.Arbitrum.name: RawContract(
-                    title='StargateFinanceRouter_Arbitrum_USDC',
-                    address='0x53bf833a5d6c4dda888f69c22c88c9f356a41614',
-                    abi=read_json(
-                        path=('data', 'abis', 'stargate', 'abi.json')
-                    )
-                ),
-                Networks.Avalanche.name: RawContract(
-                    title='StargateFinanceRouter_Avalanche_USDC',
-                    address='0x45A01E4e04F14f7A4a6702c74187c5F6222033cd',
-                    abi=read_json(
-                        path=('data', 'abis', 'stargate', 'abi.json')
-                    )
-                ),
-                Networks.Polygon.name: RawContract(
-                    title='StargateFinanceRouter_Polygon_USDC',
-                    address='0x45A01E4e04F14f7A4a6702c74187c5F6222033cd',
-                    abi=read_json(
-                        path=('data', 'abis', 'stargate', 'abi.json')
-                    )
-                ),
-            }
-        }
-    )
-
-    @staticmethod
-    def get_dex(dex_name: str) -> DexInfo:
+    @classmethod
+    def get_dex(cls, dex_name: str) -> DexInfo:
         dex_name = dex_name.upper()
-        dex = getattr(Dexes, dex_name, None)
+        
+        if not hasattr(cls, dex_name):
+                raise exceptions.DexNotExists(
+                    "This DEX has not been added to Contracts")
 
-        if dex is None:
-            raise exceptions.DexNotExists(
-                "This DEX has not been added to Contracts")
+        return getattr(cls, dex_name)
+    
 
-        return dex
+    
+    

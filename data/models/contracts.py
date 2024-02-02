@@ -160,14 +160,12 @@ class Contracts(Singleton):
         abi=DefaultAbis.Token
     )
 
-    @staticmethod
-    def get_token(network: str, token_ticker: str) -> RawContract:
+    @classmethod
+    def get_token(cls, network: str, token_ticker: str) -> RawContract:
         contract_name = f'{network.upper()}_{token_ticker.upper()}'
 
-        attr = getattr(Contracts, contract_name, None)
-
-        if attr is None:
+        if not hasattr(cls, contract_name):
             raise exceptions.ContractNotExists(
                 "The contract has not been added to Contracts")
 
-        return attr
+        return getattr(cls, contract_name)
