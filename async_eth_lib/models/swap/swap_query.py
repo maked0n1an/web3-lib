@@ -13,6 +13,7 @@ class SwapQuery:
         min_to_amount (TokenAmount): The minimum amount of the 'to' token.
 
     """
+
     def __init__(
         self,
         from_token: RawContract,

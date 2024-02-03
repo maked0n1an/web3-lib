@@ -8,16 +8,24 @@ class SwapInfo:
     Attributes:
         from_token (str): The token to swap from.
         to_token (str): The token to swap to.
+        to_network (str | None): The target network for the swap (default is None).
         amount (float | None): The amount to swap (default is None).
         slippage (float): The slippage tolerance (default is 0.5).
         amount_by_percent (float): The amount calculated based on a percentage (default is 0).
-        multiplier_of_gas (int): A multiplier for gas calculation (default is None).
-
+        multiplier_of_gas (int | None): A multiplier for gas calculation (default is None).
+        gas_price (float | None): Gas price for the transaction (default is None).
+        gas_limit (int | None): Gas limit for the transaction (default is None).
+        
     """
     from_token: str
     to_token: str
+    to_network: str | None
     amount: float
     slippage: float
+    amount_by_percent: float
+    multiplier_of_gas: int | None
+    gas_price: float | None
+    gas_limit: int | None
 
     def __init__(
         self,
@@ -32,6 +40,8 @@ class SwapInfo:
         all_amount: bool = False,
         min_percent: int | None = None,
         max_percent: int | None = None,
+        gas_price: float | None = None,
+        gas_limit: int | None = None,
         multiplier_of_gas: int | None = None
     ) -> None:
         """
@@ -40,6 +50,7 @@ class SwapInfo:
         Args:
             from_token (str): The token to swap from.
             to_token (str): The token to swap to.
+            to_network (str | None): The target network for the swap (default is None).
             amount (float | None): The amount to swap (default is None).
             slippage (float): The slippage tolerance (default is 0.5).
             from_amount (float | None): The minimum amount for random amount generation.
@@ -49,6 +60,8 @@ class SwapInfo:
             min_percent (int | None): The minimum percentage for random amount generation.
             max_percent (int | None): The maximum percentage for random amount generation.
             multiplier_of_gas (int | None): A multiplier for gas calculation (default is None).
+            gas_price (float | None): Gas price for the transaction (default is None).
+            gas_limit (int | None): Gas limit for the transaction (default is None).
 
         """
         self.from_token = from_token
@@ -58,6 +71,8 @@ class SwapInfo:
         self.slippage = slippage
         self.amount_by_percent = 0
         self.multiplier_of_gas = multiplier_of_gas
+        self.gas_price = gas_price
+        self.gas_limit = gas_limit
         if from_amount and to_amount:
             self.amount = self._get_random_amount(
                 from_amount, to_amount, decimals=decimals)

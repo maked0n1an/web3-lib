@@ -96,9 +96,9 @@ class StargateData(Singleton):
         ),
         Networks.Polygon.name: StargateNetworkInfo(
             chain_id=109,
-            token_dict={
-                CurrencySymbol.USDC: BridgeData(
-                    token_contract=Contracts.POLYGON_USDC,
+            token_dict={                
+                CurrencySymbol.USDC_e: BridgeData(
+                    token_contract=Contracts.POLYGON_USDC_E,
                     bridge_contract=StargateContracts.POLYGON_UNIVERSAL,
                     pool_id=1
                 ),

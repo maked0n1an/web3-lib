@@ -25,7 +25,7 @@ class WoofiContracts(Singleton):
             ),
             Networks.BSC.name: RawContract(
                 title='WooRouterV2_BSC',
-                address='0x5bf2d391ef1e5f4de528288eb46265b55cf83cb6',
+                address='0x4f4fd4290c9bb49764701803af6445c5b03e8f06',
                 abi=WOOFI_ROUTER_V2_ABI
             )
         }

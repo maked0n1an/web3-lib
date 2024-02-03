@@ -50,8 +50,7 @@ class Networks(Singleton):
         chain_id=56,
         tx_type=0,
         coin_symbol=CurrencySymbol.BNB,
-        explorer='https://bscscan.com/',
-        decimals=8
+        explorer='https://bscscan.com/'
     )
 
     Celo = Network(

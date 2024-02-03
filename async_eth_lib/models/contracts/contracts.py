@@ -137,6 +137,12 @@ class Contracts(Singleton):
         address='0x3c499c542cef5e3811e1192ce70d8cc03d5c3359',
         abi=DefaultAbis.Token
     )
+    
+    POLYGON_USDC_E = RawContract(
+        title=CurrencySymbol.USDC_e,
+        address='0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
+        abi=DefaultAbis.Token
+    )
 
     POLYGON_USDT = RawContract(
         title=CurrencySymbol.USDT,

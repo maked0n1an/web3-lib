@@ -1,6 +1,8 @@
 import asyncio
 import aiohttp
 
+from web3.types import TxParams
+
 from async_eth_lib.models.client import Client
 from async_eth_lib.models.contracts.raw_contract import RawContract
 from async_eth_lib.models.others.constants import CurrencySymbol
@@ -11,15 +13,92 @@ from async_eth_lib.models.swap.swap_info import SwapInfo
 class BaseTask:
     def __init__(self, client: Client):
         self.client = client
-        
+
+    def set_gas_price_and_gas_limit(
+        self,
+        swap_info: SwapInfo,
+        tx_params: dict | TxParams
+    ) -> dict | TxParams:
+        if swap_info.gas_limit:
+            tx_params = self.client.contract.set_gas_limit(
+                gas_limit=swap_info.gas_limit,
+                tx_params=tx_params
+            )
+
+        if swap_info.gas_price:
+            tx_params = self.client.contract.set_gas_price(
+                gas_price=swap_info.gas_price,
+                tx_params=tx_params
+            )
+
+        return tx_params
+
     def validate_swap_inputs(
-        self,                              
-        first_arg: str, 
-        second_arg: str, 
+        self,
+        first_arg: str,
+        second_arg: str,
         arg_type: str = 'args'
     ) -> str:
         if first_arg.upper() == second_arg.upper():
             return f'The {arg_type} for swap() are equal: {first_arg} == {second_arg}'
+
+    async def approve_interface(
+        self,
+        token_address: str,
+        spender: str,
+        amount: TokenAmount | None = None,
+        gas_price: float | None = None,
+        gas_limit: int | None = None,
+        is_approve_infinity: bool = True
+    ) -> bool:
+        """
+        Approve the specified spender to spend the specified amount of tokens on behalf of the account.
+
+        Args:
+            token_address (str): The token contract address.
+            spender (str): The address of the spender.
+            amount (TokenAmount | None): The amount of tokens to be approved. If None, the maximum available balance will be approved.
+            is_approve_infinity (bool): Whether to approve an infinite amount.
+
+        Returns:
+            bool: True if the approval is successful, False otherwise.
+
+        """
+        balance = await self.client.contract.get_balance(
+            token_address=token_address
+        )
+        if balance.Wei <= 0:
+            return False
+
+        if not amount or amount.Wei > balance.Wei:
+            amount = balance
+
+        approved = await self.client.contract.get_approved_amount(
+            token=token_address,
+            spender=spender,
+            owner=self.client.account_manager.account.address
+        )
+
+        if amount.Wei <= approved.Wei:
+            return True
+
+        tx = await self.client.contract.approve(
+            token=token_address,
+            spender=spender,
+            amount=amount,
+            gas_price=gas_price,
+            gas_limit=gas_limit,
+            is_approve_infinity=is_approve_infinity
+        )
+        receipt = await tx.wait_for_tx_receipt(
+            web3=self.client.account_manager.w3,
+            timeout=300
+        )
+        
+        if receipt:
+            return True
+
+        return False
 
     async def calculate_amount_from_for_swap(
         self,
@@ -72,10 +151,10 @@ class BaseTask:
         return token_amount
 
     async def get_binance_ticker_price(
-        self, 
+        self,
         first_token: str = CurrencySymbol.ETH,
         second_token: str = CurrencySymbol.USDT
-    ) -> float | None:        
+    ) -> float | None:
         async with aiohttp.ClientSession() as session:
             price = await self._get_price_from_binance(session, first_token, second_token)
             if price is None:
@@ -84,61 +163,13 @@ class BaseTask:
 
             return price
 
-    async def approve_interface(
-        self,
-        token_address: str,
-        spender: str,
-        amount: TokenAmount | None = None,
-        is_approve_infinity: bool = True
-    ) -> bool:
-        """
-        Approve the specified spender to spend the specified amount of tokens on behalf of the account.
-
-        Args:
-            token_address (str): The token contract address.
-            spender (str): The address of the spender.
-            amount (TokenAmount | None): The amount of tokens to be approved. If None, the maximum available balance will be approved.
-            is_approve_infinity (bool): Whether to approve an infinite amount.
-
-        Returns:
-            bool: True if the approval is successful, False otherwise.
-
-        """
-        balance = await self.client.contract.get_balance(token_address=token_address)
-        if balance.Wei <= 0:
-            return False
-
-        if not amount or amount.Wei > balance.Wei:
-            amount = balance
-
-        approved = await self.client.contract.get_approved_amount(
-            token=token_address,
-            spender=spender,
-            owner=self.client.account_manager.account.address
-        )
-
-        if amount.Wei <= approved.Wei:
-            return True
-
-        tx = await self.client.contract.approve(
-            token=token_address,
-            spender=spender,
-            amount=amount,
-            is_approve_infinity=is_approve_infinity
-        )
-        receipt = await tx.wait_for_tx_receipt(web3=self.client.account_manager.w3, timeout=300)
-        if receipt:
-            return True
-
-        return False
-
     async def _get_price_from_binance(
         self,
         session: aiohttp.ClientSession,
         first_token: str,
         second_token: str
     ) -> float | None:
-        first_token, second_token = first_token.upper(), second_token.upper()        
+        first_token, second_token = first_token.upper(), second_token.upper()
         for _ in range(5):
             try:
                 response = await session.get(
