@@ -3,18 +3,19 @@ from web3.contract import Contract, AsyncContract
 from web3.types import TxParams
 from eth_typing import ChecksumAddress
 
-from .raw_contract import RawContract
-from ..account.account_manager import AccountManager
-from ..others.params_types import ParamsTypes
-from ..others.dataclasses import CommonValues, DefaultAbis
-from ..others.token_amount import TokenAmount
-from ...models.transactions.transaction import Transaction
-from ...models.transactions.tx import Tx
-from ...models.transactions.tx_args import TxArgs
-from ...utils.helpers import (
-    make_request,
+from async_eth_lib.models.account.account_manager import AccountManager
+from async_eth_lib.models.others.dataclasses import CommonValues, DefaultAbis
+from async_eth_lib.models.others.params_types import ParamsTypes
+from async_eth_lib.models.others.token_amount import TokenAmount
+from async_eth_lib.models.transactions.transaction import Transaction
+from async_eth_lib.models.transactions.tx import Tx
+from async_eth_lib.models.transactions.tx_args import TxArgs
+
+from async_eth_lib.utils.helpers import (
+    make_request, 
     text_between
 )
+from .raw_contract import RawContract
 
 
 class Contract:

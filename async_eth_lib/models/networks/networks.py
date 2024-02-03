@@ -1,6 +1,6 @@
 from async_eth_lib.models.others.constants import CurrencySymbol
-from .network import Network
 from async_eth_lib.models.others.common import Singleton
+from .network import Network
 
 
 class Networks(Singleton):
