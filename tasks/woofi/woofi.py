@@ -29,12 +29,12 @@ class WooFi(BaseTask):
 
         """
         check = self.validate_swap_inputs(
-            first_arg=swap_info.from_token, 
-            second_arg=swap_info.to_token, 
+            first_arg=swap_info.from_token,
+            second_arg=swap_info.to_token,
             arg_type='tokens'
         )
         if check:
-            return check 
+            return check
 
         swap_contract = WoofiContracts.get_dex_contract(
             name='WooRouterV2',
@@ -42,7 +42,6 @@ class WooFi(BaseTask):
         )
 
         dex_contract = await self.client.contract.get(contract=swap_contract)
-
         swap_query = await self._get_min_to_amount(contract=dex_contract, swap_info=swap_info)
 
         args = TxArgs(
@@ -58,12 +57,18 @@ class WooFi(BaseTask):
             to=dex_contract.address,
             data=dex_contract.encodeABI('swap', args=args.get_tuple())
         )
+        
+        tx_params = self.set_gas_price_and_gas_limit(
+            swap_info=swap_info,
+            tx_params=tx_params
+        )
 
         if not swap_query.from_token.is_native_token:
             await self.approve_interface(
                 token_address=swap_query.from_token.address,
                 spender=dex_contract.address,
                 amount=swap_query.from_amount,
+                gas_price=swap_info.gas_price,
                 is_approve_infinity=False
             )
             await asyncio.sleep(3)
@@ -79,13 +84,14 @@ class WooFi(BaseTask):
             return (
                 f'{swap_query.from_amount.Ether} {swap_query.from_token.title} was swapped to '
                 f'{swap_query.min_to_amount.Ether} {swap_query.to_token.title} '
-                f'via {swap_contract.title}: '
+                f'via {swap_contract.title}: ' 
                 f'{full_path + tx.hash.hex()}'
             )
 
         return (
-            f'Failed swap {swap_query.from_amount.Ether} to {swap_query.to_token.title}'
-            f'via {swap_contract.title}'
+            f'Failed swap {swap_query.from_amount.Ether} to {swap_query.to_token.title} '
+            f'via {swap_contract.title}: '
+            f'{full_path + tx.hash.hex()}'
         )
 
     async def _get_min_to_amount(
@@ -121,18 +127,18 @@ class WooFi(BaseTask):
             amount_from.Wei
         ).call()
 
+        decimals = 0
         if to_token.is_native_token:
-            min_to_amount = TokenAmount(
-                amount=to_token_price * (1 - swap_info.slippage / 100),
-                decimals=self.client.account_manager.network.decimals,
-                wei=True
-            )
+            decimals = self.client.account_manager.network.decimals
+
         else:
-            min_to_amount = TokenAmount(
-                amount=to_token_price * (1 - swap_info.slippage / 100),
-                decimals=await self.client.contract.get_decimals(contract_address=to_token.address),
-                wei=True
-            )
+            decimals = await self.client.contract.get_decimals(contract_address=to_token.address)
+
+        min_to_amount = TokenAmount(
+            amount=to_token_price * (1 - swap_info.slippage / 100),
+            decimals=decimals,
+            wei=True
+        )
 
         return SwapQuery(
             from_token=from_token,

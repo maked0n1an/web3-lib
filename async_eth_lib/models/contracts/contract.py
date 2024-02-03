@@ -1,5 +1,6 @@
 from web3 import Web3
 from web3.contract import Contract, AsyncContract
+from web3.types import TxParams
 from eth_typing import ChecksumAddress
 
 from .raw_contract import RawContract
@@ -119,13 +120,15 @@ class Contract:
 
         """
         token_address, _ = await self.get_contract_attributes(contract=token)
-        token_contract = await self.default_token(contract_address=token_address)
+        token_contract = await self.default_token(
+            contract_address=token_address
+        )
         spender = Web3.to_checksum_address(spender)
 
         if not amount:
             if is_approve_infinity:
                 amount = CommonValues.InfinityInt
-            else:                
+            else:
                 amount = await self.get_balance(token_address=token_address)
 
         elif isinstance(amount, (int, float)):
@@ -138,22 +141,16 @@ class Contract:
         tx_params = {}
 
         if gas_price:
-            if isinstance(gas_price, int):
-                gas_price = TokenAmount(
-                    amount=gas_price, 
-                    decimals=self.account_manager.network.decimals,
-                    wei=True
-                )
-            tx_params['gasPrice'] = gas_price.Wei
+            tx_params = self.set_gas_price(
+                gas_price=gas_price,
+                tx_params=tx_params
+            )
 
         if gas_limit:
-            if isinstance(gas_limit, int):
-                gas_limit = TokenAmount(
-                    amount=gas_limit,
-                    decimals=self.account_manager.network.decimals,
-                    wei=True
-                )
-            tx_params['gas'] = gas_limit.Wei
+            tx_params = self.set_gas_limit(
+                gas_limit=gas_limit,
+                tx_params=tx_params
+            )
 
         data = token_contract.encodeABI('approve',
                                         args=TxArgs(
@@ -319,3 +316,53 @@ class Contract:
             address=contract_address, abi=DefaultAbis.Token)
 
         return contract
+
+    def set_gas_price(
+        self,
+        gas_price: ParamsTypes.GasPrice,
+        tx_params: dict | TxParams
+    ) -> dict | TxParams:
+        """
+        Set the gas price in the transaction parameters.
+
+        Args:
+            gas_price (ParamsTypes.GasPrice): The gas price to set.
+            tx_params (dict | TxParams): The transaction parameters.
+
+        Returns:
+            dict | TxParams: The updated transaction parameters.
+
+        """
+        if isinstance(gas_price, float | int):
+            gas_price = TokenAmount(
+                amount=gas_price,
+                decimals=self.account_manager.network.decimals,
+                set_gwei=True
+            )
+        tx_params['gasPrice'] = gas_price.GWei
+        return tx_params
+
+    def set_gas_limit(
+        self,
+        gas_limit: ParamsTypes.GasLimit,
+        tx_params: dict | TxParams,
+    ) -> dict | TxParams:
+        """
+        Set the gas limit in the transaction parameters.
+
+        Args:
+            gas_limit (ParamsTypes.GasLimit): The gas limit to set.
+            tx_params (dict | TxParams): The transaction parameters.
+
+        Returns:
+            dict | TxParams: The updated transaction parameters.
+
+        """
+        if isinstance(gas_limit, int):
+            gas_limit = TokenAmount(
+                amount=gas_limit,
+                decimals=self.account_manager.network.decimals,
+                wei=True
+            )
+        tx_params['gas'] = gas_limit.Wei
+        return tx_params

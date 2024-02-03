@@ -9,5 +9,5 @@ class ParamsTypes:
     Contract = str | types.Address | types.ChecksumAddress | types.ENS | RawContract | AsyncContract
     Address = str | types.Address | types.ChecksumAddress | types.ENS
     Amount = float | int | TokenAmount
-    GasPrice = int | TokenAmount
+    GasPrice = float | int | TokenAmount 
     GasLimit = int | TokenAmount

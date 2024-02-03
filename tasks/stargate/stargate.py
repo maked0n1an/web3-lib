@@ -49,7 +49,7 @@ class Stargate(BaseTask):
         lz_tx_params = TxArgs(
             dstGasForCall=0,
             dstNativeAmount=0,
-            dstNativeAddr='0x0000000000000000000000000000000000000001'
+            dstNativeAddr='0x0000000000000000000000000000000000000000'
         )
 
         args = TxArgs(
@@ -89,8 +89,10 @@ class Stargate(BaseTask):
 
         if await self.approve_interface(
             token_address=src_bridge_data.token_contract.address,
-            spender=dst_bridge_data.bridge_contract.address,
-            amount=amount_from
+            spender=src_bridge_data.bridge_contract.address,
+            amount=amount_from,
+            gas_price=swap_info.gas_price,
+            gas_limit=swap_info.gas_limit
         ):
             await asyncio.sleep(random.randint(3, 6))
         else:
@@ -100,6 +102,11 @@ class Stargate(BaseTask):
             to=dex_contract.address,
             data=dex_contract.encodeABI('swap', args=args.get_tuple()),
             value=value.Wei
+        )
+        
+        tx_params = self.set_gas_price_and_gas_limit(
+            swap_info=swap_info,
+            tx_params=tx_params
         )
 
         tx = await self.client.contract.transaction.sign_and_send(
@@ -112,10 +119,10 @@ class Stargate(BaseTask):
         
         if receipt:
             return (
-                f'{amount_from.Ether} {swap_info.from_token}',
-                f'was sent from {self.client.account_manager.network.name}',
-                f'to {swap_info.to_network.upper()} via Stargate:',
-                f'https://layerzeroscan.com/tx/{tx.hash.hex()}'
+                f'{amount_from.Ether} {swap_info.from_token} '
+                f'was sent from {self.client.account_manager.network.name.upper()} '
+                f'to {swap_info.to_network.upper()} via Stargate: '
+                f'https://layerzeroscan.com/tx/{tx.hash.hex()} '
             )
 
     async def _get_value(
