@@ -6,8 +6,8 @@ from eth_account.datastructures import (
     SignedTransaction
 )
 
-from ..account.account_manager import AccountManager
-from ..others.token_amount import TokenAmount
+from async_eth_lib.models.account.account_manager import AccountManager
+from async_eth_lib.models.others.token_amount import TokenAmount
 from .tx import Tx
 
 

@@ -1,14 +1,13 @@
 import random
 import requests
 
-from aiohttp import ClientSession
 from web3 import Web3
 from web3.eth import AsyncEth
 from eth_account.signers.local import LocalAccount
 from fake_useragent import UserAgent
 
-from ..networks.network import Network
-from ..networks.networks import Networks
+from async_eth_lib.models.networks.network import Network
+from async_eth_lib.models.networks.networks import Networks
 import async_eth_lib.models.others.exceptions as exceptions
 
 

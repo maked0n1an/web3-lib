@@ -1,6 +1,3 @@
-from eth_typing import ChecksumAddress
-from web3 import Web3
-
 from async_eth_lib.models.contracts.raw_contract import RawContract
 
 

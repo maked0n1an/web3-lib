@@ -1,6 +1,6 @@
 from typing import Any
 
-from ..others.common import AutoRepr
+from async_eth_lib.models.others.common import AutoRepr
 
 
 class TxArgs(AutoRepr):

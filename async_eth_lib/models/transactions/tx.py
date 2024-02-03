@@ -7,8 +7,9 @@ from web3.types import (
     _Hash32,
 )
 
-from ..others.common import AutoRepr
-from ..account.account_manager import AccountManager
+from async_eth_lib.models.account.account_manager import AccountManager
+from async_eth_lib.models.others.common import AutoRepr
+
 import async_eth_lib.models.others.exceptions as exceptions
 
 
