@@ -11,12 +11,6 @@ from tasks.stargate.stargate_data import StargateData
 
 
 class Stargate(BaseTask):
-    def __init__(
-        self,
-        client: Client
-    ) -> None:
-        self.client = client
-
     async def swap(
         self,
         swap_info: SwapInfo,
