@@ -13,4 +13,5 @@ else:
     
 ABIS_DIR = os.path.join(ROOT_DIR, 'data', 'abis')
 
-PRIVATE_KEY = str(os.getenv('PRIVATE_KEY'))
+with open('private_keys.txt', 'r') as file:
+    PRIVATE_KEYS = [row.strip() for row in file]
