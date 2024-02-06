@@ -1,6 +1,9 @@
 import json
 
-from web3 import Web3
+from web3 import (
+    Web3,
+    types
+)
 from typing import Any
 from eth_typing import ChecksumAddress
 
@@ -22,14 +25,12 @@ class RawContract(AutoRepr):
     title: str
     address: ChecksumAddress
     abi: list[dict[str, Any]]
-    is_native_token: bool
 
     def __init__(
         self,
         title: str,
-        address: str,
-        abi: list[dict[str, Any]] | str,
-        is_native_token: bool = False
+        address: str | types.Address | types.ChecksumAddress | types.ENS,
+        abi: list[dict[str, Any]] | str
     ) -> None:
         """
         Initialize the class.
@@ -43,9 +44,27 @@ class RawContract(AutoRepr):
         self.title = title
         self.address = Web3.to_checksum_address(address)
         self.abi = json.loads(abi) if isinstance(abi, str) else abi
+
+
+class TokenContract(RawContract):
+    def __init__(
+        self,
+        title: str,
+        address: str | types.Address | types.ChecksumAddress | types.ENS,
+        abi: list[dict[str, Any]] | str = DefaultAbis.Token,
+        decimals: int | None = None,
+        is_native_token: bool = False
+    ) -> None:
+        super().__init__(
+            title=title,
+            address=address,
+            abi=abi
+        )
+        self.decimals = decimals
         self.is_native_token = is_native_token
-        
-class NativeTokenContract(RawContract):
+
+
+class NativeTokenContract(TokenContract):
     """
     An instance of a native token contract.
 
@@ -55,7 +74,9 @@ class NativeTokenContract(RawContract):
     """
     def __init__(
         self,
-        title: str       
+        title: str,
+        abi: list[dict[str, Any]] | str = DefaultAbis.Token,
+        decimals: int = 18
     ) -> None:
         """
         Initialize the NativeTokenContract.
@@ -67,7 +88,7 @@ class NativeTokenContract(RawContract):
         super().__init__(
             title=title,
             address='0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
-            abi=DefaultAbis.Token,
+            abi=abi,
+            decimals=decimals,
             is_native_token=True
         )
-        

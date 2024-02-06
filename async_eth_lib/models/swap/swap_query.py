@@ -1,4 +1,4 @@
-from async_eth_lib.models.contracts.raw_contract import RawContract
+from async_eth_lib.models.contracts.raw_contract import TokenContract
 from async_eth_lib.models.others.token_amount import TokenAmount
 
 
@@ -16,10 +16,10 @@ class SwapQuery:
 
     def __init__(
         self,
-        from_token: RawContract,
-        to_token: RawContract,
+        from_token: TokenContract,
+        to_token: TokenContract,
         from_amount: TokenAmount,
-        min_to_amount: TokenAmount
+        min_to_amount: TokenAmount | None = None
     ) -> None:
         """
         Initialize the SwapQuery class.
