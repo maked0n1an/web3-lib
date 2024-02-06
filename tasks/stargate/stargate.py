@@ -22,7 +22,8 @@ class Stargate(BaseTask):
     async def swap(
         self,
         swap_info: SwapInfo,
-        max_fee: float = 1
+        max_fee: float = 1,
+        dst_fee: float | None = None
     ) -> str:
         check = self.validate_swap_inputs(
             first_arg=self.client.account_manager.network.name,
@@ -59,7 +60,8 @@ class Stargate(BaseTask):
             _dstPoolId=dst_bridge_data.pool_id,
             _refundAddress=self.client.account_manager.account.address,
             _amountLD=swap_query.amount_from.Wei,
-            _minAmountLd=int(swap_query.amount_from.Wei * (100 - swap_info.slippage) / 100),
+            _minAmountLd=int(swap_query.amount_from.Wei *
+                             (100 - swap_info.slippage) / 100),
             _lzTxParams=lz_tx_params.get_tuple(),
             _to=self.client.account_manager.account.address,
             _payload='0x'
@@ -80,13 +82,34 @@ class Stargate(BaseTask):
             return f'Too low balance: balance: {native_balance.Ether}; value: {value.Ether}'
 
         token_price = await self.get_binance_ticker_price(
-            first_token=self.client.account_manager.network.coin_symbol
+            first_token=swap_query.from_token.title
         )
         network_fee = float(value.Ether) * token_price
-
-        if network_fee > max_fee:
-            return f'Too high fee: {network_fee}' \
-            f'({self.client.account_manager.network.name})'
+        
+        if dst_fee:
+            amount = TokenAmount(
+                amount=dst_fee,
+                decimals=swap_query.to_token.decimals
+            )
+            lz_tx_params = TxArgs(
+                dstGasForCall=0,
+                dstNativeAmount=amount.Wei,
+                dstNativeAddr=self.client.account_manager.account.address
+            )
+            args._lzTxParams=lz_tx_params.get_tuple()
+            
+            dst_token_price = await self.get_binance_ticker_price(
+                first_token=swap_query.to_token.title
+            )
+            dst_native_amount_price = float(amount.Ether) * dst_token_price
+            
+            if network_fee - dst_native_amount_price > max_fee:
+                return f'Too high fee for fee: {network_fee}' \
+                    f'({self.client.account_manager.network.name})'
+        else:
+            if network_fee > max_fee:
+                return f'Too high fee: {network_fee}' \
+                    f'({self.client.account_manager.network.name})'
 
         if not swap_query.from_token.is_native_token:
             await self.approve_interface(
@@ -105,7 +128,7 @@ class Stargate(BaseTask):
             data=dex_contract.encodeABI('swap', args=args.get_tuple()),
             value=value.Wei
         )
-        
+
         tx_params = self.set_gas_price_and_gas_limit(
             swap_info=swap_info,
             tx_params=tx_params
@@ -118,7 +141,7 @@ class Stargate(BaseTask):
             web3=self.client.account_manager.w3,
             timeout=250
         )
-        
+
         if receipt:
             return (
                 f'{swap_query.amount_from.Ether} {swap_info.from_token} '

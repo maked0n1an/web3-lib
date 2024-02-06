@@ -153,7 +153,7 @@ class BaseTask:
         ```python
         swap_query = await compute_source_token_amount(swap_info=my_swap_info)
         print(swap_query)
-        # Output: SwapQuery(from_token=..., to_token=..., from_amount=...)
+        # Output: SwapQuery(from_token=..., to_token=..., amount_to=...)
         ```
         """     
         from_token = TokenContracts.get_token(
@@ -234,7 +234,7 @@ class BaseTask:
             slippage=1
         )
         print(min_destination_query)
-        # Output: SwapQuery(from_token=..., to_token=..., from_amount=..., min_to_amount=...)
+        # Output: SwapQuery(from_token=..., to_token=..., amount_to=..., min_to_amount=...)
         ```
         """
         decimals = 0
@@ -255,7 +255,7 @@ class BaseTask:
         return SwapQuery(
             from_token=swap_query.from_token,
             to_token=swap_query.to_token,
-            amount_from=swap_query.from_amount,
+            amount_from=swap_query.amount_from,
             min_to_amount=min_to_amount
         )
 
