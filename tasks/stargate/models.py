@@ -1,10 +1,13 @@
-from async_eth_lib.models.contracts.raw_contract import RawContract
+from async_eth_lib.models.contracts.raw_contract import (
+    RawContract, 
+    TokenContract
+)
 
 
 class BridgeData:
     def __init__(
         self,
-        token_contract: RawContract,
+        token_contract: TokenContract,
         bridge_contract: RawContract,
         pool_id: int
     ) -> None:
