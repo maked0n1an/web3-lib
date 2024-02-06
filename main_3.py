@@ -8,7 +8,7 @@ from async_eth_lib.models.networks.networks import Networks
 from async_eth_lib.models.others.token_amount import TokenAmount
 from async_eth_lib.models.transactions.tx_args import TxArgs
 from async_eth_lib.utils.helpers import read_txt
-from async_eth_lib.models.contracts.contracts import Contracts
+from async_eth_lib.models.contracts.contracts import TokenContracts
 
 pk: list = read_txt('private_key.txt')
 
@@ -38,7 +38,7 @@ async def get_price(session: aiohttp.ClientSession, symbol) -> float | None:
 
 
 async def get_min_to_amount(
-    from_amount: TokenAmount,
+    amount_to: TokenAmount,
     from_token: RawContract,
     to_token: RawContract,
     decimals: int,
@@ -47,7 +47,7 @@ async def get_min_to_amount(
     to_token_price = await get_token_price(from_token=from_token.title, to_token=to_token.title)
 
     min_to_amount = TokenAmount(float(
-        from_amount.Ether) * to_token_price * (1 - slippage / 100), decimals=decimals)
+        amount_to.Ether) * to_token_price * (1 - slippage / 100), decimals=decimals)
 
     return min_to_amount
 
@@ -55,21 +55,21 @@ async def get_min_to_amount(
 async def main():
     client = Client(private_key=pk[0], network=Networks.Arbitrum)
 
-    from_token = Contracts.ARBITRUM_USDC
-    to_token = Contracts.ARBITRUM_ETH
+    from_token = TokenContracts.ARBITRUM_USDC
+    to_token = TokenContracts.ARBITRUM_ETH
 
     woofi_contract = await client.contract.get(contract=Dexes.WOOFI)
 
-    from_amount = TokenAmount(
+    amount_to = TokenAmount(
         2.26,
         decimals=6
     )
-    min_to_amount = await get_min_to_amount(from_amount, from_token, to_token, 6)
+    min_to_amount = await get_min_to_amount(amount_to, from_token, to_token, 6)
 
     tx_args = TxArgs(
-        fromToken=Contracts.ARBITRUM_USDC.address,
-        toToken=Contracts.ARBITRUM_ETH.address,
-        fromAmount=from_amount.Wei,
+        fromToken=TokenContracts.ARBITRUM_USDC.address,
+        toToken=TokenContracts.ARBITRUM_ETH.address,
+        fromAmount=amount_to.Wei,
         minToAmount=min_to_amount.Wei,
         to=client.account_manager.account.address,
         rebateTo=client.account_manager.account.address
@@ -77,15 +77,15 @@ async def main():
     data = woofi_contract.encodeABI('swap', args=tx_args.get_tuple())
 
     tx_params = {
-        'to': Contracts.ARBITRUM_WOOFI.address,
+        'to': TokenContracts.ARBITRUM_WOOFI.address,
         'data': data,
-        # 'value': from_amount.Wei
+        # 'value': amount_to.Wei
     }
 
     # tx = await client.contract.approve(
     #     token=Contracts.ARBITRUM_USDC.address,
     #     spender=Contracts.ARBITRUM_WOOFI.address,
-    #     amount=from_amount
+    #     amount=amount_to
     # )
     # receipt = await tx.wait_for_transaction_receipt(account_manager=client.account_manager, timeout=200)
     # if receipt:
