@@ -82,7 +82,7 @@ class Stargate(BaseTask):
             return f'Too low balance: balance: {native_balance.Ether}; value: {value.Ether}'
 
         token_price = await self.get_binance_ticker_price(
-            first_token=swap_query.from_token.title
+            first_token=self.client.account_manager.network.coin_symbol
         )
         network_fee = float(value.Ether) * token_price
         
