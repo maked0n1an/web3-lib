@@ -1,13 +1,11 @@
-import asyncio
-import random
-
-from web3.contract import Contract, AsyncContract
 from web3.types import TxParams
+from web3.contract import Contract, AsyncContract
 
 from async_eth_lib.models.client import Client
 from async_eth_lib.models.others.token_amount import TokenAmount
 from async_eth_lib.models.swap.swap_info import SwapInfo
 from async_eth_lib.models.transactions.tx_args import TxArgs
+from async_eth_lib.utils.helpers import sleep
 from tasks.base_task import BaseTask
 from tasks.stargate.stargate_data import StargateData
 
@@ -22,7 +20,7 @@ class Stargate(BaseTask):
     async def swap(
         self,
         swap_info: SwapInfo,
-        max_fee: float = 1,
+        max_fee: float = 0.7,
         dst_fee: float | None = None
     ) -> str:
         check = self.validate_swap_inputs(
@@ -85,7 +83,7 @@ class Stargate(BaseTask):
             first_token=self.client.account_manager.network.coin_symbol
         )
         network_fee = float(value.Ether) * token_price
-        
+
         if dst_fee:
             amount = TokenAmount(
                 amount=dst_fee,
@@ -96,13 +94,13 @@ class Stargate(BaseTask):
                 dstNativeAmount=amount.Wei,
                 dstNativeAddr=self.client.account_manager.account.address
             )
-            args._lzTxParams=lz_tx_params.get_tuple()
-            
+            args._lzTxParams = lz_tx_params.get_tuple()
+
             dst_token_price = await self.get_binance_ticker_price(
                 first_token=swap_query.to_token.title
             )
             dst_native_amount_price = float(amount.Ether) * dst_token_price
-            
+
             if network_fee - dst_native_amount_price > max_fee:
                 return f'Too high fee for fee: {network_fee}' \
                     f'({self.client.account_manager.network.name})'
@@ -111,28 +109,27 @@ class Stargate(BaseTask):
                 return f'Too high fee: {network_fee}' \
                     f'({self.client.account_manager.network.name})'
 
-        if not swap_query.from_token.is_native_token:
-            await self.approve_interface(
-                token_contract=src_bridge_data.token_contract,
-                spender_address=src_bridge_data.bridge_contract.address,
-                amount=swap_query.amount_from,
-                gas_price=swap_info.gas_price,
-                gas_limit=swap_info.gas_limit
-            )
-            await asyncio.sleep(random.randint(3, 6))
-        else:
-            return f'Failed: can not approve'
-
         tx_params = TxParams(
             to=dex_contract.address,
             data=dex_contract.encodeABI('swap', args=args.get_tuple()),
             value=value.Wei
         )
 
-        tx_params = self.set_gas_price_and_gas_limit(
+        tx_params = self.set_all_gas_params(
             swap_info=swap_info,
             tx_params=tx_params
         )
+
+        if not swap_query.from_token.is_native_token:
+            await self.approve_interface(
+                token_contract=src_bridge_data.token_contract,
+                spender_address=src_bridge_data.bridge_contract.address,
+                amount=swap_query.amount_from,
+                is_approve_infinity=False
+            )
+            await sleep(3, 7)
+        else:
+            return f'Failed: can not approve'
 
         tx = await self.client.contract.transaction.sign_and_send(
             tx_params=tx_params

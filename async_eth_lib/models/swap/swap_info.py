@@ -9,7 +9,7 @@ class SwapInfo:
     amount: float
     slippage: float
     amount_by_percent: float
-    multiplier_of_gas: int | None
+    multiplier_of_gas: float | None
     gas_price: float | None
     gas_limit: int | None
 
@@ -27,7 +27,7 @@ class SwapInfo:
         max_percent: int | None = None,
         gas_price: float | None = None,
         gas_limit: int | None = None,
-        multiplier_of_gas: int | None = None
+        multiplier_of_gas: float | None = None
     ) -> None:
         """
         Initialize the SwapInfo class.
@@ -54,9 +54,9 @@ class SwapInfo:
         self.amount = amount
         self.slippage = slippage
         self.amount_by_percent = 0
-        self.multiplier_of_gas = multiplier_of_gas
         self.gas_price = gas_price
         self.gas_limit = gas_limit
+        self.multiplier_of_gas = multiplier_of_gas
         if amount_from and amount_to:
             self.amount = self._get_random_amount(
                 amount_from, amount_to, decimals=decimals)

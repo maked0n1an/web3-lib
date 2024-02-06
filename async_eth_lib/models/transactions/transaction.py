@@ -88,7 +88,7 @@ class Transaction:
             wei=True
         )
 
-    async def auto_add_params(self, tx_params: TxParams) -> TxParams:
+    async def auto_add_params(self, tx_params: TxParams | dict) -> TxParams:
         """
         Add 'chainId', 'nonce', 'from', 'gasPrice' or 'maxFeePerGas' + 'maxPriorityFeePerGas' and 'gas' parameters to
             transaction parameters if they are missing.
@@ -108,7 +108,7 @@ class Transaction:
 
         if 'from' not in tx_params:
             tx_params['from'] = self.account_manager.account.address
-
+        
         is_eip_1559_tx_type = self.account_manager.network.tx_type == 2
         current_gas_price = await self.get_gas_price()
 
@@ -121,13 +121,20 @@ class Transaction:
 
         elif 'gasPrice' not in tx_params:
             tx_params['gasPrice'] = current_gas_price.Wei
-
+            
         if 'maxFeePerGas' in tx_params and 'maxPriorityFeePerGas' not in tx_params:
             tx_params['maxPriorityFeePerGas'] = (await self.get_max_priority_fee()).Wei
             tx_params['maxFeePerGas'] += tx_params['maxPriorityFeePerGas']
 
+        multiplier_of_gas = 1
+        
+        if 'multiplier' in tx_params:
+            multiplier_of_gas = tx_params['multiplier']
+            del tx_params['multiplier']
+
         if not tx_params.get('gas') or not int(tx_params['gas']):
-            tx_params['gas'] = (await self.get_estimate_gas(tx_params=tx_params)).Wei
+            gas = await self.get_estimate_gas(tx_params=tx_params)            
+            tx_params['gas'] = int(gas.Wei * multiplier_of_gas)
 
         return tx_params
 
