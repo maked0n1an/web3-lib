@@ -12,6 +12,7 @@ class CurrencySymbol(Singleton):
     BNB = 'BNB'
     BUSD = 'BUSD'
     CELO = 'CELO'
+    CORE = 'CORE'
     DAI = 'DAI'
     FRAX = 'FRAX'
     FTM = 'FTM'
