@@ -17,8 +17,8 @@ class SwapQuery:
     def __init__(
         self,
         from_token: TokenContract,
-        to_token: TokenContract,
         amount_from: TokenAmount,
+        to_token: TokenContract | None = None,
         min_to_amount: TokenAmount | None = None
     ) -> None:
         """
