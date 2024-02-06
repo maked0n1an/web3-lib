@@ -1,3 +1,4 @@
+from typing import Union
 from web3 import Web3
 from web3.contract import Contract, AsyncContract
 from web3.types import TxParams
@@ -12,10 +13,9 @@ from async_eth_lib.models.transactions.tx import Tx
 from async_eth_lib.models.transactions.tx_args import TxArgs
 
 from async_eth_lib.utils.helpers import (
-    make_request, 
+    make_request,
     text_between
 )
-from .raw_contract import RawContract
 
 
 class Contract:
@@ -78,25 +78,35 @@ class Contract:
         return function
 
     @staticmethod
-    async def get_contract_attributes(contract: ParamsTypes.Contract) -> tuple[ChecksumAddress, list | None]:
+    async def get_contract_attributes(
+        contract: ParamsTypes.TokenContract | ParamsTypes.Contract
+            | ParamsTypes.Address
+    ) -> tuple[ChecksumAddress, list | None]:
         """
-        Convert different types of contract to its address and ABI.
+        Get the checksummed contract address and ABI.
+
         Args:
-            contract (ParamsTypes.Contract): the contract address or instance
+            contract (ParamsTypes.TokenContract | ParamsTypes.Contract | ParamsTypes.Address):
+                The contract address or instance.
 
         Returns:
-            tuple[ChecksumAddress, list | None]: the checksummed contract address and ABI.
-        """
+            tuple[ChecksumAddress, list | None]: The checksummed contract address and ABI.
+            
+        """        
         abi = None
-        address = contract
-        if isinstance(contract, (AsyncContract, RawContract)):
+        address = None
+        if type(contract) in ParamsTypes.Address.__args__:
+            address = contract
+        else:
             address, abi = contract.address, contract.abi
+
         return Web3.to_checksum_address(address), abi
 
     async def approve(
         self,
-        token: ParamsTypes.Contract,
-        spender: ParamsTypes.Address,
+        token_contract: ParamsTypes.TokenContract | ParamsTypes.Contract 
+            | ParamsTypes.Address,
+        spender_address: ParamsTypes.Address,
         amount: ParamsTypes.Amount | None = None,
         gas_price: ParamsTypes.GasPrice | None = None,
         gas_limit: ParamsTypes.GasLimit | None = None,
@@ -104,40 +114,43 @@ class Contract:
         is_approve_infinity: bool = False
     ) -> Tx:
         """
-        Approve token spending for specified address.
+        Approve a spender to spend a certain amount of tokens on behalf of the user.
 
         Args:
-            token (Contract): the contract address or instance of token to approve.
-            spender (Address): the spender address, contract address or instance.
-            amount (Optional[TokenAmount]): an amount to approve. (infinity)
-            gas_price (Optional[GasPrice]): the gas price in TokenAmount. (parsed from the network)
-            gas_limit (Optional[GasLimit]): the gas limit in Wei. (parsed from the network)
-            nonce (Optional[int]): a nonce of the sender address. (get it using the 'nonce' function)
-            check_gas_price (bool): if True and the gas price is higher than that specified in the 'gas_price'
-                argument, the 'GasPriceTooHigh' error will raise. (False)
+            token_contract (ParamsTypes.TokenContract | ParamsTypes.Contract | ParamsTypes.Address):
+                The token contract or address.
+            spender_address (ParamsTypes.Address): The address of the spender.
+            amount (ParamsTypes.Amount | None): The amount of tokens to approve.
+            gas_price (ParamsTypes.GasPrice | None): Gas price for the transaction.
+            gas_limit (ParamsTypes.GasLimit | None): Gas limit for the transaction.
+            nonce (int | None): The nonce for the transaction.
+            is_approve_infinity (bool): If True, approves an infinite amount (default is False).
 
         Returns:
-            Tx: the instance of the sent transaction.
-
+            Tx: The transaction object.
         """
-        token_address, _ = await self.get_contract_attributes(contract=token)
-        token_contract = await self.default_token(
-            contract_address=token_address
-        )
-        spender = Web3.to_checksum_address(spender)
+        if type(token_contract) in ParamsTypes.Address.__args__:
+            token_address, _ = await self.get_contract_attributes(contract=token_contract)
+            token_contract = await self.get_token_contract(
+                token=token_address
+            )            
+        
+        decimals = await self.get_decimals(token_contract=token_contract)
+        token_contract = await self.get_token_contract(token=token_contract)
+        spender_address = Web3.to_checksum_address(spender_address)
 
         if not amount:
             if is_approve_infinity:
                 amount = CommonValues.InfinityInt
+                
             else:
-                amount = await self.get_balance(token_address=token_address)
+                amount = await self.get_balance(token_contract=token_contract)
 
         elif isinstance(amount, (int, float)):
-            decimals = await self.get_decimals(contract_address=token_address)
-            amount = TokenAmount(amount=amount, decimals=decimals).Wei
+            token_amount = TokenAmount(amount=amount, decimals=decimals).Wei
 
         else:
-            amount = amount.Wei
+            token_amount = amount.Wei
 
         tx_params = {}
 
@@ -155,8 +168,8 @@ class Contract:
 
         data = token_contract.encodeABI('approve',
                                         args=TxArgs(
-                                            spender=spender,
-                                            amount=amount
+                                            spender=spender_address,
+                                            amount=token_amount
                                         ).get_tuple())
         tx_params.update({
             'to': token_contract.address,
@@ -177,93 +190,95 @@ class Contract:
 
         Args:
             contract (ParamsTypes.Contract): the contract address or instance.
-            abi (list | str | None, optional): the contract ABI. (get it using the 'get_abi' function)
+            abi (list | str | None, optional): the contract ABI
 
         Returns:
             AsyncContract | Contract: the contract instance.
         """
-        contract, contract_abi = await self.get_contract_attributes(contract)
+
+        contract_address, contract_abi = await self.get_contract_attributes(
+            contract
+        )
+
         if not abi and not contract_abi:
             # todo: сделаем подгрузку abi из эксплорера (в том числе через proxy_address)
             raise ValueError("Can not get contract ABI")
         if not abi:
             abi = contract_abi
 
-        if abi:
-            return self.account_manager.w3.eth.contract(address=contract, abi=abi)
+        contract = self.account_manager.w3.eth.contract(
+            address=contract_address, abi=abi
+        )
 
-        return self.account_manager.w3.eth.contract(address=contract)
+        return contract
 
     async def get_approved_amount(
         self,
-        token: ParamsTypes.Contract,
-        spender: ParamsTypes.Contract,
+        token_contract: ParamsTypes.Contract | ParamsTypes.Address,
+        spender_address: ParamsTypes.Address,
         owner: ParamsTypes.Address | None = None
     ) -> TokenAmount:
         """
-        Get approved amount of token.
+        Get the approved amount of tokens for a spender.
 
         Args:
-            token (Contract): the contract address or instance of token.
-            spender (Contract): the spender address, contract address or instance.
-            owner (Optional[Address]): the owner address. (imported to client address)
+            token_contract (ParamsTypes.Contract | ParamsTypes.Address): The token contract or address.
+            spender_address (ParamsTypes.Address): The address of the spender.
+            owner (ParamsTypes.Address | None): The address of the token owner (default is None).
 
         Returns:
-            TokenAmount: the approved amount.
-
+            TokenAmount: The approved amount of tokens.
         """
-        contract_address, _ = await self.get_contract_attributes(contract=token)
-        contract = await self.default_token(contract_address=contract_address)
-        spender, _ = await self.get_contract_attributes(contract=spender)
+        spender_address = Web3.to_checksum_address(spender_address)
+
         if not owner:
             owner = self.account_manager.account.address
 
-        amount = await contract.functions.allowance(
+        decimals = 0
+
+        if type(token_contract) in ParamsTypes.Address.__args__:
+            token_contract = await self.get(contract=token_contract)
+
+        else:
+            decimals = await self.get_decimals(token_contract=token_contract)
+            token_contract = await self.get_token_contract(token=token_contract)
+
+        amount = await token_contract.functions.allowance(
             owner,
-            spender,
+            spender_address,
         ).call()
-        decimals = await self.get_decimals(contract_address=contract.address)
 
         return TokenAmount(amount, decimals, wei=True)
 
     async def get_balance(
         self,
-        token_address: str | ChecksumAddress | None = None,
-        address: str | ChecksumAddress | None = None,
-        decimals: int = 18
+        token_contract: ParamsTypes.TokenContract | ParamsTypes.Contract
+            | ParamsTypes.Address | None = None,
+        address: ParamsTypes.Address | None = None
     ) -> TokenAmount:
         """
         Get the balance of an Ethereum address.
 
-        Parameters:
-        - `token_address` (str | ChecksumAddress | None): The address of the token. If provided, retrieves the token balance.
-        - `address` (str | ChecksumAddress | None): The Ethereum address for which to retrieve the balance.
-        - `decimals` (int): The number of decimals for the token (default is 18).
+        Args:
+            token_contract (ParamsTypes.TokenContract | ParamsTypes.Contract | ParamsTypes.Address | None):
+                The token contract, contract address, or None for ETH balance.
+            address (ParamsTypes.Address | None): The Ethereum address for which to retrieve the balance.
 
         Returns:
-        - `TokenAmount`: An object representing the token balance, including the amount and decimals.
+            TokenAmount: An object representing the token balance, including the amount and decimals.
 
         Note:
-        - If `token_address` is provided, it retrieves the token balance using the specified token address.
-        - If `token_address` is not provided, it retrieves the ETH balance using the Ethereum address.
-
-        Example:
-        ```python
-        balance = await client.wallet.get_balance(token_address='0x123abc...', address='0x456def...')
-        print(balance)
-        # Output: TokenAmount(amount=123.45, decimals=18, wei=True)
-        ```
+            If `token_contract` is provided, it retrieves the token balance.
+            If `token_contract` is None, it retrieves the ETH balance.
         """
         if not address:
             address = self.account_manager.account.address
 
-        address = Web3.to_checksum_address(address)
-
-        if token_address:
-            contract = await self.default_token(contract_address=token_address)
+        if token_contract:
+            decimals = await self.get_decimals(token_contract=token_contract)
+            contract = await self.get_token_contract(token=token_contract)
 
             amount = await contract.functions.balanceOf(address).call()
-            decimals = await self.get_decimals(contract_address=contract.address)
 
         else:
             amount = await self.account_manager.w3.eth.get_balance(account=address)
@@ -275,7 +290,10 @@ class Contract:
             wei=True
         )
 
-    async def get_decimals(self, contract_address: ParamsTypes.Address) -> int:
+    async def get_decimals(
+        self,
+        token_contract: ParamsTypes.TokenContract | ParamsTypes.Contract
+    ) -> int:
         """
         Get the number of decimals for a given token.
 
@@ -291,32 +309,19 @@ class Contract:
         print(decimals)
         # Output: 18
         """
-        contract = await self.default_token(contract_address)
-        decimals = await contract.functions.decimals().call()
+
+        if type(token_contract) in ParamsTypes.TokenContract.__args__:
+            if not token_contract.decimals:
+                contract = self.account_manager.w3.eth.contract(
+                    address=token_contract.address,
+                    abi=token_contract.abi
+                )
+                token_contract.decimals = await contract.functions.decimals().call()
+            decimals = token_contract.decimals
+        else:
+            decimals = await token_contract.functions.decimals().call()
 
         return decimals
-
-    async def default_token(self, contract_address: ParamsTypes.Address) -> Contract | AsyncContract:
-        """
-        Get the default token contract instance for a given token address.
-
-        Parameters:
-        - `contract_address` (str | ChecksumAddress): The address of the token contract.
-
-        Returns:
-        - `Contract` | `AsyncContract`: The contract instance representing the token.
-
-        Example:
-        ```python
-        token_contract = await client.wallet.default_token(contract_address='0x123abc...')
-        print(token_contract)
-        # Output: <Contract object at 0x...>
-        """
-        contract_address = Web3.to_checksum_address(contract_address)
-        contract = self.account_manager.w3.eth.contract(
-            address=contract_address, abi=DefaultAbis.Token)
-
-        return contract
 
     def set_gas_price(
         self,
@@ -327,7 +332,7 @@ class Contract:
         Set the gas price in the transaction parameters.
 
         Args:
-            gas_price (ParamsTypes.GasPrice): The gas price to set.
+            gas_price (GWei): The gas price to set.
             tx_params (dict | TxParams): The transaction parameters.
 
         Returns:
@@ -367,3 +372,43 @@ class Contract:
             )
         tx_params['gas'] = gas_limit.Wei
         return tx_params
+
+    async def get_token_contract(
+        self,
+        token: ParamsTypes.Contract | ParamsTypes.Address
+    ) -> Contract | AsyncContract:
+        """
+        Get a contract instance for the specified token.
+
+        Args:
+            token (ParamsTypes.Contract | ParamsTypes.Address): The token contract or its address.
+
+        Returns:
+            Contract | AsyncContract: The contract instance.
+
+        Example:
+        ```python
+        token_contract = await client.contract.get_token_contract(token=my_token)
+        print(token_contract)
+        # Output: <Contract object at 0x...>
+        ```
+        """
+        if type(token) in ParamsTypes.Address.__args__:
+            address = Web3.to_checksum_address(token)
+            contract = self.account_manager.w3.eth.contract(
+                address=address, abi=DefaultAbis.Token
+            )
+        else:
+            address = Web3.to_checksum_address(token.address)
+
+            if token.abi:
+                abi = token.abi
+
+            else:
+                abi = DefaultAbis.Token
+
+            contract = self.account_manager.w3.eth.contract(
+                address=address, abi=abi
+            )
+
+        return contract
