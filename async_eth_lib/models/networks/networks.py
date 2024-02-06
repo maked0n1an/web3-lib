@@ -61,6 +61,15 @@ class Networks(Singleton):
         coin_symbol=CurrencySymbol.CELO,
         explorer='https://celoscan.io/',
     )
+    
+    Core = Network(
+        name='core',
+        rpc='https://1rpc.io/core',
+        chain_id=1116,
+        tx_type=0,
+        coin_symbol=CurrencySymbol.CORE,
+        explorer='https://scan.coredao.org/',
+    )
 
     Fantom = Network(
         name='fantom',
