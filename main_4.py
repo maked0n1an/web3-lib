@@ -42,7 +42,7 @@ async def main():
     swap_info = SwapInfo(
         from_token=CurrencySymbol.USDC_e,
         to_token=CurrencySymbol.USDT,
-        to_network='bsc'
+        to_network='polygon'
     )
     print('Started Stargate')
     res = await stargate.swap(swap_info, max_fee=0.7)
