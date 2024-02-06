@@ -4,13 +4,16 @@ from async_eth_lib.models.networks.networks import Networks
 from async_eth_lib.models.others.common import Singleton
 from async_eth_lib.models.others.constants import CurrencySymbol
 from async_eth_lib.models.contracts.contracts import TokenContracts
-from tasks.stargate.models import StargateNetworkInfo, BridgeData
+from data.models import (
+    LayerZeroNetworkInfo, 
+    BridgeData
+)
 from tasks.stargate.stargate_contracts import StargateContracts
 
 
 class StargateData(Singleton):
     networks_dict = {
-        Networks.Arbitrum.name: StargateNetworkInfo(
+        Networks.Arbitrum.name: LayerZeroNetworkInfo(
             chain_id=110,
             token_dict={
                 CurrencySymbol.USDC: BridgeData(
@@ -35,7 +38,7 @@ class StargateData(Singleton):
                 )
             }
         ),
-        Networks.Avalanche.name: StargateNetworkInfo(
+        Networks.Avalanche.name: LayerZeroNetworkInfo(
             chain_id=106,
             token_dict={
                 CurrencySymbol.USDC: BridgeData(
@@ -50,7 +53,7 @@ class StargateData(Singleton):
                 ),
             }
         ),
-        Networks.BSC.name: StargateNetworkInfo(
+        Networks.BSC.name: LayerZeroNetworkInfo(
             chain_id=102,
             token_dict={
                 CurrencySymbol.USDT: BridgeData(
@@ -65,7 +68,7 @@ class StargateData(Singleton):
                 )
             }
         ),
-        Networks.Fantom.name: StargateNetworkInfo(
+        Networks.Fantom.name: LayerZeroNetworkInfo(
             chain_id=112,
             token_dict={
                 CurrencySymbol.USDC: BridgeData(
@@ -75,7 +78,7 @@ class StargateData(Singleton):
                 )
             }
         ),
-        Networks.Optimism.name: StargateNetworkInfo(
+        Networks.Optimism.name: LayerZeroNetworkInfo(
             chain_id=111,
             token_dict={
                 CurrencySymbol.USDC: BridgeData(
@@ -95,7 +98,7 @@ class StargateData(Singleton):
                 )
             }
         ),
-        Networks.Polygon.name: StargateNetworkInfo(
+        Networks.Polygon.name: LayerZeroNetworkInfo(
             chain_id=109,
             token_dict={                
                 CurrencySymbol.USDC_e: BridgeData(
@@ -121,27 +124,41 @@ class StargateData(Singleton):
     def get_chain_id(cls, network: str) -> int | None:
         if network not in cls.networks_dict:
             raise exceptions.NetworkNotAdded(
-                f"The requested network has not been",
+                f"The requested network has not been "
                 f"added to StargateData networks dict"
             )
         return cls.networks_dict[network].chain_id
+    
+    @classmethod
+    def get_pool_id(
+        cls, 
+        network: str,
+        token: str
+    ) -> int | None:
+        bridge_data = cls.get_token(network=network, token=token)
+        
+        return bridge_data.pool_id
 
     @classmethod
-    def get_token_data(cls, network: str, token: str) -> tuple[int, BridgeData] | None:
+    def get_token(
+        cls, 
+        network: str, 
+        token: str
+    ) -> BridgeData | None:
         network = network.lower()
         token = token.upper()
 
         if network not in cls.networks_dict:
             raise exceptions.NetworkNotAdded(
-                f"The requested network has not been",
+                f"The requested network has not been "
                 f"added to StargateData networks dict"
             )
 
         network_data = cls.networks_dict[network]
         if token not in network_data.token_dict:
             raise exceptions.ContractNotExists(
-                f"This contract has not been added",
+                f"This contract has not been added "
                 f"to StargateData token contracts"
             )
 
-        return (network_data.chain_id, network_data.token_dict[token])
+        return network_data.token_dict[token]

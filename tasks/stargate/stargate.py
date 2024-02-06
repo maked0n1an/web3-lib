@@ -1,7 +1,6 @@
 from web3.types import TxParams
-from web3.contract import Contract, AsyncContract
 
-from async_eth_lib.models.client import Client
+from async_eth_lib.models.others.params_types import ParamsTypes
 from async_eth_lib.models.others.token_amount import TokenAmount
 from async_eth_lib.models.swap.swap_info import SwapInfo
 from async_eth_lib.models.transactions.tx_args import TxArgs
@@ -25,16 +24,21 @@ class Stargate(BaseTask):
         if check:
             return check
 
-        _, src_bridge_data = StargateData.get_token_data(
+        src_bridge_data = StargateData.get_token(
             network=self.client.account_manager.network.name,
             token=swap_info.from_token
         )
-        dst_chain_id, dst_bridge_data = StargateData.get_token_data(
-            network=swap_info.to_network,
+        dst_chain_id = StargateData.get_chain_id(
+            network=swap_info.to_network.lower()
+        )        
+        dst_pool_id = StargateData.get_pool_id(
+            network=swap_info.to_network.lower(),
             token=swap_info.to_token
         )
 
-        dex_contract = await self.client.contract.get(contract=src_bridge_data.bridge_contract)
+        dex_contract = await self.client.contract.get(
+            contract=src_bridge_data.bridge_contract
+        )
 
         swap_query = await self.compute_source_token_amount(
             swap_info=swap_info
@@ -49,7 +53,7 @@ class Stargate(BaseTask):
         args = TxArgs(
             _dstChainId=dst_chain_id,
             _srcPoolId=src_bridge_data.pool_id,
-            _dstPoolId=dst_bridge_data.pool_id,
+            _dstPoolId=dst_pool_id,
             _refundAddress=self.client.account_manager.account.address,
             _amountLD=swap_query.amount_from.Wei,
             _minAmountLd=int(swap_query.amount_from.Wei *
@@ -143,7 +147,7 @@ class Stargate(BaseTask):
 
     async def _get_value(
         self,
-        router_contract: AsyncContract | Contract,
+        router_contract: ParamsTypes.Contract,
         dst_chain_id: int,
         lz_tx_params: TxArgs
     ) -> TokenAmount:
