@@ -24,11 +24,13 @@ class Stargate(BaseTask):
         swap_info: SwapInfo,
         max_fee: float = 1
     ) -> str:
-        self.validate_swap_inputs(
+        check = self.validate_swap_inputs(
             first_arg=self.client.account_manager.network.name,
             second_arg=swap_info.to_network,
             arg_type='networks'
         )
+        if check:
+            return check
 
         _, src_bridge_data = StargateData.get_token_data(
             network=self.client.account_manager.network.name,
@@ -41,8 +43,7 @@ class Stargate(BaseTask):
 
         dex_contract = await self.client.contract.get(contract=src_bridge_data.bridge_contract)
 
-        amount_from = await self.calculate_amount_from_for_swap(
-            from_token=src_bridge_data.token_contract,
+        swap_query = await self.compute_source_token_amount(
             swap_info=swap_info
         )
 
@@ -57,8 +58,8 @@ class Stargate(BaseTask):
             _srcPoolId=src_bridge_data.pool_id,
             _dstPoolId=dst_bridge_data.pool_id,
             _refundAddress=self.client.account_manager.account.address,
-            _amountLD=amount_from.Wei,
-            _minAmountLd=int(amount_from.Wei * (100 - swap_info.slippage) / 100),
+            _amountLD=swap_query.amount_from.Wei,
+            _minAmountLd=int(swap_query.amount_from.Wei * (100 - swap_info.slippage) / 100),
             _lzTxParams=lz_tx_params.get_tuple(),
             _to=self.client.account_manager.account.address,
             _payload='0x'
@@ -87,13 +88,14 @@ class Stargate(BaseTask):
             return f'Too high fee: {network_fee}' \
             f'({self.client.account_manager.network.name})'
 
-        if await self.approve_interface(
-            token_address=src_bridge_data.token_contract.address,
-            spender=src_bridge_data.bridge_contract.address,
-            amount=amount_from,
-            gas_price=swap_info.gas_price,
-            gas_limit=swap_info.gas_limit
-        ):
+        if not swap_query.from_token.is_native_token:
+            await self.approve_interface(
+                token_contract=src_bridge_data.token_contract,
+                spender_address=src_bridge_data.bridge_contract.address,
+                amount=swap_query.amount_from,
+                gas_price=swap_info.gas_price,
+                gas_limit=swap_info.gas_limit
+            )
             await asyncio.sleep(random.randint(3, 6))
         else:
             return f'Failed: can not approve'
@@ -114,12 +116,12 @@ class Stargate(BaseTask):
         )
         receipt = await tx.wait_for_tx_receipt(
             web3=self.client.account_manager.w3,
-            timeout=120
+            timeout=250
         )
         
         if receipt:
             return (
-                f'{amount_from.Ether} {swap_info.from_token} '
+                f'{swap_query.amount_from.Ether} {swap_info.from_token} '
                 f'was sent from {self.client.account_manager.network.name.upper()} '
                 f'to {swap_info.to_network.upper()} via Stargate: '
                 f'https://layerzeroscan.com/tx/{tx.hash.hex()} '
