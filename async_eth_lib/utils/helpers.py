@@ -1,5 +1,7 @@
+import asyncio
 import json
 import os
+import random
 from typing import List
 
 from aiohttp import (
@@ -8,10 +10,6 @@ from aiohttp import (
 
 import async_eth_lib.models.others.exceptions as exceptions
 
-def read_txt(path: str | tuple | list) -> List[str]:
-    path = join_path(path)
-    with open(path, 'r') as file:
-        return [row.strip() for row in file]
 
 def join_path(path: str | tuple | list) -> str:
     if isinstance(path, str):
@@ -19,10 +17,20 @@ def join_path(path: str | tuple | list) -> str:
     return str(os.path.join(*path))
 
 
+def read_txt(path: str | tuple | list) -> List[str]:
+    path = join_path(path)
+    with open(path, 'r') as file:
+        return [row.strip() for row in file]
+
+
 def read_json(path: str | tuple | list, encoding: str | None = None) -> list | dict:
     path = join_path(path)
     return json.load(open(path, encoding=encoding))
 
+
+async def sleep(sleep_from: int, sleep_to: int):
+    random_value = random.randint(sleep_from, sleep_to)
+    await asyncio.sleep(random_value)
 
 def text_between(text: str, begin: str = '', end: str = '') -> str:
     """

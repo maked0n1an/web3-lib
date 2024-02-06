@@ -11,18 +11,33 @@ from data.config import PRIVATE_KEY
 
 async def main():
     client = Client(private_key=PRIVATE_KEY, network=Networks.Polygon)
-    woofi = WooFi(client=client)
-    stargate = Stargate(client=client)
+    
+    # woofi = WooFi(client=client)
 
-    swap_info = SwapInfo(
-        from_token=CurrencySymbol.USDC,
-        to_token=CurrencySymbol.USDC_e,
-        amount=0.0034,
-        gas_price=1
-    )
-    print('Started Woofi')
-    res = await woofi.swap(swap_info)
-    print(res)
+    # swap_info = SwapInfo(
+    #     from_token=CurrencySymbol.USDC,
+    #     to_token=CurrencySymbol.USDC_e,
+    #     multiplier_of_gas=1.1
+    # )
+    # print('Started Woofi')
+    # res = await woofi.swap(swap_info)
+    # print(res)
+    
+    # await asyncio.sleep(5)
+    
+    # swap_info = SwapInfo(
+    #     from_token=CurrencySymbol.USDC,
+    #     to_token=CurrencySymbol.USDC_e,
+    #     amount=0.2,
+    #     multiplier_of_gas=1.1
+    # )
+    # print('Started Woofi 2')
+    # res = await woofi.swap(swap_info)
+    # print(res)
+    
+    # await asyncio.sleep(3)
+    
+    stargate = Stargate(client=client)
     
     swap_info = SwapInfo(
         from_token=CurrencySymbol.USDC_e,
@@ -30,7 +45,7 @@ async def main():
         to_network='bsc'
     )
     print('Started Stargate')
-    res = await stargate.swap(swap_info)
+    res = await stargate.swap(swap_info, max_fee=0.7)
     print(res)
 
 if __name__ == '__main__':

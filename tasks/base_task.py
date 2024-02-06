@@ -17,7 +17,7 @@ class BaseTask:
     def __init__(self, client: Client):
         self.client = client
 
-    def set_gas_price_and_gas_limit(
+    def set_all_gas_params(
         self,
         swap_info: SwapInfo,
         tx_params: dict | TxParams
@@ -31,6 +31,12 @@ class BaseTask:
         if swap_info.gas_price:
             tx_params = self.client.contract.set_gas_price(
                 gas_price=swap_info.gas_price,
+                tx_params=tx_params
+            )
+        
+        if swap_info.multiplier_of_gas:
+            tx_params = self.client.contract.add_multiplier_of_gas(
+                multiplier=swap_info.multiplier_of_gas,
                 tx_params=tx_params
             )
 
@@ -68,9 +74,8 @@ class BaseTask:
         token_contract: ParamsTypes.TokenContract,
         spender_address: ParamsTypes.Address,
         amount: TokenAmount | None = None,
-        gas_price: float | None = None,
-        gas_limit: int | None = None,
-        is_approve_infinity: bool = True
+        tx_params: TxParams | dict | None = None,
+        is_approve_infinity: bool = None
     ) -> bool:
         """
         Approve spending of a specific amount by a spender on behalf of the owner.
@@ -122,8 +127,7 @@ class BaseTask:
             token_contract=token_contract,
             spender_address=spender_address,
             amount=amount,
-            gas_price=gas_price,
-            gas_limit=gas_limit,
+            tx_params=tx_params,
             is_approve_infinity=is_approve_infinity
         )
         receipt = await tx.wait_for_tx_receipt(

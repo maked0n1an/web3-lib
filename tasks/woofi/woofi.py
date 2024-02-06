@@ -1,12 +1,10 @@
-import asyncio
-
 from web3.types import TxParams
 from async_eth_lib.models.others.params_types import ParamsTypes
 
 from async_eth_lib.models.swap.swap_info import SwapInfo
 from async_eth_lib.models.swap.swap_query import SwapQuery
 from async_eth_lib.models.transactions.tx_args import TxArgs
-from async_eth_lib.models.contracts.contracts import TokenContracts
+from async_eth_lib.utils.helpers import sleep
 from tasks.base_task import BaseTask
 from tasks.woofi.woofi_contracts import WoofiContracts
 
@@ -43,10 +41,10 @@ class WooFi(BaseTask):
 
         tx_params = TxParams(
             to=dex_contract.address,
-            data=dex_contract.encodeABI('swap', args=args.get_tuple())
+            data=dex_contract.encodeABI('swap', args=args.get_tuple()),
         )
         
-        tx_params = self.set_gas_price_and_gas_limit(
+        tx_params = self.set_all_gas_params(
             swap_info=swap_info,
             tx_params=tx_params
         )
@@ -56,15 +54,18 @@ class WooFi(BaseTask):
                 token_contract=swap_query.from_token,
                 spender_address=dex_contract.address,
                 amount=swap_query.amount_from,
-                gas_price=swap_info.gas_price,
-                is_approve_infinity=False
+                tx_params=tx_params
             )
-            await asyncio.sleep(3)
+            await sleep(3, 10)
         else:
-            tx_params['value'] = swap_query.amount_from.Wei
+            tx_params['value'] = swap_query.amount_from.Wei                
 
-        tx = await self.client.contract.transaction.sign_and_send(tx_params=tx_params)
-        receipt = await tx.wait_for_tx_receipt(web3=self.client.account_manager.w3)
+        tx = await self.client.contract.transaction.sign_and_send(
+            tx_params=tx_params
+        )
+        receipt = await tx.wait_for_tx_receipt(
+            web3=self.client.account_manager.w3
+        )
 
         if receipt:
             account_network = self.client.account_manager.network

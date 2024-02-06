@@ -108,9 +108,7 @@ class Contract:
             | ParamsTypes.Address,
         spender_address: ParamsTypes.Address,
         amount: ParamsTypes.Amount | None = None,
-        gas_price: ParamsTypes.GasPrice | None = None,
-        gas_limit: ParamsTypes.GasLimit | None = None,
-        nonce: int | None = None,
+        tx_params: TxParams | dict | None = None,
         is_approve_infinity: bool = False
     ) -> Tx:
         """
@@ -151,33 +149,29 @@ class Contract:
 
         else:
             token_amount = amount.Wei
-
-        tx_params = {}
-
-        if gas_price:
-            tx_params = self.set_gas_price(
-                gas_price=gas_price,
-                tx_params=tx_params
-            )
-
-        if gas_limit:
-            tx_params = self.set_gas_limit(
-                gas_limit=gas_limit,
-                tx_params=tx_params
-            )
-
+            
         data = token_contract.encodeABI('approve',
                                         args=TxArgs(
                                             spender=spender_address,
                                             amount=token_amount
                                         ).get_tuple())
+        
+        if tx_params is None:            
+            tx_params = {}
+        
         tx_params.update({
             'to': token_contract.address,
             'data': data,
-            'nonce': nonce,
+            'nonce': tx_params.get('nonce')
         })
 
         tx = await self.transaction.sign_and_send(tx_params=tx_params)
+        print(
+            'Approved: ',
+            self.account_manager.network.explorer
+            + self.account_manager.network.TxPath
+            + tx.hash.hex()
+        )
         return tx
 
     async def get(
@@ -322,21 +316,30 @@ class Contract:
             decimals = await token_contract.functions.decimals().call()
 
         return decimals
-
+    
+    def add_multiplier_of_gas(
+        self,
+        tx_params: TxParams | dict,
+        multiplier: float | None = None
+    ) -> TxParams | dict:
+        
+        tx_params['multiplier'] = multiplier
+        return tx_params
+        
     def set_gas_price(
         self,
         gas_price: ParamsTypes.GasPrice,
-        tx_params: dict | TxParams
-    ) -> dict | TxParams:
+        tx_params: TxParams | dict,
+    ) -> TxParams | dict:
         """
         Set the gas price in the transaction parameters.
 
         Args:
             gas_price (GWei): The gas price to set.
-            tx_params (dict | TxParams): The transaction parameters.
+            tx_params (TxParams | dict): The transaction parameters.
 
         Returns:
-            dict | TxParams: The updated transaction parameters.
+            TxParams | dict: The updated transaction parameters.
 
         """
         if isinstance(gas_price, float | int):
