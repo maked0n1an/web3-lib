@@ -6,7 +6,7 @@ from async_eth_lib.models.swap.swap_info import SwapInfo
 from async_eth_lib.models.transactions.tx_args import TxArgs
 from async_eth_lib.utils.helpers import sleep
 from tasks.base_task import BaseTask
-from tasks.stargate.stargate_data import StargateData
+from tasks.layer_zero._data.data import LayerZeroData
 
 
 class Stargate(BaseTask):
@@ -16,23 +16,25 @@ class Stargate(BaseTask):
         max_fee: float = 0.7,
         dst_fee: float | None = None
     ) -> str:
+        from_network = self.client.account_manager.network.name
+        
         check = self.validate_swap_inputs(
-            first_arg=self.client.account_manager.network.name,
+            first_arg=from_network,
             second_arg=swap_info.to_network,
             arg_type='networks'
         )
         if check:
             return check
+        project_name = __class__.__name__
 
-        src_bridge_data = StargateData.get_token(
-            network=self.client.account_manager.network.name,
+        src_bridge_data = LayerZeroData.get_token(
+            project=project_name,
+            network=from_network,
             token=swap_info.from_token
         )
-        dst_chain_id = StargateData.get_chain_id(
-            network=swap_info.to_network.lower()
-        )        
-        dst_pool_id = StargateData.get_pool_id(
-            network=swap_info.to_network.lower(),
+        dst_chain_id, dst_pool_id = LayerZeroData.get_chain_id_and_pool_id(
+            project=project_name,
+            network=swap_info.to_network,
             token=swap_info.to_token
         )
 
@@ -70,7 +72,7 @@ class Stargate(BaseTask):
         )
 
         if not value:
-            return f'Can not get value for ({self.client.account_manager.network.name})'
+            return f'Can not get value for ({from_network.upper()})'
 
         native_balance = await self.client.contract.get_balance()
 
@@ -101,11 +103,11 @@ class Stargate(BaseTask):
 
             if network_fee - dst_native_amount_price > max_fee:
                 return f'Too high fee for fee: {network_fee}' \
-                    f'({self.client.account_manager.network.name})'
+                    f'({from_network.upper()})'
         else:
             if network_fee > max_fee:
-                return f'Too high fee: {network_fee}' \
-                    f'({self.client.account_manager.network.name})'
+                return f'Too high fee: {network_fee} ' \
+                    f'({from_network.upper()})'
 
         tx_params = TxParams(
             to=dex_contract.address,
@@ -140,7 +142,7 @@ class Stargate(BaseTask):
         if receipt:
             return (
                 f'{swap_query.amount_from.Ether} {swap_info.from_token} '
-                f'was sent from {self.client.account_manager.network.name.upper()} '
+                f'was sent from {from_network.upper()} '
                 f'to {swap_info.to_network.upper()} via Stargate: '
                 f'https://layerzeroscan.com/tx/{tx.hash.hex()} '
             )
