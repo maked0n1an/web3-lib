@@ -3,6 +3,7 @@ from async_eth_lib.models.others.common import Singleton
 
 class CurrencySymbol(Singleton):
     ETH = 'ETH'
+    GETH = 'GETH'
     USDT = 'USDT'
     USDC = 'USDC'
     USDC_e = 'USDC_E'

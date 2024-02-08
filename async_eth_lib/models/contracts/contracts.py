@@ -20,6 +20,18 @@ class TokenContracts(Singleton):
         decimals=18
     )
 
+    ARBITRUM_GETH = TokenContract(
+        title=CurrencySymbol.GETH,
+        address='0xaF7355462240d5a8f3509BD890994AF1022F1948',
+        decimals=18
+    )
+    
+    ARBITRUM_GETH_LZ = TokenContract(
+        title="GETH_LZ",
+        address='0xdD69DB25F6D620A7baD3023c5d32761D353D3De9',
+        decimals=18
+    )
+
     ARBITRUM_USDC = TokenContract(
         title=CurrencySymbol.USDC,
         address='0xaf88d065e77c8cC2239327C5EDb3A432268e5831',
@@ -52,23 +64,23 @@ class TokenContracts(Singleton):
     Avalanche
     """
     AVALANCHE_AVAX = NativeTokenContract(title=CurrencySymbol.AVAX)
-    
+
     AVALANCHE_ETH = TokenContract(
         title=CurrencySymbol.ETH,
         address='0xf20d962a6c8f70c731bd838a3a388d7d48fa6e15',
     )
-    
+
     AVALANCHE_USDC = TokenContract(
         title=CurrencySymbol.USDC,
         address='0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E',
     )
-    
+
     AVALANCHE_USDT = TokenContract(
         title=CurrencySymbol.USDT,
         address='0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7',
     )
-    
-    AVALANCHE_FRAX= TokenContract(
+
+    AVALANCHE_FRAX = TokenContract(
         title=CurrencySymbol.FRAX,
         address='0xD24C2Ad096400B6FBcd2ad8B24E7acBc21A1da64',
     )
@@ -87,7 +99,7 @@ class TokenContracts(Singleton):
         title=CurrencySymbol.BUSD,
         address='0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56',
     )
-    
+
     """
     Fantom
     """
@@ -103,12 +115,12 @@ class TokenContracts(Singleton):
         title=CurrencySymbol.USDC,
         address='0x7f5c764cbc14f9669b88837ca1490cca17c31607'
     )
-    
+
     OPTIMISM_DAI = TokenContract(
         title=CurrencySymbol.DAI,
         address='0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1'
     )
-    
+
     OPTIMISM_FRAX = TokenContract(
         title=CurrencySymbol.FRAX,
         address='0x2E3D870790dC77A83DD1d18184Acc7439A53f475'
@@ -124,7 +136,7 @@ class TokenContracts(Singleton):
         address='0x3c499c542cef5e3811e1192ce70d8cc03d5c3359',
         decimals=6
     )
-    
+
     POLYGON_USDC_E = TokenContract(
         title=CurrencySymbol.USDC_e,
         address='0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
@@ -148,8 +160,17 @@ class TokenContracts(Singleton):
     )
 
     @classmethod
-    def get_token(cls, network: str, token_ticker: str) -> TokenContract:
-        contract_name = f'{network.upper()}_{token_ticker.upper()}'
+    def get_token(
+        cls, 
+        network: str, 
+        token_ticker: str,
+        project_prefix: str | None = None,
+    ) -> TokenContract:
+        contract_name = (   
+            f'{network.upper()}_{token_ticker.upper()}_{project_prefix.upper()}'
+            if project_prefix
+            else f'{network.upper()}_{token_ticker.upper()}'
+        )
 
         if not hasattr(cls, contract_name):
             raise exceptions.ContractNotExists(
