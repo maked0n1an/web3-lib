@@ -1,3 +1,5 @@
+import async_eth_lib.models.others.exceptions as exceptions
+
 from async_eth_lib.models.others.constants import CurrencySymbol
 from async_eth_lib.models.others.common import Singleton
 from .network import Network
@@ -143,3 +145,17 @@ class Networks(Singleton):
         coin_symbol=CurrencySymbol.ETH,
         explorer='https://sepolia.etherscan.io',
     )
+    
+    @classmethod
+    def get_network(
+        cls, 
+        network_name: str,
+    ) -> Network:
+        network_name = network_name.capitalize()
+
+        if not hasattr(cls, network_name):
+            raise exceptions.NetworkNotAdded(
+                f"The network has not been added to {__class__.__name__} class"
+            )
+
+        return getattr(cls, network_name)
