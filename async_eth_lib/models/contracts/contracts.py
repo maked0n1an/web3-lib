@@ -1,6 +1,6 @@
-from async_eth_lib.models.others.constants import CurrencySymbol
 import async_eth_lib.models.others.exceptions as exceptions
 
+from async_eth_lib.models.others.constants import CurrencySymbol
 from async_eth_lib.models.others.common import Singleton
 from async_eth_lib.models.contracts.raw_contract import (
     TokenContract,

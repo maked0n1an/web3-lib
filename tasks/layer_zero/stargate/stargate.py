@@ -1,4 +1,6 @@
 from web3.types import TxParams
+from async_eth_lib.models.contracts.contracts import TokenContracts
+from async_eth_lib.models.networks.networks import Networks
 
 from async_eth_lib.models.others.params_types import ParamsTypes
 from async_eth_lib.models.others.token_amount import TokenAmount
@@ -64,7 +66,27 @@ class Stargate(BaseTask):
             _to=self.client.account_manager.account.address,
             _payload='0x'
         )
+        
+        if dst_fee:
+            dst_network = Networks.get_network(
+                network_name=swap_info.to_network
+            )            
+            amount = TokenAmount(
+                amount=dst_fee,
+                decimals=dst_network.decimals
+            )
+            lz_tx_params = TxArgs(
+                dstGasForCall=0,
+                dstNativeAmount=amount.Wei,
+                dstNativeAddr=self.client.account_manager.account.address
+            )
+            args._lzTxParams = lz_tx_params.get_tuple()
 
+            dst_token_price = await self.get_binance_ticker_price(
+                first_token=dst_network.coin_symbol
+            )            
+            dst_native_amount_price = float(amount.Ether) * dst_token_price
+          
         value = await self._get_value(
             router_contract=dex_contract,
             dst_chain_id=dst_chain_id,
@@ -85,22 +107,6 @@ class Stargate(BaseTask):
         network_fee = float(value.Ether) * token_price
 
         if dst_fee:
-            amount = TokenAmount(
-                amount=dst_fee,
-                decimals=swap_query.to_token.decimals
-            )
-            lz_tx_params = TxArgs(
-                dstGasForCall=0,
-                dstNativeAmount=amount.Wei,
-                dstNativeAddr=self.client.account_manager.account.address
-            )
-            args._lzTxParams = lz_tx_params.get_tuple()
-
-            dst_token_price = await self.get_binance_ticker_price(
-                first_token=swap_query.to_token.title
-            )
-            dst_native_amount_price = float(amount.Ether) * dst_token_price
-
             if network_fee - dst_native_amount_price > max_fee:
                 return f'Too high fee for fee: {network_fee}' \
                     f'({from_network.upper()})'
@@ -108,6 +114,7 @@ class Stargate(BaseTask):
             if network_fee > max_fee:
                 return f'Too high fee: {network_fee} ' \
                     f'({from_network.upper()})'
+
 
         tx_params = TxParams(
             to=dex_contract.address,
