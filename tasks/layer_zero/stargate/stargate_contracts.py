@@ -9,25 +9,25 @@ class StargateContracts(Singleton):
     )
 
     ARBITRUM_UNIVERSAL = RawContract(
-        title='Stargate Finance: Router (Arbitrum_USDC)',
+        title='Stargate Finance: Router (Arbitrum USDC)',
         address='0x53bf833a5d6c4dda888f69c22c88c9f356a41614',
         abi=STARGATE_ABI
     )
 
     ARBITRUM_ETH = RawContract(
-        title='Stargate Finance: Router (Arbitrum_ETH)',
+        title='Stargate Finance: Router (Arbitrum ETH)',
         address='0xbf22f0f184bCcbeA268dF387a49fF5238dD23E40',
         abi=STARGATE_ABI
     )
 
     AVALANCHE_UNIVERSAL = RawContract(
-        title='Stargate Finance: Router (Avalanche USDC)',
+        title='Stargate Finance: Router (Avalanche Universal)',
         address='0x45A01E4e04F14f7A4a6702c74187c5F6222033cd',
         abi=STARGATE_ABI
     )
 
     AVALANCHE_USDT = RawContract(
-        title='Stargate Finance: Router (Arbitrum USDT)',
+        title='Stargate Finance: Router (Avalanche USDT)',
         address='0x45A01E4e04F14f7A4a6702c74187c5F6222033cd',
         abi=STARGATE_ABI
     )
@@ -51,7 +51,7 @@ class StargateContracts(Singleton):
     )
 
     POLYGON_UNIVERSAL = RawContract(
-        title='Stargate Finance: Router (Polygon USDC)',
+        title='Stargate Finance: Router (Polygon Universal)',
         address='0x45A01E4e04F14f7A4a6702c74187c5F6222033cd',
         abi=STARGATE_ABI
     )

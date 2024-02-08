@@ -25,28 +25,16 @@ async def main():
     
     # await asyncio.sleep(5)
     
+    # stargate = Stargate(client=client)
+    
     # swap_info = SwapInfo(
-    #     from_token=CurrencySymbol.USDC,
-    #     to_token=CurrencySymbol.USDC_e,
-    #     amount=0.2,
-    #     multiplier_of_gas=1.1
+    #     from_token=CurrencySymbol.USDC_e,
+    #     to_token=CurrencySymbol.USDT,
+    #     to_network='polygon'
     # )
-    # print('Started Woofi 2')
-    # res = await woofi.swap(swap_info)
+    # print('Started Stargate')
+    # res = await stargate.swap(swap_info, max_fee=0.7)
     # print(res)
-    
-    # await asyncio.sleep(3)
-    
-    stargate = Stargate(client=client)
-    
-    swap_info = SwapInfo(
-        from_token=CurrencySymbol.USDC_e,
-        to_token=CurrencySymbol.USDT,
-        to_network='polygon'
-    )
-    print('Started Stargate')
-    res = await stargate.swap(swap_info, max_fee=0.7)
-    print(res)
 
 if __name__ == '__main__':
     asyncio.run(main())

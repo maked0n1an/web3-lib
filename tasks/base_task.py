@@ -33,7 +33,7 @@ class BaseTask:
                 gas_price=swap_info.gas_price,
                 tx_params=tx_params
             )
-        
+
         if swap_info.multiplier_of_gas:
             tx_params = self.client.contract.add_multiplier_of_gas(
                 multiplier=swap_info.multiplier_of_gas,
@@ -73,7 +73,7 @@ class BaseTask:
         self,
         token_contract: ParamsTypes.TokenContract,
         spender_address: ParamsTypes.Address,
-        amount: TokenAmount | None = None,
+        amount: ParamsTypes.Amount | None = None,
         tx_params: TxParams | dict | None = None,
         is_approve_infinity: bool = None
     ) -> bool:
@@ -134,7 +134,7 @@ class BaseTask:
             web3=self.client.account_manager.w3,
             timeout=240
         )
-        
+
         if receipt:
             return True
 
@@ -143,7 +143,7 @@ class BaseTask:
     async def compute_source_token_amount(
         self,
         swap_info: SwapInfo
-    ) -> SwapQuery:   
+    ) -> SwapQuery:
         """
         Compute the source token amount for a given swap.
 
@@ -159,16 +159,12 @@ class BaseTask:
         print(swap_query)
         # Output: SwapQuery(from_token=..., to_token=..., amount_to=...)
         ```
-        """     
+        """
         from_token = TokenContracts.get_token(
             network=self.client.account_manager.network.name,
             token_ticker=swap_info.from_token
         )
-        to_token = TokenContracts.get_token(
-            network=self.client.account_manager.network.name,
-            token_ticker=swap_info.to_token
-        )
-        
+
         if from_token.is_native_token:
             balance = await self.client.contract.get_balance()
 
@@ -185,13 +181,13 @@ class BaseTask:
             )
             if not swap_info.amount:
                 token_amount = balance
-            else:                
+            else:
                 decimals = (
                     from_token.decimals
-                    if from_token.decimals 
+                    if from_token.decimals
                     else await self.client.contract.get_decimals(token_contract=from_token)
                 )
-                
+
                 token_amount = TokenAmount(
                     amount=swap_info.amount,
                     decimals=decimals
@@ -209,15 +205,14 @@ class BaseTask:
 
         return SwapQuery(
             from_token=from_token,
-            to_token=to_token,
             amount_from=token_amount
         )
-    
+
     async def compute_min_destination_amount(
         self,
         swap_query: SwapQuery,
         to_token_price: float,
-        slippage: int
+        swap_info: SwapInfo
     ) -> SwapQuery:
         """
         Compute the minimum destination amount for a given swap.
@@ -241,6 +236,13 @@ class BaseTask:
         # Output: SwapQuery(from_token=..., to_token=..., amount_to=..., min_to_amount=...)
         ```
         """
+
+        if not swap_query.to_token:
+            swap_query.to_token = TokenContracts.get_token(
+                network=self.client.account_manager.network.name,
+                token_ticker=swap_info.to_token
+            )
+
         decimals = 0
         if swap_query.to_token.is_native_token:
             decimals = self.client.account_manager.network.decimals
@@ -251,15 +253,15 @@ class BaseTask:
             )
 
         min_to_amount = TokenAmount(
-            amount=to_token_price * (1 - slippage / 100),
+            amount=to_token_price * (1 - swap_info.slippage / 100),
             decimals=decimals,
             wei=True
         )
 
         return SwapQuery(
             from_token=swap_query.from_token,
-            to_token=swap_query.to_token,
             amount_from=swap_query.amount_from,
+            to_token=swap_query.to_token,
             min_to_amount=min_to_amount
         )
 

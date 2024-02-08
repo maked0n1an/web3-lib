@@ -1,46 +1,46 @@
 from web3.types import TxParams
-from web3.contract import Contract, AsyncContract
 
-from async_eth_lib.models.client import Client
+from async_eth_lib.models.others.params_types import ParamsTypes
 from async_eth_lib.models.others.token_amount import TokenAmount
 from async_eth_lib.models.swap.swap_info import SwapInfo
 from async_eth_lib.models.transactions.tx_args import TxArgs
 from async_eth_lib.utils.helpers import sleep
 from tasks.base_task import BaseTask
-from tasks.stargate.stargate_data import StargateData
+from tasks.layer_zero._data.data import LayerZeroData
 
 
 class Stargate(BaseTask):
-    def __init__(
-        self,
-        client: Client
-    ) -> None:
-        self.client = client
-
     async def swap(
         self,
         swap_info: SwapInfo,
         max_fee: float = 0.7,
         dst_fee: float | None = None
     ) -> str:
+        from_network = self.client.account_manager.network.name
+        
         check = self.validate_swap_inputs(
-            first_arg=self.client.account_manager.network.name,
+            first_arg=from_network,
             second_arg=swap_info.to_network,
             arg_type='networks'
         )
         if check:
             return check
+        project_name = __class__.__name__
 
-        _, src_bridge_data = StargateData.get_token_data(
-            network=self.client.account_manager.network.name,
+        src_bridge_data = LayerZeroData.get_token(
+            project=project_name,
+            network=from_network,
             token=swap_info.from_token
         )
-        dst_chain_id, dst_bridge_data = StargateData.get_token_data(
+        dst_chain_id, dst_pool_id = LayerZeroData.get_chain_id_and_pool_id(
+            project=project_name,
             network=swap_info.to_network,
             token=swap_info.to_token
         )
 
-        dex_contract = await self.client.contract.get(contract=src_bridge_data.bridge_contract)
+        dex_contract = await self.client.contract.get(
+            contract=src_bridge_data.bridge_contract
+        )
 
         swap_query = await self.compute_source_token_amount(
             swap_info=swap_info
@@ -55,7 +55,7 @@ class Stargate(BaseTask):
         args = TxArgs(
             _dstChainId=dst_chain_id,
             _srcPoolId=src_bridge_data.pool_id,
-            _dstPoolId=dst_bridge_data.pool_id,
+            _dstPoolId=dst_pool_id,
             _refundAddress=self.client.account_manager.account.address,
             _amountLD=swap_query.amount_from.Wei,
             _minAmountLd=int(swap_query.amount_from.Wei *
@@ -72,7 +72,7 @@ class Stargate(BaseTask):
         )
 
         if not value:
-            return f'Can not get value for ({self.client.account_manager.network.name})'
+            return f'Can not get value for ({from_network.upper()})'
 
         native_balance = await self.client.contract.get_balance()
 
@@ -103,11 +103,11 @@ class Stargate(BaseTask):
 
             if network_fee - dst_native_amount_price > max_fee:
                 return f'Too high fee for fee: {network_fee}' \
-                    f'({self.client.account_manager.network.name})'
+                    f'({from_network.upper()})'
         else:
             if network_fee > max_fee:
-                return f'Too high fee: {network_fee}' \
-                    f'({self.client.account_manager.network.name})'
+                return f'Too high fee: {network_fee} ' \
+                    f'({from_network.upper()})'
 
         tx_params = TxParams(
             to=dex_contract.address,
@@ -142,14 +142,14 @@ class Stargate(BaseTask):
         if receipt:
             return (
                 f'{swap_query.amount_from.Ether} {swap_info.from_token} '
-                f'was sent from {self.client.account_manager.network.name.upper()} '
+                f'was sent from {from_network.upper()} '
                 f'to {swap_info.to_network.upper()} via Stargate: '
                 f'https://layerzeroscan.com/tx/{tx.hash.hex()} '
             )
 
     async def _get_value(
         self,
-        router_contract: AsyncContract | Contract,
+        router_contract: ParamsTypes.Contract,
         dst_chain_id: int,
         lz_tx_params: TxArgs
     ) -> TokenAmount:
