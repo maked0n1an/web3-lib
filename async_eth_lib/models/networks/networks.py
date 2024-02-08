@@ -13,6 +13,7 @@ class Networks(Singleton):
         chain_id=1,
         tx_type=2,
         coin_symbol=CurrencySymbol.ETH,
+        decimals=18,
         explorer='https://etherscan.io/',
     )
 
@@ -25,6 +26,7 @@ class Networks(Singleton):
         chain_id=42161,
         tx_type=2,
         coin_symbol=CurrencySymbol.ETH,
+        decimals=18,
         explorer='https://arbiscan.io/'
     )
 
@@ -34,6 +36,7 @@ class Networks(Singleton):
         chain_id=42170,
         tx_type=2,
         coin_symbol=CurrencySymbol.ETH,
+        decimals=18,
         explorer='https://nova.arbiscan.io/',
     )
 
@@ -43,6 +46,7 @@ class Networks(Singleton):
         chain_id=43114,
         tx_type=2,
         coin_symbol=CurrencySymbol.AVAX,
+        decimals=18,
         explorer='https://snowtrace.io/',
     )
 
@@ -52,6 +56,7 @@ class Networks(Singleton):
         chain_id=56,
         tx_type=0,
         coin_symbol=CurrencySymbol.BNB,
+        decimals=18,
         explorer='https://bscscan.com/'
     )
 
@@ -61,6 +66,7 @@ class Networks(Singleton):
         chain_id=42220,
         tx_type=0,
         coin_symbol=CurrencySymbol.CELO,
+        decimals=18,
         explorer='https://celoscan.io/',
     )
     
@@ -70,6 +76,7 @@ class Networks(Singleton):
         chain_id=1116,
         tx_type=0,
         coin_symbol=CurrencySymbol.CORE,
+        decimals=18,
         explorer='https://scan.coredao.org/',
     )
 
@@ -79,6 +86,7 @@ class Networks(Singleton):
         chain_id=250,
         tx_type=0,
         coin_symbol=CurrencySymbol.FTM,
+        decimals=18,
         explorer='https://ftmscan.com/',
     )
     
@@ -88,6 +96,7 @@ class Networks(Singleton):
         chain_id=100,
         tx_type=2,
         coin_symbol=CurrencySymbol.XDAI,
+        decimals=18,
         explorer='https://gnosisscan.io/',
     )
 
@@ -97,6 +106,7 @@ class Networks(Singleton):
         chain_id=128,
         tx_type=2,
         coin_symbol=CurrencySymbol.HECO,
+        decimals=18,
         explorer='https://www.hecoinfo.com/en-us/',
     )
 
@@ -106,6 +116,7 @@ class Networks(Singleton):
         chain_id=1284,
         tx_type=2,
         coin_symbol=CurrencySymbol.GLMR,
+        decimals=18,
         explorer='https://moonscan.io/',
     )
 
@@ -115,6 +126,7 @@ class Networks(Singleton):
         chain_id=10,
         tx_type=2,
         coin_symbol=CurrencySymbol.ETH,
+        decimals=18,
         explorer='https://optimistic.etherscan.io/',
     )
     
@@ -124,6 +136,7 @@ class Networks(Singleton):
         chain_id=137,
         tx_type=2,
         coin_symbol=CurrencySymbol.MATIC,
+        decimals=18,
         explorer='https://polygonscan.com/',
     )
 
@@ -134,6 +147,7 @@ class Networks(Singleton):
         chain_id=5,
         tx_type=2,
         coin_symbol=CurrencySymbol.ETH,
+        decimals=18,
         explorer='https://goerli.etherscan.io/',
     )
 
@@ -143,6 +157,7 @@ class Networks(Singleton):
         chain_id=11155111,
         tx_type=2,
         coin_symbol=CurrencySymbol.ETH,
+        decimals=18,
         explorer='https://sepolia.etherscan.io',
     )
     
