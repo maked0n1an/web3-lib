@@ -1,7 +1,7 @@
 from async_eth_lib.models.bridges.bridge_data import BridgeData
 
 
-class LayerZeroNetworkInfo:
+class LayerZeroNetworkData:
     def __init__(
         self,
         chain_id: int,

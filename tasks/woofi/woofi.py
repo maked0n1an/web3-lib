@@ -44,7 +44,7 @@ class WooFi(BaseTask):
             to=contract.address,
             data=contract.encodeABI('swap', args=args.get_tuple()),
         )
-        
+
         tx_params = self.set_all_gas_params(
             swap_info=swap_info,
             tx_params=tx_params
@@ -59,7 +59,7 @@ class WooFi(BaseTask):
             )
             await sleep(15, 30)
         else:
-            tx_params['value'] = swap_query.amount_from.Wei                
+            tx_params['value'] = swap_query.amount_from.Wei
 
         tx = await self.client.contract.transaction.sign_and_send(
             tx_params=tx_params
@@ -74,7 +74,7 @@ class WooFi(BaseTask):
             return (
                 f'{swap_query.amount_from.Ether} {swap_query.from_token.title} was swapped to '
                 f'{swap_query.min_to_amount.Ether} {swap_query.to_token.title} '
-                f'via {dex_contract.title}: ' 
+                f'via {dex_contract.title}: '
                 f'{full_path + tx.hash.hex()}'
             )
 
@@ -88,21 +88,21 @@ class WooFi(BaseTask):
         self,
         contract: ParamsTypes.Contract,
         swap_info: SwapInfo
-    )-> SwapQuery:
-        
+    ) -> SwapQuery:
+
         swap_query = await self.compute_source_token_amount(swap_info=swap_info)
-        
+
         to_token = TokenContracts.get_token(
             network=self.client.account_manager.network.name,
             token_ticker=swap_info.to_token
         )
-        
+
         price_of_to_token = await contract.functions.tryQuerySwap(
             swap_query.from_token.address,
             to_token.address,
             swap_query.amount_from.Wei
         ).call()
-        
+
         return await self.compute_min_destination_amount(
             swap_query=swap_query,
             to_token_price=price_of_to_token,
