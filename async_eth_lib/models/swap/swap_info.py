@@ -5,6 +5,7 @@ class SwapInfo:
 
     from_token: str
     to_token: str
+    from_network: str | None
     to_network: str | None
     amount: float
     slippage: float
@@ -18,6 +19,7 @@ class SwapInfo:
         from_token: str,
         to_token: str,
         slippage: float = 0.5,
+        from_network: str | None = None,
         to_network: str | None = None,
         amount: float | None = None,
         amount_from: float | None = None,
@@ -50,6 +52,7 @@ class SwapInfo:
         """
         self.from_token = from_token
         self.to_token = to_token
+        self.from_network = from_network
         self.to_network = to_network
         self.amount = amount
         self.slippage = slippage
