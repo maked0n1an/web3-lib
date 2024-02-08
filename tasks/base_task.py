@@ -5,7 +5,6 @@ from web3.types import TxParams
 
 from async_eth_lib.models.client import Client
 from async_eth_lib.models.contracts.contracts import TokenContracts
-from async_eth_lib.models.contracts.raw_contract import TokenContract
 from async_eth_lib.models.others.constants import CurrencySymbol
 from async_eth_lib.models.others.params_types import ParamsTypes
 from async_eth_lib.models.others.token_amount import TokenAmount
