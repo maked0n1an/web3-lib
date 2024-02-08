@@ -57,7 +57,7 @@ class WooFi(BaseTask):
                 amount=swap_query.amount_from,
                 tx_params=tx_params
             )
-            await sleep(8, 20)
+            await sleep(15, 30)
         else:
             tx_params['value'] = swap_query.amount_from.Wei                
 
