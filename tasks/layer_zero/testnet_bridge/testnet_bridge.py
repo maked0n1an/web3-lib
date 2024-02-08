@@ -73,7 +73,7 @@ class TestnetBridge(BaseTask):
                 amount=swap_query.amount_from,
                 is_approve_infinity=False
             )
-            await sleep(4, 10)
+            await sleep(10, 30)
         else:
             return f'Failed: can not approve'
         

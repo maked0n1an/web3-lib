@@ -12,19 +12,19 @@ from data.config import PRIVATE_KEYS
 async def main():
     client = Client(private_key=PRIVATE_KEYS[0], network=Networks.BSC)
 
-    # woofi = WooFi(client=client)
+    woofi = WooFi(client=client)
 
-    # swap_info = SwapInfo(
-    #     from_token=CurrencySymbol.BNB,
-    #     to_token=CurrencySymbol.USDT,
-    #     amount=0.0033,
-    #     gas_price=1
-    # )
-    # print('Started Woofi')
-    # res = await woofi.swap(swap_info)
-    # print(res)
+    swap_info = SwapInfo(
+        from_token=CurrencySymbol.BNB,
+        to_token=CurrencySymbol.USDT,
+        amount=0.0033,
+        gas_price=1
+    )
+    print('Started Woofi')
+    res = await woofi.swap(swap_info)
+    print(res)
 
-    # await asyncio.sleep(40)
+    await asyncio.sleep(40)
 
     stargate = Stargate(client=client)
 
