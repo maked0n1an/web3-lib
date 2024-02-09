@@ -4,8 +4,7 @@ from async_eth_lib.models.others.common import Singleton
 class CurrencySymbol(Singleton):
     ETH = 'ETH'
     GETH = 'GETH'
-    USDT = 'USDT'
-    USDC = 'USDC'
+    GETH_LZ = 'GETH'
     USDC_E = 'USDC_E'
 
     ARB = 'ARB'
@@ -20,5 +19,7 @@ class CurrencySymbol(Singleton):
     GLMR = 'GLMR'
     HECO = 'HECO'
     MATIC = 'MATIC'
+    USDT = 'USDT'
+    USDC = 'USDC'
     WBTC = 'WBTC'
     XDAI = 'xDAI'

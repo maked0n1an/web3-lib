@@ -7,9 +7,8 @@ import async_eth_lib.models.others.exceptions as exceptions
 from async_eth_lib.models.networks.networks import Networks
 from async_eth_lib.models.others.common import Singleton
 from async_eth_lib.models.others.constants import CurrencySymbol
-from async_eth_lib.models.contracts.contracts import TokenContracts
+from async_eth_lib.models.bridges.bridge_data import TokenBridgeInfo
 from tasks.layer_zero._data.models import LayerZeroNetworkData
-from async_eth_lib.models.bridges.bridge_data import BridgeData
 from tasks.layer_zero.coredao.coredao_contracts import CoreDaoBridgeContracts
 from tasks.layer_zero.stargate.stargate_contracts import StargateContracts
 from tasks.layer_zero.testnet_bridge.testnet_bridge_contracts import TestnetBridgeContracts
@@ -20,24 +19,20 @@ class LayerZeroData(Singleton):
         'stargate': {
             Networks.Arbitrum.name: LayerZeroNetworkData(
                 chain_id=110,
-                token_dict={
-                    CurrencySymbol.USDC: BridgeData(
-                        token_contract=TokenContracts.ARBITRUM_USDC,
+                bridge_dict={
+                    CurrencySymbol.USDC_E: TokenBridgeInfo(
                         bridge_contract=StargateContracts.ARBITRUM_UNIVERSAL,
                         pool_id=1
                     ),
-                    CurrencySymbol.USDT: BridgeData(
-                        token_contract=TokenContracts.ARBITRUM_USDT,
+                    CurrencySymbol.USDT: TokenBridgeInfo(
                         bridge_contract=StargateContracts.ARBITRUM_UNIVERSAL,
                         pool_id=2
                     ),
-                    CurrencySymbol.DAI: BridgeData(
-                        token_contract=TokenContracts.ARBITRUM_DAI,
+                    CurrencySymbol.DAI: TokenBridgeInfo(
                         bridge_contract=StargateContracts.ARBITRUM_UNIVERSAL,
                         pool_id=3
                     ),
-                    CurrencySymbol.ETH: BridgeData(
-                        token_contract=TokenContracts.ARBITRUM_ETH,
+                    CurrencySymbol.ETH: TokenBridgeInfo(
                         bridge_contract=StargateContracts.ARBITRUM_ETH,
                         pool_id=13
                     )
@@ -45,14 +40,12 @@ class LayerZeroData(Singleton):
             ),
             Networks.Avalanche.name: LayerZeroNetworkData(
                 chain_id=106,
-                token_dict={
-                    CurrencySymbol.USDC: BridgeData(
-                        token_contract=TokenContracts.AVALANCHE_USDC,
+                bridge_dict={
+                    CurrencySymbol.USDC: TokenBridgeInfo(
                         bridge_contract=StargateContracts.AVALANCHE_UNIVERSAL,
                         pool_id=1
                     ),
-                    CurrencySymbol.USDT: BridgeData(
-                        token_contract=TokenContracts.AVALANCHE_USDT,
+                    CurrencySymbol.USDT: TokenBridgeInfo(
                         bridge_contract=StargateContracts.AVALANCHE_UNIVERSAL,
                         pool_id=2
                     ),
@@ -60,14 +53,12 @@ class LayerZeroData(Singleton):
             ),
             Networks.BSC.name: LayerZeroNetworkData(
                 chain_id=102,
-                token_dict={
-                    CurrencySymbol.USDT: BridgeData(
-                        token_contract=TokenContracts.BSC_USDT,
+                bridge_dict={
+                    CurrencySymbol.USDT: TokenBridgeInfo(
                         bridge_contract=StargateContracts.BSC_USDT,
                         pool_id=2
                     ),
-                    CurrencySymbol.BUSD: BridgeData(
-                        token_contract=TokenContracts.BSC_BUSD,
+                    CurrencySymbol.BUSD: TokenBridgeInfo(
                         bridge_contract=StargateContracts.BSC_BUSD,
                         pool_id=5
                     )
@@ -75,9 +66,8 @@ class LayerZeroData(Singleton):
             ),
             Networks.Fantom.name: LayerZeroNetworkData(
                 chain_id=112,
-                token_dict={
-                    CurrencySymbol.USDC: BridgeData(
-                        token_contract=TokenContracts.FANTOM_USDC,
+                bridge_dict={
+                    CurrencySymbol.USDC: TokenBridgeInfo(
                         bridge_contract=StargateContracts.FANTOM_USDC,
                         pool_id=21
                     )
@@ -85,39 +75,33 @@ class LayerZeroData(Singleton):
             ),
             Networks.Optimism.name: LayerZeroNetworkData(
                 chain_id=111,
-                token_dict={
-                    CurrencySymbol.USDC: BridgeData(
-                        token_contract=TokenContracts.ARBITRUM_USDC,
-                        bridge_contract='0xb0d502e938ed5f4df2e681fe6e419ff29631d62b',
+                bridge_dict={
+                    CurrencySymbol.USDC_E: TokenBridgeInfo(
+                        bridge_contract=StargateContracts.OPTIMISM_UNIVERSAL,
                         pool_id=1
                     ),
-                    CurrencySymbol.DAI: BridgeData(
-                        token_contract=TokenContracts.ARBITRUM_DAI,
-                        bridge_contract='0xb0d502e938ed5f4df2e681fe6e419ff29631d62b',
+                    CurrencySymbol.DAI: TokenBridgeInfo(
+                        bridge_contract=StargateContracts.OPTIMISM_UNIVERSAL,
                         pool_id=3
                     ),
-                    CurrencySymbol.ETH: BridgeData(
-                        token_contract=TokenContracts.ARBITRUM_ETH,
-                        bridge_contract='0xb49c4e680174e331cb0a7ff3ab58afc9738d5f8b',
+                    CurrencySymbol.ETH: TokenBridgeInfo(
+                        bridge_contract=StargateContracts.OPTIMISM_ETH,
                         pool_id=13
                     )
                 }
             ),
             Networks.Polygon.name: LayerZeroNetworkData(
                 chain_id=109,
-                token_dict={
-                    CurrencySymbol.USDC_e: BridgeData(
-                        token_contract=TokenContracts.POLYGON_USDC_E,
+                bridge_dict={
+                    CurrencySymbol.USDC_E: TokenBridgeInfo(
                         bridge_contract=StargateContracts.POLYGON_UNIVERSAL,
                         pool_id=1
                     ),
-                    CurrencySymbol.USDT: BridgeData(
-                        token_contract=TokenContracts.POLYGON_USDT,
+                    CurrencySymbol.USDT: TokenBridgeInfo(
                         bridge_contract=StargateContracts.POLYGON_UNIVERSAL,
                         pool_id=2
                     ),
-                    CurrencySymbol.DAI: BridgeData(
-                        token_contract=TokenContracts.POLYGON_DAI,
+                    CurrencySymbol.DAI: TokenBridgeInfo(
                         bridge_contract=StargateContracts.POLYGON_UNIVERSAL,
                         pool_id=3
                     )
@@ -127,9 +111,8 @@ class LayerZeroData(Singleton):
         'coredaobridge': {
             Networks.BSC.name: LayerZeroNetworkData(
                 chain_id=102,
-                token_dict={
-                    CurrencySymbol.USDT: BridgeData(
-                        token_contract=TokenContracts.BSC_USDT,
+                bridge_dict={
+                    CurrencySymbol.USDT: TokenBridgeInfo(
                         bridge_contract=CoreDaoBridgeContracts.BSC
                     )
                 }
@@ -138,9 +121,8 @@ class LayerZeroData(Singleton):
         'testnetbridge': {
             Networks.Arbitrum.name: LayerZeroNetworkData(
                 chain_id=110,
-                token_dict={
-                    CurrencySymbol.GETH: BridgeData(
-                        token_contract=TokenContracts.ARBITRUM_GETH_LZ,
+                bridge_dict={
+                    CurrencySymbol.GETH_LZ: TokenBridgeInfo(
                         bridge_contract=TestnetBridgeContracts.ARBITRUM_GETH_LZ,
                     )
                 }
@@ -154,7 +136,7 @@ class LayerZeroData(Singleton):
         project: str,
         network: str
     ) -> int | None:
-        network_data = cls._get_network_data(
+        network_data = cls.get_network_data(
             project=project, network=network
         )
 
@@ -165,54 +147,58 @@ class LayerZeroData(Singleton):
         cls,
         project: str,
         network: str,
-        token: str
+        token_ticker: str
     ) -> int | None:
-        token_data = cls.get_token(
-            project=project, network=network, token=token
+        token_bridge_info = cls.get_token_bridge_info(
+            project=project, network=network, token_ticker=token_ticker
         )
 
-        return token_data.pool_id
+        return token_bridge_info.pool_id
     
     @classmethod
     def get_chain_id_and_pool_id(
         cls,
         project: str,
         network: str,
-        token: str
+        token_ticker: str
     ) -> Tuple[int, Optional[int]]:
-        token = token.upper()
+        token_ticker = token_ticker.upper()
         
-        network_data = cls._get_network_data(
+        network_data = cls.get_network_data(
             project=project, network=network
         )
 
-        cls._check_for_token(token=token, token_dict=network_data.token_dict)
+        cls._check_for_bridge_contract(
+            token=token_ticker, bridge_dict=network_data.bridge_dict
+        )
         
         chain_id = network_data.chain_id
-        pool_id = network_data.token_dict[token].pool_id
+        pool_id = network_data.bridge_dict[token_ticker].pool_id
         
         return (chain_id, pool_id)
 
     @classmethod
-    def get_token(
+    def get_token_bridge_info(
         cls,
         project: str,
         network: str,
-        token: str
-    ) -> BridgeData:
-        token = token.upper()
+        token_ticker: str
+    ) -> TokenBridgeInfo:
+        token_ticker = token_ticker.upper()
 
-        network_data = cls._get_network_data(
+        network_data = cls.get_network_data(
             project=project, network=network
         )
 
-        cls._check_for_token(token=token, token_dict=network_data.token_dict)
+        cls._check_for_bridge_contract(
+            token=token_ticker, bridge_dict=network_data.bridge_dict
+        )
 
-        token_data = network_data.token_dict[token]
-        return token_data
+        token_bridge_info = network_data.bridge_dict[token_ticker]
+        return token_bridge_info
 
     @classmethod
-    def _get_network_data(
+    def get_network_data(
         cls,
         project: str,
         network: str
@@ -238,13 +224,13 @@ class LayerZeroData(Singleton):
 
         return network_data
     
-    def _check_for_token(
+    def _check_for_bridge_contract(
         token: str,
-        token_dict: dict[str, BridgeData]
+        bridge_dict: dict[str, TokenBridgeInfo]
     ) -> None:
-        if token not in token_dict:
+        if token not in bridge_dict:
             raise exceptions.ContractNotExists(
-                f"The {token} contract has not been added "
-                f"to {__class__.__name__} token contracts"
+                f"The bridge contract for {token} has not been added "
+                f"to {__class__.__name__} bridge contracts"
             )
 
