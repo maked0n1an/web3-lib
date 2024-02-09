@@ -129,15 +129,10 @@ class BaseTask:
             tx_params=tx_params,
             is_approve_infinity=is_approve_infinity
         )
-        receipt = await tx.wait_for_tx_receipt(
+        return await tx.wait_for_tx_receipt(
             web3=self.client.account_manager.w3,
             timeout=240
-        )
-
-        if receipt:
-            return True
-
-        return False
+        ) is not None
 
     async def compute_source_token_amount(
         self,
