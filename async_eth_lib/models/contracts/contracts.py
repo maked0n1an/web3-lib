@@ -9,10 +9,12 @@ from async_eth_lib.models.contracts.raw_contract import (
 
 
 class TokenContracts(Singleton):
+    NATIVE_ETH = NativeTokenContract(title=CurrencySymbol.ETH)
+    
     ''' 
     Arbitrum
     '''
-    ARBITRUM_ETH = NativeTokenContract(title=CurrencySymbol.ETH)
+    ARBITRUM_ETH = NATIVE_ETH
 
     ARBITRUM_ARB = TokenContract(
         title=CurrencySymbol.ARB,
@@ -50,7 +52,7 @@ class TokenContracts(Singleton):
     )
 
     ARBITRUM_USDC_E = TokenContract(
-        title=CurrencySymbol.USDC_e,
+        title=CurrencySymbol.USDC_E,
         address='0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
         decimals=6
     )
@@ -73,6 +75,7 @@ class TokenContracts(Singleton):
     AVALANCHE_USDC = TokenContract(
         title=CurrencySymbol.USDC,
         address='0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E',
+        decimals=6
     )
 
     AVALANCHE_USDT = TokenContract(
@@ -105,20 +108,36 @@ class TokenContracts(Singleton):
     """
     FANTOM_USDC = TokenContract(
         title=CurrencySymbol.USDC,
+        address='0x04068DA6C83AFCFA0e13ba15A6696662335D5B75',
+        decimals=6
+    )
+    
+    FANTOM_USDC_E = TokenContract(
+        title=CurrencySymbol.USDC,
         address='0x28a92dde19D9989F39A49905d7C9C2FAc7799bDf',
+        decimals=6
     )
 
     """
     Optimism
     """
+    OPTIMISM_ETH = NATIVE_ETH
+    
     OPTIMISM_USDC = TokenContract(
         title=CurrencySymbol.USDC,
-        address='0x7f5c764cbc14f9669b88837ca1490cca17c31607'
+        address='0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85',
+        decimals=6
+    )
+    
+    OPTIMISM_USDC_E = TokenContract(
+        title=CurrencySymbol.USDC_E,
+        address='0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
+        decimals=6
     )
 
     OPTIMISM_DAI = TokenContract(
         title=CurrencySymbol.DAI,
-        address='0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1'
+        address='0xda10009cbd5d07dd0cecc66161fc93d7c9000da1'
     )
 
     OPTIMISM_FRAX = TokenContract(
@@ -138,7 +157,7 @@ class TokenContracts(Singleton):
     )
 
     POLYGON_USDC_E = TokenContract(
-        title=CurrencySymbol.USDC_e,
+        title=CurrencySymbol.USDC_E,
         address='0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
         decimals=6
     )

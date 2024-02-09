@@ -6,7 +6,7 @@ class CurrencySymbol(Singleton):
     GETH = 'GETH'
     USDT = 'USDT'
     USDC = 'USDC'
-    USDC_e = 'USDC_E'
+    USDC_E = 'USDC_E'
 
     ARB = 'ARB'
     AVAX = 'AVAX'
