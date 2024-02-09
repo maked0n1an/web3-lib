@@ -22,10 +22,10 @@ class CoreDaoBridge(BaseTask):
         if check:
             return check
 
-        src_bridge_data = LayerZeroData.get_token(
+        src_bridge_data = LayerZeroData.get_token_bridge_info(
             project=__class__.__name__,
             network=self.client.account_manager.network.name,
-            token=swap_info.from_token
+            token_ticker=swap_info.from_token
         )
         contract = await self.client.contract.get(
             contract=src_bridge_data.bridge_contract
@@ -63,14 +63,15 @@ class CoreDaoBridge(BaseTask):
 
         if not swap_query.from_token.is_native_token:
             await self.approve_interface(
-                token_contract=src_bridge_data.token_contract,
+                token_contract=swap_query.from_token,
                 spender_address=src_bridge_data.bridge_contract.address,
                 amount=swap_query.amount_from,
+                tx_params=tx_params,
                 is_approve_infinity=False
             )
             await sleep(3, 7)
         else:
-            return f'Failed: can not approve'
+            tx_params['value'] += swap_query.amount_from.Wei
 
         tx = await self.client.contract.transaction.sign_and_send(
             tx_params=tx_params
