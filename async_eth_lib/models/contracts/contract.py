@@ -156,16 +156,21 @@ class Contract:
                                             amount=token_amount
                                         ).get_tuple())
         
-        if tx_params is None:            
-            tx_params = {}
+        if tx_params: 
+            new_tx_params = {}
+            if 'gas' in tx_params:
+                new_tx_params['gas'] = tx_params['gas']
+            if 'gasPrice' in tx_params:
+                new_tx_params['gasPrice'] = tx_params['gasPrice']
+            if 'multiplier' in tx_params:
+                new_tx_params['multiplier'] = tx_params['multiplier']
         
-        tx_params.update({
+        new_tx_params.update({
             'to': token_contract.address,
-            'data': data,
-            'nonce': tx_params.get('nonce')
+            'data': data
         })
 
-        tx = await self.transaction.sign_and_send(tx_params=tx_params)
+        tx = await self.transaction.sign_and_send(tx_params=new_tx_params)
         print(
             'Approved: ',
             self.account_manager.network.explorer
