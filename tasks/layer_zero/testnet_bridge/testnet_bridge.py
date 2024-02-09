@@ -27,13 +27,13 @@ class TestnetBridge(BaseTask):
         if check:
             return check
 
-        src_bridge_data = LayerZeroData.get_token(
+        token_bridge_info = LayerZeroData.get_token_bridge_info(
             project=__class__.__name__,
             network=self.client.account_manager.network.name,
-            token=swap_info.from_token
+            token_ticker=swap_info.from_token
         )
         contract = await self.client.contract.get(
-            contract=src_bridge_data.bridge_contract
+            contract=token_bridge_info.bridge_contract
         )
 
         swap_query = await self.compute_source_token_amount(
@@ -57,7 +57,7 @@ class TestnetBridge(BaseTask):
         )
 
         tx_params = TxParams(
-            to=src_bridge_data.bridge_contract.address,
+            to=token_bridge_info.bridge_contract.address,
             data=contract.encodeABI('sendFrom', args=args.get_tuple()),
             value=value.Wei
         )
@@ -68,9 +68,10 @@ class TestnetBridge(BaseTask):
         
         if not swap_query.from_token.is_native_token:
             await self.approve_interface(
-                token_contract=src_bridge_data.token_contract,
-                spender_address=src_bridge_data.bridge_contract.address,
+                token_contract=swap_query.from_token,
+                spender_address=token_bridge_info.bridge_contract.address,
                 amount=swap_query.amount_from,
+                tx_params=tx_params,
                 is_approve_infinity=False
             )
             await sleep(10, 30)

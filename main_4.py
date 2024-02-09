@@ -5,6 +5,7 @@ from async_eth_lib.models.others.constants import CurrencySymbol
 from async_eth_lib.models.swap.swap_info import SwapInfo
 from async_eth_lib.models.networks.networks import Networks
 from tasks.layer_zero import Stargate
+from tasks.layer_zero.coredao.coredao import CoreDaoBridge
 from tasks.woofi.woofi import WooFi
 from data.config import PRIVATE_KEYS
 
@@ -12,31 +13,41 @@ from data.config import PRIVATE_KEYS
 async def main():
     client = Client(private_key=PRIVATE_KEYS[0], network=Networks.BSC)
 
-    woofi = WooFi(client=client)
+    # woofi = WooFi(client=client)
+    # swap_info = SwapInfo(
+    #     from_token=CurrencySymbol.BNB,
+    #     to_token=CurrencySymbol.USDT,
+    #     amount=0.0004,
+    #     gas_price=1
+    # )
+    # print('Started Woofi')
+    # res = await woofi.swap(swap_info)
+    # print(res)
 
-    swap_info = SwapInfo(
-        from_token=CurrencySymbol.BNB,
-        to_token=CurrencySymbol.USDT,
-        amount=0.0033,
-        gas_price=1
-    )
-    print('Started Woofi')
-    res = await woofi.swap(swap_info)
-    print(res)
+    # await asyncio.sleep(40)
 
-    await asyncio.sleep(40)
+    # stargate = Stargate(client=client)
 
-    stargate = Stargate(client=client)
-
-    swap_info = SwapInfo(
-        from_token=CurrencySymbol.USDT,
-        to_token=CurrencySymbol.USDC_e,
-        gas_price=2.5,
-        to_network='polygon'
-    )
-    print('Started Stargate')
-    res = await stargate.swap(swap_info, max_fee=0.8, dst_fee=1)
-    print(res)
+    # swap_info = SwapInfo(
+    #     from_token=CurrencySymbol.USDT,
+    #     to_token=CurrencySymbol.USDC_E,
+    #     gas_price=2.5,
+    #     to_network='polygon'
+    # )
+    # print('Started Stargate')
+    # res = await stargate.swap(swap_info, max_fee=3, dst_fee=0.4)
+    # print(res)
+    
+    # coredao = CoreDaoBridge(client=client)
+    # swap_info = SwapInfo(
+    #     from_token=CurrencySymbol.USDT,
+    #     to_token=CurrencySymbol.USDT,
+    #     to_network='core',
+    #     gas_price=1      
+    # )
+    # print('Started Coredao')
+    # res = await coredao.bridge(swap_info=swap_info)
+    # print(res)
 
 if __name__ == '__main__':
     asyncio.run(main())
