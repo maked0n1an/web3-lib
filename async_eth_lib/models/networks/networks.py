@@ -161,6 +161,16 @@ class Networks(Singleton):
         explorer='https://sepolia.etherscan.io',
     )
     
+    Zksync = Network(
+        name='zksync',
+        rpc='https://zksync.meowrpc.com',
+        chain_id=324,
+        tx_type=2,
+        coin_symbol=CurrencySymbol.ETH,
+        decimals=18,
+        explorer='https://explorer.zksync.io/'
+    )
+    
     @classmethod
     def get_network(
         cls, 
