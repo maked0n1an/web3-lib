@@ -13,6 +13,7 @@ from async_eth_lib.models.transactions.tx_args import TxArgs
 from async_eth_lib.utils.helpers import sleep
 from tasks.base_task import BaseTask
 from tasks.layer_zero._data.data import LayerZeroData
+from tasks.layer_zero.stargate.stargate_contracts import StargateContracts
 
 
 class Stargate(BaseTask):
@@ -86,12 +87,6 @@ class Stargate(BaseTask):
                 _payload='0x'
             )
 
-            value = await self._estimate_fee_for_swap(
-                router_contract=router_contract,
-                dst_chain_id=dst_chain_id,
-                lz_tx_params=lz_tx_params
-            )
-
             data = router_contract.encodeABI('swap', args=tx_args.get_tuple())
         else:
             tx_args = TxArgs(
@@ -106,11 +101,13 @@ class Stargate(BaseTask):
             data = router_contract.encodeABI(
                 'swapETH', args=tx_args.get_tuple())
 
-            value = await self._estimate_fee_for_swap(
-                dst_chain_id=dst_chain_id,
-                lz_tx_params=lz_tx_params,
-                data=data
-            )
+        value = await self._estimate_fee_for_swap(
+            router_contract=router_contract,
+            src_token_ticker=swap_info.from_token,
+            dst_chain_id=dst_chain_id,
+            lz_tx_params=lz_tx_params,
+            data=data
+        )
 
         if not value:
             return f'Can not get value for ({from_network.upper()})'
@@ -180,37 +177,39 @@ class Stargate(BaseTask):
 
     async def _estimate_fee_for_swap(
         self,
+        router_contract: ParamsTypes.Contract,        
         dst_chain_id: int,
         lz_tx_params: TxArgs,
-        router_contract: ParamsTypes.Contract | None = None,
+        src_token_ticker: str | None = None,
         data: HexStr | None = None
     ) -> TokenAmount:
-        if not router_contract:
+        if src_token_ticker and src_token_ticker.upper() == CurrencySymbol.ETH:
             network = self.client.account_manager.network.name
 
             network_data = LayerZeroData.get_network_data(
                 project=__class__.__name__,
                 network=network
             )
+            
+            router = None            
             for key, value in network_data.bridge_dict.items():
                 if key != CurrencySymbol.ETH:
                     router = value.bridge_contract
+                    break
             if not router:
-                raise exceptions.ContractNotExists(
-                    f"The non-ETH Stargate Router for this {network} "
-                    f"network has not been added to "
-                    f"{__class__.__name__} networks dict"
+                router_eth_address = (
+                    await router_contract.functions.stargateRouter().call()
+                )                
+                router = await self.client.contract.get(
+                    contract=router_eth_address,
+                    abi=StargateContracts.STARGATE_ROUTER_ETH_ABI
                 )
-
-            router_contract = await self.client.contract.get(
-                contract=router
-            )
-
+                
         result = await router_contract.functions.quoteLayerZeroFee(
             dst_chain_id,
             1,
             self.client.account_manager.account.address,
-            data if data else '0x',
+            '0x',
             lz_tx_params.get_list()
         ).call()
 
