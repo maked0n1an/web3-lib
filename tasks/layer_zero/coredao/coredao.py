@@ -17,7 +17,7 @@ class CoreDaoBridge(BaseTask):
         check = self.validate_swap_inputs(
             first_arg=self.client.account_manager.network.name,
             second_arg=swap_info.to_network,
-            arg_type='networks'
+            param_type='networks'
         )
         if check:
             return check

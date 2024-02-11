@@ -45,7 +45,7 @@ class BaseTask:
         self,
         first_arg: str,
         second_arg: str,
-        arg_type: str = 'args'
+        param_type: str = 'args'
     ) -> str:
         """
         Validate inputs for a swap operation.
@@ -53,20 +53,20 @@ class BaseTask:
         Args:
             first_arg (str): The first argument.
             second_arg (str): The second argument.
-            arg_type (str): The type of arguments (default is 'args').
+            param_type (str): The type of arguments (default is 'args').
 
         Returns:
             str: A message indicating the result of the validation.
 
         Example:
         ```python
-        result = validate_swap_inputs('ETH', 'USDT', arg_type='symbols')
+        result = validate_swap_inputs('ETH', 'USDT', param_type='symbols')
         print(result)
         # Output: 'The symbols for swap() are different: ETH != USDT'
         ```
         """
         if first_arg.upper() == second_arg.upper():
-            return f'The {arg_type} for swap() are equal: {first_arg} == {second_arg}'
+            return f'The {param_type} for swap() are equal: {first_arg} == {second_arg}'
 
     async def approve_interface(
         self,
@@ -271,6 +271,12 @@ class BaseTask:
                 return 1 / price
 
             return price
+        
+    async def get_token_info(self, token_address):
+        contract = await self.client.contract.get_token_contract(token=token_address)
+        print('name:', await contract.functions.name().call())
+        print('symbol:', await contract.functions.symbol().call())
+        print('decimals:', await contract.functions.decimals().call())
 
     async def _get_price_from_binance(
         self,

@@ -29,7 +29,7 @@ class Stargate(BaseTask):
         check = self.validate_swap_inputs(
             first_arg=from_network,
             second_arg=swap_info.to_network,
-            arg_type='networks'
+            param_type='networks'
         )
         if check:
             return check
