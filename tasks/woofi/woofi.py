@@ -18,7 +18,7 @@ class WooFi(BaseTask):
         check = self.validate_swap_inputs(
             first_arg=swap_info.from_token,
             second_arg=swap_info.to_token,
-            arg_type='tokens'
+            param_type='tokens'
         )
         if check:
             return check
