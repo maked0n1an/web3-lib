@@ -1,9 +1,8 @@
 from async_eth_lib.models.contracts.raw_contract import RawContract
-from async_eth_lib.models.others.common import Singleton
 from async_eth_lib.utils.helpers import read_json
 
 
-class CoreDaoBridgeContracts(Singleton):
+class CoreDaoBridgeContracts():
     COREDAO_BRIDGE_ABI = read_json(
         path=('data', 'abis', 'coredao', 'bridge_abi.json')       
     )
