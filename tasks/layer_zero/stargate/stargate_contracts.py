@@ -5,11 +5,11 @@ from async_eth_lib.utils.helpers import read_json
 
 class StargateContracts(Singleton):
     STARGATE_ROUTER_ABI = read_json(
-        path=('data', 'abis', 'stargate', 'router_abi.json')
+        path=('data', 'abis', 'layerzero', 'stargate', 'router_abi.json')  
     )
     
     STARGATE_ROUTER_ETH_ABI = read_json(
-        path=('data', 'abis', 'stargate', 'router_eth_abi.json')
+        path=('data', 'abis', 'layerzero', 'stargate', 'router_eth_abi.json')
     )
 
     ARBITRUM_UNIVERSAL = RawContract(

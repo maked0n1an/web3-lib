@@ -5,7 +5,7 @@ from async_eth_lib.utils.helpers import read_json
 
 class TestnetBridgeContracts(Singleton):
     TESTNET_BRIDGE_ABI = read_json(
-        path=('data', 'abis', 'testnet_bridge', 'abi.json')
+        path=('data', 'abis', 'layerzero', 'testnet_bridge', 'abi.json')
     )
     
     ARBITRUM_GETH_LZ = RawContract(
