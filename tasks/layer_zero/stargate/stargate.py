@@ -3,7 +3,6 @@ from eth_typing import (
     HexStr
 )
 
-import async_eth_lib.models.others.exceptions as exceptions
 from async_eth_lib.models.networks.networks import Networks
 from async_eth_lib.models.others.constants import CurrencySymbol
 from async_eth_lib.models.others.params_types import ParamsTypes
@@ -12,8 +11,8 @@ from async_eth_lib.models.swap.swap_info import SwapInfo
 from async_eth_lib.models.transactions.tx_args import TxArgs
 from async_eth_lib.utils.helpers import sleep
 from tasks.base_task import BaseTask
-from tasks.layer_zero._data.data import LayerZeroData
 from tasks.layer_zero.stargate.stargate_contracts import StargateContracts
+from tasks.layer_zero.stargate.stargate_data import StargateData
 
 
 class Stargate(BaseTask):
@@ -24,7 +23,6 @@ class Stargate(BaseTask):
         dst_fee: float | TokenAmount | None = None
     ) -> str:
         from_network = self.client.account_manager.network.name
-        project_name = __class__.__name__
 
         check = self.validate_swap_inputs(
             first_arg=from_network,
@@ -34,14 +32,12 @@ class Stargate(BaseTask):
         if check:
             return check
 
-        src_bridge_data = LayerZeroData.get_token_bridge_info(
-            project=project_name,
+        src_bridge_data = StargateData.get_token_bridge_info(
             network=from_network,
             token_ticker=swap_info.from_token
         )
 
-        dst_chain_id, dst_pool_id = LayerZeroData.get_chain_id_and_pool_id(
-            project=project_name,
+        dst_chain_id, dst_pool_id = StargateData.get_chain_id_and_pool_id(
             network=swap_info.to_network,
             token_ticker=swap_info.to_token
         )
