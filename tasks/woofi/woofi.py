@@ -94,7 +94,7 @@ class WooFi(BaseTask):
 
         to_token = TokenContracts.get_token(
             network=self.client.account_manager.network.name,
-            token_ticker=swap_info.to_token
+            token_symbol=swap_info.to_token
         )
 
         price_of_to_token = await contract.functions.tryQuerySwap(

@@ -156,7 +156,7 @@ class BaseTask:
         """
         from_token = TokenContracts.get_token(
             network=self.client.account_manager.network.name,
-            token_ticker=swap_info.from_token
+            token_symbol=swap_info.from_token
         )
 
         if from_token.is_native_token:
@@ -234,7 +234,7 @@ class BaseTask:
         if not swap_query.to_token:
             swap_query.to_token = TokenContracts.get_token(
                 network=self.client.account_manager.network.name,
-                token_ticker=swap_info.to_token
+                token_symbol=swap_info.to_token
             )
 
         decimals = 0

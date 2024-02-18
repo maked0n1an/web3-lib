@@ -29,7 +29,7 @@ class TestnetBridge(BaseTask):
 
         token_bridge_info = TestnetBridgeData.get_token_bridge_info(
             network=self.client.account_manager.network.name,
-            token_ticker=swap_info.from_token
+            token_symbol=swap_info.from_token
         )
         contract = await self.client.contract.get(
             contract=token_bridge_info.bridge_contract
