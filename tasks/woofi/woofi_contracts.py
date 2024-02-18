@@ -2,11 +2,10 @@ import async_eth_lib.models.others.exceptions as exceptions
 
 from async_eth_lib.models.contracts.raw_contract import RawContract
 from async_eth_lib.models.networks.networks import Networks
-from async_eth_lib.models.others.common import Singleton
 from async_eth_lib.utils.helpers import read_json
 
 
-class WoofiContracts(Singleton):
+class WoofiContracts():
     WOOFI_ROUTER_V2_ABI = read_json(
         path=('data', 'abis', 'woofi', 'abi.json')
     )
