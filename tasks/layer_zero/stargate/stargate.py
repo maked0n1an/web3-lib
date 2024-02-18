@@ -182,10 +182,7 @@ class Stargate(BaseTask):
         if src_token_ticker and src_token_ticker.upper() == CurrencySymbol.ETH:
             network = self.client.account_manager.network.name
 
-            network_data = LayerZeroData.get_network_data(
-                project=__class__.__name__,
-                network=network
-            )
+            network_data = StargateData.get_network_data(network=network)
             
             router = None            
             for key, value in network_data.bridge_dict.items():
