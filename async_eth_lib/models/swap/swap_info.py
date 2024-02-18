@@ -2,18 +2,6 @@ import random
 
 
 class SwapInfo:
-
-    from_token: str
-    to_token: str
-    from_network: str | None
-    to_network: str | None
-    amount: float
-    slippage: float
-    amount_by_percent: float
-    multiplier_of_gas: float | None
-    gas_price: float | None
-    gas_limit: int | None
-
     def __init__(
         self,
         from_token: str,
