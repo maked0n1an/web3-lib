@@ -3,7 +3,7 @@ from async_eth_lib.models.others.common import Singleton
 from async_eth_lib.utils.helpers import read_json
 
 
-class CoreDaoBridgeContracts(Singleton):
+class CoreDaoBridgeContracts(metaclass=Singleton):
     COREDAO_BRIDGE_ABI = read_json(
         path=('data', 'abis', 'layerzero', 'coredao', 'bridge_abi.json')       
     )

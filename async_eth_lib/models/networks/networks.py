@@ -5,7 +5,7 @@ from async_eth_lib.models.others.common import Singleton
 from .network import Network
 
 
-class Networks(Singleton):
+class Networks(metaclass=Singleton):
     # Mainnet
     Ethereum = Network(
         name='ethereum',
