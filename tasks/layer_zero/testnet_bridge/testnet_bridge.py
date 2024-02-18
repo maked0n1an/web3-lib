@@ -7,7 +7,7 @@ from async_eth_lib.models.swap.swap_query import SwapQuery
 from async_eth_lib.models.transactions.tx_args import TxArgs
 from async_eth_lib.utils.helpers import sleep
 from tasks.base_task import BaseTask
-from tasks.layer_zero._data.data import LayerZeroData
+from tasks.layer_zero.testnet_bridge.testnet_bridge_data import TestnetBridgeData
 
 
 class TestnetBridge(BaseTask):
@@ -27,8 +27,7 @@ class TestnetBridge(BaseTask):
         if check:
             return check
 
-        token_bridge_info = LayerZeroData.get_token_bridge_info(
-            project=__class__.__name__,
+        token_bridge_info = TestnetBridgeData.get_token_bridge_info(
             network=self.client.account_manager.network.name,
             token_ticker=swap_info.from_token
         )

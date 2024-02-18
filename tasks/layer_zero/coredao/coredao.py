@@ -6,7 +6,7 @@ from async_eth_lib.models.swap.swap_info import SwapInfo
 from async_eth_lib.models.transactions.tx_args import TxArgs
 from async_eth_lib.utils.helpers import sleep
 from tasks.base_task import BaseTask
-from tasks.layer_zero._data.data import LayerZeroData
+from tasks.layer_zero.coredao.coredao_data import CoredaoData
 
 
 class CoreDaoBridge(BaseTask):
@@ -22,8 +22,7 @@ class CoreDaoBridge(BaseTask):
         if check:
             return check
 
-        src_bridge_data = LayerZeroData.get_token_bridge_info(
-            project=__class__.__name__,
+        src_bridge_data = CoredaoData.get_token_bridge_info(
             network=self.client.account_manager.network.name,
             token_ticker=swap_info.from_token
         )
