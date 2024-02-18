@@ -183,10 +183,10 @@ class TokenContracts(metaclass=Singleton):
     zkSync 
     """
     ZKSYNC_ETH = NATIVE_ETH
-
+    
     ZKSYNC_WETH = TokenContract(
-        title=TokenSymbol.ETH,
-        address='0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4',
+        title=TokenSymbol.WETH,
+        address='0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91',
         abi=read_json(
             path=('data', 'abis', 'zksync', 'weth_abi.json')
         )
