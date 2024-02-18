@@ -5,7 +5,7 @@ from async_eth_lib.utils.helpers import read_json
 
 class CoreDaoBridgeContracts(Singleton):
     COREDAO_BRIDGE_ABI = read_json(
-        path=('data', 'abis', 'coredao', 'bridge_abi.json')       
+        path=('data', 'abis', 'layerzero', 'coredao', 'bridge_abi.json')       
     )
 
     BSC = RawContract(
