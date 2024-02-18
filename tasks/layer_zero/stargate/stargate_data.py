@@ -2,7 +2,7 @@ from async_eth_lib.models.bridges.bridge_data import TokenBridgeInfo
 from async_eth_lib.models.bridges.network_data import NetworkData
 from async_eth_lib.models.networks.networks import Networks
 from async_eth_lib.models.others.common import Singleton
-from async_eth_lib.models.others.constants import CurrencySymbol
+from async_eth_lib.models.others.constants import TokenSymbol
 from async_eth_lib.models.bridges.network_data_fetcher import NetworkDataFetcher
 from tasks.layer_zero.stargate.stargate_contracts import StargateContracts
 
@@ -12,19 +12,19 @@ class StargateData(NetworkDataFetcher, metaclass=Singleton):
         Networks.Arbitrum.name: NetworkData(
             chain_id=110,
             bridge_dict={
-                CurrencySymbol.USDC_E: TokenBridgeInfo(
+                TokenSymbol.USDC_E: TokenBridgeInfo(
                     bridge_contract=StargateContracts.ARBITRUM_UNIVERSAL,
                     pool_id=1
                 ),
-                CurrencySymbol.USDT: TokenBridgeInfo(
+                TokenSymbol.USDT: TokenBridgeInfo(
                     bridge_contract=StargateContracts.ARBITRUM_UNIVERSAL,
                     pool_id=2
                 ),
-                CurrencySymbol.DAI: TokenBridgeInfo(
+                TokenSymbol.DAI: TokenBridgeInfo(
                     bridge_contract=StargateContracts.ARBITRUM_UNIVERSAL,
                     pool_id=3
                 ),
-                CurrencySymbol.ETH: TokenBridgeInfo(
+                TokenSymbol.ETH: TokenBridgeInfo(
                     bridge_contract=StargateContracts.ARBITRUM_ETH,
                     pool_id=13
                 )
@@ -33,11 +33,11 @@ class StargateData(NetworkDataFetcher, metaclass=Singleton):
         Networks.Avalanche.name: NetworkData(
             chain_id=106,
             bridge_dict={
-                CurrencySymbol.USDC: TokenBridgeInfo(
+                TokenSymbol.USDC: TokenBridgeInfo(
                     bridge_contract=StargateContracts.AVALANCHE_UNIVERSAL,
                     pool_id=1
                 ),
-                CurrencySymbol.USDT: TokenBridgeInfo(
+                TokenSymbol.USDT: TokenBridgeInfo(
                     bridge_contract=StargateContracts.AVALANCHE_UNIVERSAL,
                     pool_id=2
                 ),
@@ -46,11 +46,11 @@ class StargateData(NetworkDataFetcher, metaclass=Singleton):
         Networks.BSC.name: NetworkData(
             chain_id=102,
             bridge_dict={
-                CurrencySymbol.USDT: TokenBridgeInfo(
+                TokenSymbol.USDT: TokenBridgeInfo(
                     bridge_contract=StargateContracts.BSC_USDT,
                     pool_id=2
                 ),
-                CurrencySymbol.BUSD: TokenBridgeInfo(
+                TokenSymbol.BUSD: TokenBridgeInfo(
                     bridge_contract=StargateContracts.BSC_BUSD,
                     pool_id=5
                 )
@@ -59,7 +59,7 @@ class StargateData(NetworkDataFetcher, metaclass=Singleton):
         Networks.Fantom.name: NetworkData(
             chain_id=112,
             bridge_dict={
-                CurrencySymbol.USDC: TokenBridgeInfo(
+                TokenSymbol.USDC: TokenBridgeInfo(
                     bridge_contract=StargateContracts.FANTOM_USDC,
                     pool_id=21
                 )
@@ -68,15 +68,15 @@ class StargateData(NetworkDataFetcher, metaclass=Singleton):
         Networks.Optimism.name: NetworkData(
             chain_id=111,
             bridge_dict={
-                CurrencySymbol.USDC_E: TokenBridgeInfo(
+                TokenSymbol.USDC_E: TokenBridgeInfo(
                     bridge_contract=StargateContracts.OPTIMISM_UNIVERSAL,
                     pool_id=1
                 ),
-                CurrencySymbol.DAI: TokenBridgeInfo(
+                TokenSymbol.DAI: TokenBridgeInfo(
                     bridge_contract=StargateContracts.OPTIMISM_UNIVERSAL,
                     pool_id=3
                 ),
-                CurrencySymbol.ETH: TokenBridgeInfo(
+                TokenSymbol.ETH: TokenBridgeInfo(
                     bridge_contract=StargateContracts.OPTIMISM_ETH,
                     pool_id=13
                 )
@@ -85,15 +85,15 @@ class StargateData(NetworkDataFetcher, metaclass=Singleton):
         Networks.Polygon.name: NetworkData(
             chain_id=109,
             bridge_dict={
-                CurrencySymbol.USDC_E: TokenBridgeInfo(
+                TokenSymbol.USDC_E: TokenBridgeInfo(
                     bridge_contract=StargateContracts.POLYGON_UNIVERSAL,
                     pool_id=1
                 ),
-                CurrencySymbol.USDT: TokenBridgeInfo(
+                TokenSymbol.USDT: TokenBridgeInfo(
                     bridge_contract=StargateContracts.POLYGON_UNIVERSAL,
                     pool_id=2
                 ),
-                CurrencySymbol.DAI: TokenBridgeInfo(
+                TokenSymbol.DAI: TokenBridgeInfo(
                     bridge_contract=StargateContracts.POLYGON_UNIVERSAL,
                     pool_id=3
                 )

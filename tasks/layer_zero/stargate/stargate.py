@@ -4,7 +4,7 @@ from eth_typing import (
 )
 
 from async_eth_lib.models.networks.networks import Networks
-from async_eth_lib.models.others.constants import CurrencySymbol
+from async_eth_lib.models.others.constants import TokenSymbol
 from async_eth_lib.models.others.params_types import ParamsTypes
 from async_eth_lib.models.others.token_amount import TokenAmount
 from async_eth_lib.models.swap.swap_info import SwapInfo
@@ -69,7 +69,7 @@ class Stargate(BaseTask):
             )
         )
 
-        if swap_info.from_token != CurrencySymbol.ETH:
+        if swap_info.from_token != TokenSymbol.ETH:
             tx_args = TxArgs(
                 _dstChainId=dst_chain_id,
                 _srcPoolId=src_bridge_data.pool_id,
@@ -179,14 +179,14 @@ class Stargate(BaseTask):
         src_token_ticker: str | None = None,
         data: HexStr | None = None
     ) -> TokenAmount:
-        if src_token_ticker and src_token_ticker.upper() == CurrencySymbol.ETH:
+        if src_token_ticker and src_token_ticker.upper() == TokenSymbol.ETH:
             network = self.client.account_manager.network.name
 
             network_data = StargateData.get_network_data(network=network)
             
             router = None            
             for key, value in network_data.bridge_dict.items():
-                if key != CurrencySymbol.ETH:
+                if key != TokenSymbol.ETH:
                     router = value.bridge_contract
                     break
             if not router:

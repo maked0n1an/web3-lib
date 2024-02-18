@@ -5,7 +5,7 @@ from web3.types import TxParams
 
 from async_eth_lib.models.client import Client
 from async_eth_lib.models.contracts.contracts import TokenContracts
-from async_eth_lib.models.others.constants import CurrencySymbol
+from async_eth_lib.models.others.constants import TokenSymbol
 from async_eth_lib.models.others.params_types import ParamsTypes
 from async_eth_lib.models.others.token_amount import TokenAmount
 from async_eth_lib.models.swap.swap_info import SwapInfo
@@ -261,8 +261,8 @@ class BaseTask:
 
     async def get_binance_ticker_price(
         self,
-        first_token: str = CurrencySymbol.ETH,
-        second_token: str = CurrencySymbol.USDT
+        first_token: str = TokenSymbol.ETH,
+        second_token: str = TokenSymbol.USDT
     ) -> float | None:
         async with aiohttp.ClientSession() as session:
             price = await self._get_price_from_binance(session, first_token, second_token)
