@@ -7,7 +7,7 @@ from async_eth_lib.models.bridges.network_data_fetcher import NetworkDataFetcher
 from tasks.layer_zero.testnet_bridge.testnet_bridge_contracts import TestnetBridgeContracts
 
 
-class TestnetBridgeData(NetworkDataFetcher, Singleton):
+class TestnetBridgeData(NetworkDataFetcher, metaclass=Singleton):
     networks_data = {
         Networks.Arbitrum.name: NetworkData(
             chain_id=110,

@@ -7,7 +7,7 @@ from async_eth_lib.models.bridges.network_data_fetcher import NetworkDataFetcher
 from tasks.layer_zero.stargate.stargate_contracts import StargateContracts
 
 
-class StargateData(NetworkDataFetcher, Singleton):
+class StargateData(NetworkDataFetcher, metaclass=Singleton):
     networks_data = {
         Networks.Arbitrum.name: NetworkData(
             chain_id=110,

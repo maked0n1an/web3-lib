@@ -3,7 +3,7 @@ from async_eth_lib.models.others.common import Singleton
 from async_eth_lib.utils.helpers import read_json
 
 
-class StargateContracts(Singleton):
+class StargateContracts(metaclass=Singleton):
     STARGATE_ROUTER_ABI = read_json(
         path=('data', 'abis', 'layerzero', 'stargate', 'router_abi.json')  
     )

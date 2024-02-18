@@ -7,7 +7,7 @@ from async_eth_lib.models.bridges.network_data_fetcher import NetworkDataFetcher
 from tasks.layer_zero.coredao.coredao_contracts import CoreDaoBridgeContracts
 
 
-class CoredaoData(NetworkDataFetcher, Singleton):
+class CoredaoData(NetworkDataFetcher, metaclass=Singleton):
     networks_data = {
         Networks.BSC.name: NetworkData(
             chain_id=102,

@@ -6,11 +6,12 @@ from async_eth_lib.models.contracts.raw_contract import (
     TokenContract,
     NativeTokenContract
 )
+from async_eth_lib.utils.helpers import read_json
 
 
-class TokenContracts(Singleton):
+class TokenContracts(metaclass=Singleton):
     NATIVE_ETH = NativeTokenContract(title=CurrencySymbol.ETH)
-    
+
     ''' 
     Arbitrum
     '''
@@ -27,7 +28,7 @@ class TokenContracts(Singleton):
         address='0xaF7355462240d5a8f3509BD890994AF1022F1948',
         decimals=18
     )
-    
+
     ARBITRUM_GETH_LZ = TokenContract(
         title="GETH_LZ",
         address='0xdD69DB25F6D620A7baD3023c5d32761D353D3De9',
@@ -111,7 +112,7 @@ class TokenContracts(Singleton):
         address='0x04068DA6C83AFCFA0e13ba15A6696662335D5B75',
         decimals=6
     )
-    
+
     FANTOM_USDC_E = TokenContract(
         title=CurrencySymbol.USDC,
         address='0x28a92dde19D9989F39A49905d7C9C2FAc7799bDf',
@@ -122,13 +123,13 @@ class TokenContracts(Singleton):
     Optimism
     """
     OPTIMISM_ETH = NATIVE_ETH
-    
+
     OPTIMISM_USDC = TokenContract(
         title=CurrencySymbol.USDC,
         address='0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85',
         decimals=6
     )
-    
+
     OPTIMISM_USDC_E = TokenContract(
         title=CurrencySymbol.USDC_E,
         address='0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
@@ -178,14 +179,32 @@ class TokenContracts(Singleton):
         address='0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6'
     )
 
+    """
+    zkSync 
+    """
+    ZKSYNC_ETH = NATIVE_ETH
+
+    ZKSYNC_WETH = TokenContract(
+        title=CurrencySymbol.ETH,
+        address='0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4',
+        abi=read_json(
+            path=('data', 'abis', 'zksync', 'weth_abi.json')
+        )
+    )
+
+    ZKSYNC_USDC = TokenContract(
+        title=CurrencySymbol.USDC,
+        address='0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4',
+    )
+
     @classmethod
     def get_token(
-        cls, 
-        network: str, 
+        cls,
+        network: str,
         token_ticker: str,
         project_prefix: str | None = None,
     ) -> TokenContract:
-        contract_name = (   
+        contract_name = (
             f'{network.upper()}_{token_ticker.upper()}_{project_prefix.upper()}'
             if project_prefix
             else f'{network.upper()}_{token_ticker.upper()}'
