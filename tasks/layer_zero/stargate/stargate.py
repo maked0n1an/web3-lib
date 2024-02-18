@@ -34,12 +34,12 @@ class Stargate(BaseTask):
 
         src_bridge_data = StargateData.get_token_bridge_info(
             network=from_network,
-            token_ticker=swap_info.from_token
+            token_symbol=swap_info.from_token
         )
 
         dst_chain_id, dst_pool_id = StargateData.get_chain_id_and_pool_id(
             network=swap_info.to_network,
-            token_ticker=swap_info.to_token
+            token_symbol=swap_info.to_token
         )
 
         router_contract = await self.client.contract.get(
@@ -99,7 +99,7 @@ class Stargate(BaseTask):
 
         value = await self._estimate_fee_for_swap(
             router_contract=router_contract,
-            src_token_ticker=swap_info.from_token,
+            src_token_symbol=swap_info.from_token,
             dst_chain_id=dst_chain_id,
             lz_tx_params=lz_tx_params,
             data=data
@@ -176,10 +176,10 @@ class Stargate(BaseTask):
         router_contract: ParamsTypes.Contract,        
         dst_chain_id: int,
         lz_tx_params: TxArgs,
-        src_token_ticker: str | None = None,
+        src_token_symbol: str | None = None,
         data: HexStr | None = None
     ) -> TokenAmount:
-        if src_token_ticker and src_token_ticker.upper() == TokenSymbol.ETH:
+        if src_token_symbol and src_token_symbol.upper() == TokenSymbol.ETH:
             network = self.client.account_manager.network.name
 
             network_data = StargateData.get_network_data(network=network)

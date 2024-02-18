@@ -24,10 +24,10 @@ class NetworkDataFetcher:
     def get_pool_id(
         cls,
         network: str,
-        token_ticker: str
+        token_symbol: str
     ) -> int | None:
         token_bridge_info = cls.get_token_bridge_info(
-            network=network, token_ticker=token_ticker
+            network=network, token_symbol=token_symbol
         )
 
         return token_bridge_info.pool_id
@@ -36,18 +36,18 @@ class NetworkDataFetcher:
     def get_chain_id_and_pool_id(
         cls,
         network: str,
-        token_ticker: str
+        token_symbol: str
     ) -> Tuple[int, Optional[int]]:
-        token_ticker = token_ticker.upper()
+        token_symbol = token_symbol.upper()
 
         network_data = cls.get_network_data(network=network)
 
         cls._check_for_bridge_contract(
-            cls=cls, token=token_ticker, bridge_dict=network_data.bridge_dict
+            cls=cls, token=token_symbol, bridge_dict=network_data.bridge_dict
         )
 
         chain_id = network_data.chain_id
-        pool_id = network_data.bridge_dict[token_ticker].pool_id
+        pool_id = network_data.bridge_dict[token_symbol].pool_id
 
         return (chain_id, pool_id)
 
@@ -55,17 +55,17 @@ class NetworkDataFetcher:
     def get_token_bridge_info(
         cls,
         network: str,
-        token_ticker: str
+        token_symbol: str
     ) -> TokenBridgeInfo:
-        token_ticker = token_ticker.upper()
+        token_symbol = token_symbol.upper()
 
         network_data = cls.get_network_data(network=network)
 
         cls._check_for_bridge_contract(
-            cls=cls, token=token_ticker, bridge_dict=network_data.bridge_dict
+            cls=cls, token=token_symbol, bridge_dict=network_data.bridge_dict
         )
 
-        token_bridge_info = network_data.bridge_dict[token_ticker]
+        token_bridge_info = network_data.bridge_dict[token_symbol]
         return token_bridge_info
 
     @classmethod

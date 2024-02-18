@@ -24,7 +24,7 @@ class CoreDaoBridge(BaseTask):
 
         src_bridge_data = CoredaoData.get_token_bridge_info(
             network=self.client.account_manager.network.name,
-            token_ticker=swap_info.from_token
+            token_symbol=swap_info.from_token
         )
         contract = await self.client.contract.get(
             contract=src_bridge_data.bridge_contract
