@@ -1,7 +1,7 @@
 from async_eth_lib.models.others.common import Singleton
 
 
-class CurrencySymbol(metaclass=Singleton):
+class TokenSymbol(metaclass=Singleton):
     ETH = 'ETH'
     GETH = 'GETH'
     GETH_LZ = 'GETH_LZ'
