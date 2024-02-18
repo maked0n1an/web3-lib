@@ -9,9 +9,9 @@ class AutoRepr:
 
 class Singleton:
     """A class that implements the singleton pattern."""
-    _instances = {}
+    _instance = None
 
     def __new__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__new__(cls,*args, **kwargs)
-        return cls._instances[cls]
+        if not isinstance(cls._instance, cls):
+            cls._instance = super(Singleton, cls).__new__(cls,*args, **kwargs)
+        return cls._instance
