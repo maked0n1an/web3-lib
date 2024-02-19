@@ -37,6 +37,10 @@ class NetworkNotAdded(Exception):
     pass
 
 
+class RouteNotAdded(Exception):
+    pass
+
+
 class HTTPException(Exception):
     """
     An exception that occurs when an HTTP request is unsuccessful.
