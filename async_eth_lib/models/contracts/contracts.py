@@ -196,6 +196,11 @@ class TokenContracts(metaclass=Singleton):
         title=TokenSymbol.USDC,
         address='0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4',
     )
+    
+    ZKSYNC_USDT = TokenContract(
+        title=TokenSymbol.USDT,
+        address='0x493257fD37EDB34451f62EDf8D2a0C418852bA4C',
+    )
 
     @classmethod
     def get_token(
