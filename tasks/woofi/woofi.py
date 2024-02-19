@@ -1,7 +1,7 @@
 from web3.types import TxParams
+
 from async_eth_lib.models.contracts.contracts import TokenContracts
 from async_eth_lib.models.others.params_types import ParamsTypes
-
 from async_eth_lib.models.swap.swap_info import SwapInfo
 from async_eth_lib.models.swap.swap_query import SwapQuery
 from async_eth_lib.models.transactions.tx_args import TxArgs
