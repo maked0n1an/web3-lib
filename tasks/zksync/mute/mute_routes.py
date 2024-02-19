@@ -51,6 +51,15 @@ class MuteRoutes:
                 ],
                 bool_list=[True, False]
             ),
+            TokenSymbol.WBTC: RouteInfo(
+                method_name='swapExactTokensForTokens',
+                addresses=[
+                    TokenContracts.ZKSYNC_USDC.address,
+                    TokenContracts.ZKSYNC_WETH.address,
+                    TokenContracts.ZKSYNC_WBTC.address,
+                ],
+                bool_list=[False, False, False]
+            ),
         },
         TokenSymbol.USDT: {
             TokenSymbol.USDC: RouteInfo(
