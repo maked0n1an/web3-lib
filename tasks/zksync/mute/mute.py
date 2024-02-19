@@ -110,26 +110,24 @@ class Mute(BaseTask):
         swap_query = await self.compute_source_token_amount(swap_info=swap_info)
 
         if swap_info.from_token == TokenSymbol.ETH:
-            from_token = TokenContracts.get_token(
-                network=network,
-                token_symbol=TokenSymbol.WETH
-            )
+            from_token_symbol=TokenSymbol.WETH
         else:
-            from_token = TokenContracts.get_token(
-                network=network,
-                token_symbol=swap_info.from_token
-            )
+            from_token_symbol=swap_info.from_token
 
         if swap_info.to_token == TokenSymbol.ETH:
-            to_token = TokenContracts.get_token(
-                network=network,
-                token_symbol=TokenSymbol.WETH
-            )
+            to_token_symbol=TokenSymbol.WETH
         else:
-            to_token = TokenContracts.get_token(
-                network=network,
-                token_symbol=swap_info.to_token
-            )
+            to_token_symbol=swap_info.from_token
+        
+        from_token = TokenContracts.get_token(
+            network=network,
+            token_symbol=from_token_symbol
+        )
+        
+        to_token = TokenContracts.get_token(
+            network=network,
+            token_symbol=to_token_symbol
+        )
 
         min_amount_out = await contract.functions.getAmountOut(
             swap_query.amount_from.Wei,
