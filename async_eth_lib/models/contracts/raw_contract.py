@@ -72,9 +72,11 @@ class NativeTokenContract(TokenContract):
         title (str): The title or name of the native token.
 
     """
+
     def __init__(
         self,
         title: str,
+        address: str = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
         abi: list[dict[str, Any]] | str = DefaultAbis.Token,
         decimals: int = 18
     ) -> None:
@@ -87,7 +89,7 @@ class NativeTokenContract(TokenContract):
         """
         super().__init__(
             title=title,
-            address='0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+            address=address,
             abi=abi,
             decimals=decimals,
             is_native_token=True
