@@ -191,15 +191,23 @@ class TokenContracts(metaclass=Singleton):
             path=('data', 'abis', 'zksync', 'weth_abi.json')
         )
     )
+    
+    ZKSYNC_WBTC = TokenContract(
+        title=TokenSymbol.WBTC,
+        address='0xBBeB516fb02a01611cBBE0453Fe3c580D7281011',
+        decimals=8
+    )
 
     ZKSYNC_USDC = TokenContract(
         title=TokenSymbol.USDC,
         address='0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4',
+        decimals=6
     )
     
     ZKSYNC_USDT = TokenContract(
         title=TokenSymbol.USDT,
         address='0x493257fD37EDB34451f62EDf8D2a0C418852bA4C',
+        decimals=6
     )
 
     @classmethod
