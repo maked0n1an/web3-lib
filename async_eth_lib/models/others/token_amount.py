@@ -8,8 +8,8 @@ class TokenAmount:
     Attributes:
         Wei (int): The amount in Wei.
         Ether (Decimal): The amount in Ether.
-        GWei (int): The amount in Gwei.
         decimals (int): The number of decimal places.
+        GWei (int): The amount in Gwei.
 
     """
     Wei: int

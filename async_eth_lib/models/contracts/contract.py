@@ -115,17 +115,15 @@ class Contract:
         Approve a spender to spend a certain amount of tokens on behalf of the user.
 
         Args:
-            token_contract (ParamsTypes.TokenContract | ParamsTypes.Contract | ParamsTypes.Address):
-                The token contract or address.
-            spender_address (ParamsTypes.Address): The address of the spender.
-            amount (ParamsTypes.Amount | None): The amount of tokens to approve.
-            gas_price (ParamsTypes.GasPrice | None): Gas price for the transaction.
-            gas_limit (ParamsTypes.GasLimit | None): Gas limit for the transaction.
-            nonce (int | None): The nonce for the transaction.
+            token_contract (TokenContract | NativeTokenContract | RawContract | AsyncContract | Contract | str | Address | ChecksumAddress | ENS):
+                The token contract, contract instance, or address.
+            spender_address (str | Address | ChecksumAddress | ENS): The address of the spender.
+            amount (float | int | TokenAmount | None): The amount of tokens to approve (default is None).
+            tx_params (TxParams | dict | None): Transaction parameters (default is None).
             is_approve_infinity (bool): If True, approves an infinite amount (default is False).
 
         Returns:
-            Tx: The transaction object.
+            Tx: The transaction params object.
         """
         if type(token_contract) in ParamsTypes.Address.__args__:
             token_address, _ = await self.get_contract_attributes(contract=token_contract)
@@ -298,17 +296,18 @@ class Contract:
         token_contract: ParamsTypes.TokenContract | ParamsTypes.Contract
     ) -> int:
         """
-        Get the number of decimals for a given token.
+        Retrieve the decimals of a token contract or contract.
 
         Parameters:
-        - `contract_address` (str | ChecksumAddress): The address of the token contract.
+        - `token_contract` (TokenContract | NativeTokenContract | RawContract | AsyncContract | Contract): 
+            The token contract address or contract instance.
 
         Returns:
         - `int`: The number of decimals for the token.
 
         Example:
         ```python
-        decimals = await client.wallet.get_decimals(contract_address='0x123abc...')
+        decimals = await client.contract.get_decimals(token_contract='0x123abc...')
         print(decimals)
         # Output: 18
         """
@@ -369,7 +368,7 @@ class Contract:
         Set the gas limit in the transaction parameters.
 
         Args:
-            gas_limit (ParamsTypes.GasLimit): The gas limit to set.
+            gas_limit (int | TokenAmount): The gas limit to set.
             tx_params (dict | TxParams): The transaction parameters.
 
         Returns:
@@ -393,7 +392,8 @@ class Contract:
         Get a contract instance for the specified token.
 
         Args:
-            token (ParamsTypes.Contract | ParamsTypes.Address): The token contract or its address.
+            token (RawContract | AsyncContract | Contract | str | Address | ChecksumAddress | ENS): 
+            The token contract or its address.
 
         Returns:
             Contract | AsyncContract: The contract instance.

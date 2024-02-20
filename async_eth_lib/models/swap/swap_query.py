@@ -26,9 +26,9 @@ class SwapQuery:
 
         Args:
             from_token (TokenContract): The contract of the token to swap from.
-            to_token (TokenContract): The contract of the token to swap to.
             amount_from (TokenAmount): The amount of the from token.
-            min_to_amount (TokenAmount | None): The minimum amount of the to token.
+            to_token (TokenContract | None): The contract of the token to swap to (default is None).
+            min_to_amount (TokenAmount | None): The minimum amount of the to token (default is None).
 
         """
         self.from_token = from_token
