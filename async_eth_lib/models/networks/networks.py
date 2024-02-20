@@ -163,7 +163,7 @@ class Networks(metaclass=Singleton):
     
     Zksync = Network(
         name='zksync',
-        rpc='https://zksync.meowrpc.com',
+        rpc='https://multi-convincing-dust.zksync-mainnet.quiknode.pro/c94ba40682080821bbc8b4dd7ba7360329948422/',
         chain_id=324,
         tx_type=2,
         coin_symbol=TokenSymbol.ETH,
