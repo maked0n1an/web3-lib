@@ -66,9 +66,13 @@ class MuteRoutes:
                 method_name='swapExactTokensForTokens',
                 addresses=[
                     TokenContracts.ZKSYNC_USDT.address,
+                    # TokenContracts.ZKSYNC_WETH.address,
                     TokenContracts.ZKSYNC_USDC.address,
                 ],
-                bool_list=[True, False]
+                bool_list=[True, 
+                        #    False,
+                           False
+                           ]
             ),
             TokenSymbol.ETH: RouteInfo(
                 method_name='swapExactTokensForETH',
@@ -83,9 +87,11 @@ class MuteRoutes:
                 method_name='swapExactTokensForTokens',
                 addresses=[
                     TokenContracts.ZKSYNC_USDT.address,
+                    TokenContracts.ZKSYNC_USDC.address,
+                    TokenContracts.ZKSYNC_WETH.address,
                     TokenContracts.ZKSYNC_WBTC.address
                 ],
-                bool_list=[False, False]
+                bool_list=[False, True, True, False]
             )
         },
         TokenSymbol.WBTC: {
@@ -102,10 +108,18 @@ class MuteRoutes:
                 addresses=[
                     TokenContracts.ZKSYNC_WBTC.address,
                     TokenContracts.ZKSYNC_WETH.address,
-                    TokenContracts.ZKSYNC_USDC.address,
                     TokenContracts.ZKSYNC_USDT.address
                 ],
-                bool_list=[False, True, True, False]
+                bool_list=[False, False, False]
+            ),
+            TokenSymbol.USDC: RouteInfo(
+                method_name='swapExactTokensForTokens',
+                addresses=[
+                    TokenContracts.ZKSYNC_WBTC.address,
+                    TokenContracts.ZKSYNC_WETH.address,
+                    TokenContracts.ZKSYNC_USDC.address
+                ],
+                bool_list=[False, False, False]
             )
         }
     }
