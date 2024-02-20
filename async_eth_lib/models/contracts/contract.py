@@ -164,6 +164,10 @@ class Contract:
                 new_tx_params['gasPrice'] = tx_params['gasPrice']
             if 'multiplier' in tx_params:
                 new_tx_params['multiplier'] = tx_params['multiplier']
+            if 'maxPriorityFeePerGas' in tx_params:
+                new_tx_params['maxPriorityFeePerGas'] = (
+                    tx_params['maxPriorityFeePerGas'] 
+                )
         
         new_tx_params.update({
             'to': token_contract.address,
