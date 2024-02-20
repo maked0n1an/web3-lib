@@ -3,19 +3,27 @@ import time
 from web3.types import TxParams
 
 from async_eth_lib.models.contracts.contracts import TokenContracts
+from async_eth_lib.models.contracts.raw_contract import RawContract
 from async_eth_lib.models.others.constants import TokenSymbol
 from async_eth_lib.models.others.params_types import ParamsTypes
 from async_eth_lib.models.swap.route_info import RouteInfo
 from async_eth_lib.models.swap.swap_info import SwapInfo
 from async_eth_lib.models.swap.swap_query import SwapQuery
 from async_eth_lib.models.transactions.tx_args import TxArgs
-from async_eth_lib.utils.helpers import sleep
+from async_eth_lib.utils.helpers import read_json, sleep
 from tasks.base_task import BaseTask
-from tasks.zksync.mute.mute_contracts import MuteContracts
 from tasks.zksync.mute.mute_routes import MuteRoutes
 
 
 class Mute(BaseTask):
+    MUTE_UNIVERSAL = RawContract(
+        title='Mute',
+        address='0x8b791913eb07c32779a16750e3868aa8495f5964',
+        abi=read_json(
+            path=('data', 'abis', 'zksync', 'mute','abi.json')
+        )
+    )
+    
     async def swap(
         self,
         swap_info: SwapInfo
@@ -27,7 +35,7 @@ class Mute(BaseTask):
         )
 
         contract = await self.client.contract.get(
-            contract=MuteContracts.MUTE_UNIVERSAL
+            contract=self.MUTE_UNIVERSAL
         )
 
         swap_query = await self._create_swap_query(
