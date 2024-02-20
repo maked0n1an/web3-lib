@@ -15,7 +15,7 @@ import async_eth_lib.models.others.exceptions as exceptions
 
 class Tx(AutoRepr):
     """
-    An instance of transaction for easy execution of actions on it.
+    An instance of transaction params for easy execution of actions on it.
 
     Attributes:
         hash (Optional[_Hash32]): a transaction hash.

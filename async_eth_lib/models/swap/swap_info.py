@@ -26,6 +26,7 @@ class SwapInfo:
             from_token (str): The token to swap from.
             to_token (str): The token to swap to.
             slippage (float): The slippage tolerance (default is 0.5).
+            from_network (str | None): The source network for the swap (default is None).
             to_network (str | None): The target network for the swap (default is None).
             amount (float | None): The amount to swap (default is None).
             amount_from (float | None): The minimum amount for random amount generation.
