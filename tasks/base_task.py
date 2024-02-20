@@ -15,6 +15,20 @@ from async_eth_lib.models.swap.swap_query import SwapQuery
 class BaseTask:
     def __init__(self, client: Client):
         self.client = client
+    
+    @staticmethod
+    def parse_params(
+        params: str,
+        has_function: bool = True
+    ) -> None:
+        if has_function:
+            function_signature = params[:10]
+            print('function_signature:', function_signature)
+            params = params[10:]
+        while params:
+            print(params[:64])
+            params = params[64:]
+    
 
     def set_all_gas_params(
         self,
@@ -271,7 +285,7 @@ class BaseTask:
                 return 1 / price
 
             return price
-        
+
     async def get_token_info(self, token_address):
         contract = await self.client.contract.get_token_contract(token=token_address)
         print('name:', await contract.functions.name().call())
