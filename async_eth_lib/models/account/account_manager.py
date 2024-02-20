@@ -3,6 +3,7 @@ import requests
 
 from web3 import Web3
 from web3.eth import AsyncEth
+from web3.middleware import async_geth_poa_middleware
 from eth_account.signers.local import LocalAccount
 from fake_useragent import UserAgent
 
@@ -36,6 +37,8 @@ class AccountManager:
             modules={'eth': (AsyncEth,)},
             middlewares=[]
         )
+        self.w3.middleware_onion.inject(async_geth_poa_middleware, layer=0)
+        
         self._initialize_account(private_key)
 
     def _initialize_proxy(self, check_proxy: bool):
