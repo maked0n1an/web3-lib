@@ -169,7 +169,7 @@ class BaseTask:
         ```
         """
         from_token = TokenContracts.get_token(
-            network=self.client.account_manager.network.name,
+            network_name=self.client.account_manager.network.name,
             token_symbol=swap_info.from_token
         )
 
@@ -247,7 +247,7 @@ class BaseTask:
 
         if not swap_query.to_token:
             swap_query.to_token = TokenContracts.get_token(
-                network=self.client.account_manager.network.name,
+                network_name=self.client.account_manager.network.name,
                 token_symbol=swap_info.to_token
             )
 

@@ -213,14 +213,14 @@ class TokenContracts(metaclass=Singleton):
     @classmethod
     def get_token(
         cls,
-        network: str,
+        network_name: str,
         token_symbol: str,
         project_prefix: str | None = None,
     ) -> TokenContract:
         contract_name = (
-            f'{network.upper()}_{token_symbol.upper()}_{project_prefix.upper()}'
+            f'{network_name.upper()}_{token_symbol.upper()}_{project_prefix.upper()}'
             if project_prefix
-            else f'{network.upper()}_{token_symbol.upper()}'
+            else f'{network_name.upper()}_{token_symbol.upper()}'
         )
 
         if not hasattr(cls, contract_name):
