@@ -128,12 +128,12 @@ class Mute(BaseTask):
             to_token_symbol=swap_info.to_token
         
         from_token = TokenContracts.get_token(
-            network=network,
+            network_name=network,
             token_symbol=from_token_symbol
         )
         
         swap_query.to_token = TokenContracts.get_token(
-            network=network,
+            network_name=network,
             token_symbol=to_token_symbol
         )
 

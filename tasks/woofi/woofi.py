@@ -93,7 +93,7 @@ class WooFi(BaseTask):
         swap_query = await self.compute_source_token_amount(swap_info=swap_info)
 
         to_token = TokenContracts.get_token(
-            network=self.client.account_manager.network.name,
+            network_name=self.client.account_manager.network.name,
             token_symbol=swap_info.to_token
         )
 
