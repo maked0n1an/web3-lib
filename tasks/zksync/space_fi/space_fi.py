@@ -75,7 +75,8 @@ class SpaceFi(BaseTask):
         if swap_query.from_token.is_native_token:
             tx_params['value'] = swap_query.amount_from.Wei
         
-        BaseTask.parse_params(
-            params=tx_params['data']
+        tx_params = await self.client.contract.transaction.auto_add_params(
+            tx_params=tx_params
         )
-        return 'nice'
+        return (await self.client.contract.transaction.get_estimate_gas(tx_params)).Wei
+        
