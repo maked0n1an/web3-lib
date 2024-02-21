@@ -25,8 +25,12 @@ class BaseTask:
             function_signature = params[:10]
             print('function_signature:', function_signature)
             params = params[10:]
+        
+        count = 0
         while params:
-            print(params[:64])
+            memory_address = hex(count * 32)[2:].zfill(3)
+            print(f'{memory_address}: {params[:64]}')
+            count += 1
             params = params[64:]
     
 
