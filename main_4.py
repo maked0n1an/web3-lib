@@ -109,10 +109,19 @@ async def main():
     # res = await mute.swap(swap_info=swap_info)
     # print(res)
     # await sleep(5, 10)
+
     
-    print(BaseTask.parse_params(
-        params="0x7ff36ab5000000000000000000000000000000000000000000000000000000000017d8be0000000000000000000000000000000000000000000000000000000000000080000000000000000000000000e747990d5a3df6737851022cba3a32efe85684e70000000000000000000000000000000000000000000000000000000064ff27fd00000000000000000000000000000000000000000000000000000000000000020000000000000000000000005aea5775959fbc2557cc8789bc1bf90a239d9a910000000000000000000000003355df6d4c9c3035724fd0e3914de96a5a83aaf4"
-    ))
+    space_fi = SpaceFi(client=client)
+    
+    swap_info = SwapInfo(
+        from_token=TokenSymbol.ETH,
+        to_token=TokenSymbol.USDC,
+        amount=0.0004
+    )
+
+    res = await space_fi.swap(
+        swap_info=swap_info
+    )
 
 if __name__ == '__main__':
     asyncio.run(main())
