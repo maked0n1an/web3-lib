@@ -75,8 +75,22 @@ class SpaceFi(BaseTask):
         if swap_query.from_token.is_native_token:
             tx_params['value'] = swap_query.amount_from.Wei
         
-        tx_params = await self.client.contract.transaction.auto_add_params(
+        tx = await self.client.contract.transaction.sign_and_send(
             tx_params=tx_params
         )
-        return (await self.client.contract.transaction.get_estimate_gas(tx_params)).Wei
+        
+        receipt = await tx.wait_for_tx_receipt(
+            web3=self.client.account_manager.w3
+        ) 
+        
+        if receipt:
+            account_network = self.client.account_manager.network
+            full_path = account_network.explorer + account_network.TxPath
+            
+            return (
+                f'{swap_query.amount_from.Ether} {swap_query.from_token.title} was swapped to '
+                f'{amount_out_min.Ether} {to_token.title} '
+                f'via {__class__.__name__}: '
+                f'{full_path + tx.hash.hex()}'
+            )
         
