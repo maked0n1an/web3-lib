@@ -1,26 +1,26 @@
 import async_eth_lib.models.others.exceptions as exceptions
-from async_eth_lib.models.swap.route_info import RouteInfo
+from async_eth_lib.models.swap.tx_payload_details import TxPayloadDetails
 
 
-class RouteDataFetcher:
-    routes: dict[str, dict[str: RouteInfo]] = {}
+class TxPayloadDetailsFetcher:
+    tx_payloads: dict[str, dict[str: TxPayloadDetails]] = {}
 
     @classmethod
-    def get_route_info(
+    def get_tx_payload_details(
         cls,
         first_token: str,
         second_token: str
-    ) -> RouteInfo:
+    ) -> TxPayloadDetails:
         first_token = first_token.upper()
         second_token = second_token.upper()
 
-        if first_token not in cls.routes:
+        if first_token not in cls.tx_payloads:
             raise exceptions.RouteNotAdded(
                 f"The '{first_token}' token has not been "
                 f"added to {cls.__name__} routes dict"
             )
 
-        available_token_routes = cls.routes[first_token]
+        available_token_routes = cls.tx_payloads[first_token]
 
         if second_token not in available_token_routes:
             raise exceptions.RouteNotAdded(

@@ -6,7 +6,7 @@ from async_eth_lib.models.contracts.contracts import TokenContracts
 from async_eth_lib.models.contracts.raw_contract import RawContract
 from async_eth_lib.models.others.constants import TokenSymbol
 from async_eth_lib.models.others.params_types import ParamsTypes
-from async_eth_lib.models.swap.route_info import RouteInfo
+from async_eth_lib.models.swap.tx_payload_details import TxPayloadDetails
 from async_eth_lib.models.swap.swap_info import SwapInfo
 from async_eth_lib.models.swap.swap_query import SwapQuery
 from async_eth_lib.models.transactions.tx_args import TxArgs
@@ -43,17 +43,17 @@ class Mute(BaseTask):
             swap_info=swap_info
         )
 
-        route_info = MuteRoutes.get_route_info(
+        tx_payload_details = MuteRoutes.get_tx_payload_details(
             first_token=swap_info.from_token,
             second_token=swap_info.to_token
         )
 
         params = TxArgs(
             amountOutMin=swap_query.min_to_amount.Wei,
-            path=route_info.swap_path,
+            path=tx_payload_details.swap_path,
             to=self.client.account_manager.account.address,
             deadline=int(time.time() + 20 * 60),
-            stable=route_info.bool_list
+            stable=tx_payload_details.bool_list
         )
 
         list_params = params.get_list()
@@ -66,7 +66,7 @@ class Mute(BaseTask):
         tx_params = TxParams(
             to=contract.address,
             data=contract.encodeABI(
-                route_info.method_name,
+                tx_payload_details.method_name,
                 args=tuple(list_params)
             ),
             maxPriorityFeePerGas=0

@@ -40,7 +40,7 @@ class SpaceFi(BaseTask):
             swap_info=swap_info
         )
 
-        route_info = SpaceFiRoutes.get_route_info(
+        tx_payload_details = SpaceFiRoutes.get_tx_payload_details(
             first_token=swap_info.from_token,
             second_token=swap_info.to_token
         )
@@ -62,7 +62,7 @@ class SpaceFi(BaseTask):
 
         params = TxArgs(
             minToAmount=min_to_amount.Wei,
-            path=route_info.swap_path,
+            path=tx_payload_details.swap_path,
             to=self.client.account_manager.account.address,
             deadline=int(time.time() + 20 * 60)
         )
@@ -77,14 +77,14 @@ class SpaceFi(BaseTask):
         tx_params = TxParams(
             to=contract.address,
             data=contract.encodeABI(
-                route_info.method_name,
+                tx_payload_details.method_name,
                 args=tuple(list_params)
             ),
             maxPriorityFeePerGas=0
         )
 
         data = tx_params['data']
-        tx_params['data'] = route_info.function_signature + data[10:]
+        tx_params['data'] = tx_payload_details.function_signature + data[10:]
 
         if not swap_query.from_token.is_native_token:
             result = await self.approve_interface(

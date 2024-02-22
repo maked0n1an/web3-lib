@@ -1,7 +1,7 @@
 from typing import List
 
 
-class RouteInfo:
+class TxPayloadDetails:
     def __init__(
         self,
         method_name: str,
