@@ -51,57 +51,53 @@ class SpaceFi(BaseTask):
             token_symbol=swap_info.to_token
         )
 
-        eth_price = await self.get_binance_ticker_price()
-        if swap_info.from_token == TokenSymbol.ETH:
-            amount = float(swap_query.amount_from.Ether) * eth_price \
+        from_token_price = await self.get_binance_ticker_price(
+            first_token=swap_info.from_token
+        )
+
+        if swap_query.from_token.is_native_token:
+            amount = float(swap_query.amount_from.Ether) * from_token_price \
                 * (1 - swap_info.slippage / 100)
         else:
-            amount = float(swap_query.amount_from.Ether) / eth_price \
-                * (1 - swap_info.slippage / 100)
+            second_token_price = await self.get_binance_ticker_price(
+                first_token=swap_info.to_token
+            )
+
+            amount = float(swap_query.amount_from.Ether) * from_token_price \
+                / second_token_price * (1 - swap_info.slippage / 100)
 
         min_to_amount = TokenAmount(amount=amount, decimals=to_token.decimals)
 
-        params = TxArgs(
-            minToAmount=min_to_amount.Wei,
-            path=tx_payload_details.swap_path,
-            to=account_address,
-            deadline=int(time.time() + 20 * 60)
-        )
+        if swap_info.from_token != TokenSymbol.ETH:
+            memory_address = 128 + 32
+        else:
+            memory_address = 128
 
-        list_params = params.get_list()
+        data = [
+            f'{tx_payload_details.function_signature}',
+            f'{self.to_cut_hex_prefix_and_zfill(hex(min_to_amount.Wei))}',
+            f'{self.to_cut_hex_prefix_and_zfill(hex(memory_address))}',
+            f'{self.to_cut_hex_prefix_and_zfill(str(account_address).lower())}',
+            f'{self.to_cut_hex_prefix_and_zfill(hex(int(time.time() + 20 * 60)))}',
+            f'{self.to_cut_hex_prefix_and_zfill(hex(len(tx_payload_details.swap_path)))}'
+        ]
+
+        for contract_address in tx_payload_details.swap_path:
+            data.append(
+                self.to_cut_hex_prefix_and_zfill(contract_address.lower())
+            )
 
         if swap_info.from_token != TokenSymbol.ETH:
-            list_params.insert(0, swap_query.amount_from.Wei)
-            
-        data = (
-            f'{tx_payload_details.function_signature}'
-            f'{self.to_cut_hex_prefix_and_fill(hex(min_to_amount.Wei))}'
-            f'{self.to_cut_hex_prefix_and_fill(hex(128))}'
-            f'{self.to_cut_hex_prefix_and_fill(str(account_address).lower())}'
-            f'{self.to_cut_hex_prefix_and_fill(hex(int(time.time() + 20 * 60)))}'
-            f'{self.to_cut_hex_prefix_and_fill(hex(len(tx_payload_details.swap_path)))}'
-        )
-        
-        for p in tx_payload_details.swap_path:
-            data += p[2:].lower().zfill(64)
-            
-        self.parse_params(params=data)
-        return
+            data.insert(1, self.to_cut_hex_prefix_and_zfill(
+                hex(swap_query.amount_from.Wei)))
+
+        data = ''.join(data)
 
         tx_params = TxParams(
             to=contract.address,
-            data=contract.encodeABI(
-                tx_payload_details.method_name,
-                args=tuple(list_params)
-            ),
+            data=data,
             maxPriorityFeePerGas=0
         )
-
-        data = tx_params['data']
-        tx_params['data'] = tx_payload_details.function_signature + data[10:]
-
-        # self.parse_params(params=tx_params['data'])
-        # return
 
         if not swap_query.from_token.is_native_token:
             result = await self.approve_interface(
