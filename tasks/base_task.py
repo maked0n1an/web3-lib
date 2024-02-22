@@ -33,7 +33,7 @@ class BaseTask:
             count += 1
             params = params[64:]
 
-    def to_cut_hex_prefix_and_fill(self, data: str, length: int = 64):
+    def to_cut_hex_prefix_and_zfill(self, data: str, length: int = 64):
         """
         Convert the string to lowercase and fill it with zeros to the specified length.
 
@@ -293,6 +293,12 @@ class BaseTask:
         first_token: str = TokenSymbol.ETH,
         second_token: str = TokenSymbol.USDT
     ) -> float | None:
+        if first_token.startswith('W'):
+            first_token = first_token[1:]
+        
+        if second_token.startswith('W'):
+            second_token = second_token[1:]
+        
         async with aiohttp.ClientSession() as session:
             price = await self._get_price_from_binance(session, first_token, second_token)
             if price is None:
