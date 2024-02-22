@@ -15,17 +15,17 @@ class TxPayloadDetailsFetcher:
         second_token = second_token.upper()
 
         if first_token not in cls.tx_payloads:
-            raise exceptions.RouteNotAdded(
+            raise exceptions.TxPayloadDetailsNotAdded(
                 f"The '{first_token}' token has not been "
-                f"added to {cls.__name__} routes dict"
+                f"added to {cls.__name__} tx_payloads dict"
             )
 
         available_token_routes = cls.tx_payloads[first_token]
 
         if second_token not in available_token_routes:
-            raise exceptions.RouteNotAdded(
+            raise exceptions.TxPayloadDetailsNotAdded(
                 f"The '{second_token}' as second token has not been "
-                f"added to {first_token} routes dict"
+                f"added to {cls.__name__} {first_token} tx_payloads dict"
             )
 
         return available_token_routes[second_token]
