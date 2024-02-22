@@ -31,6 +31,7 @@ class SpaceFi(BaseTask):
             second_arg=swap_info.to_token,
             param_type='tokens'
         )
+        account_address = self.client.account_manager.account.address
 
         contract = await self.client.contract.get(
             contract=self.SPACE_FI_ROUTER
@@ -63,7 +64,7 @@ class SpaceFi(BaseTask):
         params = TxArgs(
             minToAmount=min_to_amount.Wei,
             path=tx_payload_details.swap_path,
-            to=self.client.account_manager.account.address,
+            to=account_address,
             deadline=int(time.time() + 20 * 60)
         )
 
@@ -71,6 +72,21 @@ class SpaceFi(BaseTask):
 
         if swap_info.from_token != TokenSymbol.ETH:
             list_params.insert(0, swap_query.amount_from.Wei)
+            
+        data = (
+            f'{tx_payload_details.function_signature}'
+            f'{self.to_cut_hex_prefix_and_fill(hex(min_to_amount.Wei))}'
+            f'{self.to_cut_hex_prefix_and_fill(hex(128))}'
+            f'{self.to_cut_hex_prefix_and_fill(str(account_address).lower())}'
+            f'{self.to_cut_hex_prefix_and_fill(hex(int(time.time() + 20 * 60)))}'
+            f'{self.to_cut_hex_prefix_and_fill(hex(len(tx_payload_details.swap_path)))}'
+        )
+        
+        for p in tx_payload_details.swap_path:
+            data += p[2:].lower().zfill(64)
+            
+        self.parse_params(params=data)
+        return
 
         tx_params = TxParams(
             to=contract.address,
@@ -83,6 +99,9 @@ class SpaceFi(BaseTask):
 
         data = tx_params['data']
         tx_params['data'] = tx_payload_details.function_signature + data[10:]
+
+        # self.parse_params(params=tx_params['data'])
+        # return
 
         if not swap_query.from_token.is_native_token:
             result = await self.approve_interface(

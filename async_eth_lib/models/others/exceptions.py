@@ -37,7 +37,7 @@ class NetworkNotAdded(Exception):
     pass
 
 
-class RouteNotAdded(Exception):
+class TxPayloadDetailsNotAdded(Exception):
     pass
 
 
