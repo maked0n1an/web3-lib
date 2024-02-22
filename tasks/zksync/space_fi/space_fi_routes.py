@@ -1,13 +1,13 @@
 from async_eth_lib.models.contracts.contracts import TokenContracts
 from async_eth_lib.models.others.constants import TokenSymbol
-from async_eth_lib.models.swap.route_data_fetcher import RouteDataFetcher
-from async_eth_lib.models.swap.route_info import RouteInfo
+from async_eth_lib.models.swap.tx_payload_details_fetcher import TxPayloadDetailsFetcher
+from async_eth_lib.models.swap.tx_payload_details import TxPayloadDetails
 
 
-class SpaceFiRoutes(RouteDataFetcher):
-    routes = {
+class SpaceFiRoutes(TxPayloadDetailsFetcher):
+    tx_payloads = {
         TokenSymbol.ETH: {
-            TokenSymbol.USDC: RouteInfo(
+            TokenSymbol.USDC: TxPayloadDetails(
                 method_name='swapExactETHForToken',
                 addresses=[
                     TokenContracts.ZKSYNC_WETH.address,
@@ -15,7 +15,7 @@ class SpaceFiRoutes(RouteDataFetcher):
                 ],
                 function_signature="0x7ff36ab5"
             ),
-            TokenSymbol.USDT: RouteInfo(
+            TokenSymbol.USDT: TxPayloadDetails(
                 method_name='swapExactETHForToken',
                 addresses=[
                     TokenContracts.ZKSYNC_WETH.address,
@@ -23,7 +23,7 @@ class SpaceFiRoutes(RouteDataFetcher):
                 ],
                 function_signature="0x7ff36ab5"
             ),
-            TokenSymbol.WBTC: RouteInfo(
+            TokenSymbol.WBTC: TxPayloadDetails(
                 method_name='swapExactETHForToken',
                 addresses=[
                     TokenContracts.ZKSYNC_WETH.address,
@@ -33,7 +33,7 @@ class SpaceFiRoutes(RouteDataFetcher):
             )
         },
         TokenSymbol.USDC: {
-            TokenSymbol.ETH: RouteInfo(
+            TokenSymbol.ETH: TxPayloadDetails(
                 method_name='swapExactTokensForETH',
                 addresses=[
                     TokenContracts.ZKSYNC_USDC.address,
@@ -44,7 +44,7 @@ class SpaceFiRoutes(RouteDataFetcher):
             )
         },
         TokenSymbol.USDT: {
-            TokenSymbol.ETH: RouteInfo(
+            TokenSymbol.ETH: TxPayloadDetails(
                 method_name='swapExactTokensForETH',
                 addresses=[
                     TokenContracts.ZKSYNC_USDT.address,
@@ -55,7 +55,7 @@ class SpaceFiRoutes(RouteDataFetcher):
             )
         },
         TokenSymbol.WBTC: {
-            TokenSymbol.ETH: RouteInfo(
+            TokenSymbol.ETH: TxPayloadDetails(
                 method_name='swapExactTokensForETH',
                 addresses=[
                     TokenContracts.ZKSYNC_WBTC.address,
