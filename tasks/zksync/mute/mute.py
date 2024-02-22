@@ -50,7 +50,7 @@ class Mute(BaseTask):
 
         params = TxArgs(
             amountOutMin=swap_query.min_to_amount.Wei,
-            path=route_info.swap_route,
+            path=route_info.swap_path,
             to=self.client.account_manager.account.address,
             deadline=int(time.time() + 20 * 60),
             stable=route_info.bool_list
