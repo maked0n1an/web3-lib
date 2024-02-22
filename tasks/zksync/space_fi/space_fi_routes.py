@@ -14,6 +14,22 @@ class SpaceFiRoutes(RouteDataFetcher):
                     TokenContracts.ZKSYNC_USDC.address
                 ],
                 function_signature="0x7ff36ab5"
+            ),
+            TokenSymbol.USDT: RouteInfo(
+                method_name='swapExactETHForToken',
+                addresses=[
+                    TokenContracts.ZKSYNC_WETH.address,
+                    TokenContracts.ZKSYNC_USDT.address
+                ],
+                function_signature="0x7ff36ab5"
+            ),
+            TokenSymbol.WBTC: RouteInfo(
+                method_name='swapExactETHForToken',
+                addresses=[
+                    TokenContracts.ZKSYNC_WETH.address,
+                    TokenContracts.ZKSYNC_WBTC.address
+                ],
+                function_signature="0x7ff36ab5"
             )
         },
         TokenSymbol.USDC: {
@@ -22,6 +38,28 @@ class SpaceFiRoutes(RouteDataFetcher):
                 addresses=[
                     TokenContracts.ZKSYNC_USDC.address,
                     TokenContracts.ZKSYNC_SPACE.address,
+                    TokenContracts.ZKSYNC_WETH.address
+                ],
+                function_signature="0x18cbafe5"
+            )
+        },
+        TokenSymbol.USDT: {
+            TokenSymbol.ETH: RouteInfo(
+                method_name='swapExactTokensForETH',
+                addresses=[
+                    TokenContracts.ZKSYNC_USDT.address,
+                    TokenContracts.ZKSYNC_SPACE.address,
+                    TokenContracts.ZKSYNC_WETH.address
+                ],
+                function_signature="0x18cbafe5"
+            )
+        },
+        TokenSymbol.WBTC: {
+            TokenSymbol.ETH: RouteInfo(
+                method_name='swapExactTokensForETH',
+                addresses=[
+                    TokenContracts.ZKSYNC_WBTC.address,
+                    TokenContracts.ZKSYNC_USDC.address,
                     TokenContracts.ZKSYNC_WETH.address
                 ],
                 function_signature="0x18cbafe5"
