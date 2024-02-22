@@ -69,9 +69,7 @@ class SpaceFi(BaseTask):
 
         list_params = params.get_list()
 
-        if (
-            swap_info.from_token != TokenSymbol.ETH
-        ):
+        if swap_info.from_token != TokenSymbol.ETH:
             list_params.insert(0, swap_query.amount_from.Wei)
 
         tx_params = TxParams(
