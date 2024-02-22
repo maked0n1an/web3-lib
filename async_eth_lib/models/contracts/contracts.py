@@ -209,6 +209,12 @@ class TokenContracts(metaclass=Singleton):
         address='0x493257fD37EDB34451f62EDf8D2a0C418852bA4C',
         decimals=6
     )
+    
+    ZKSYNC_SPACE = TokenContract(
+        title='SPACE',
+        address='0x47260090cE5e83454d5f05A0AbbB2C953835f777',
+        decimals=18
+    )
 
     @classmethod
     def get_token(
