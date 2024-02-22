@@ -41,6 +41,15 @@ class SpaceFiRoutes(TxPayloadDetailsFetcher):
                     TokenContracts.ZKSYNC_WETH.address
                 ],
                 function_signature="0x18cbafe5"
+            ),
+            TokenSymbol.WBTC: TxPayloadDetails(
+                method_name='swapExactTokensForETH',
+                addresses=[
+                    TokenContracts.ZKSYNC_USDC.address,
+                    TokenContracts.ZKSYNC_WETH.address,
+                    TokenContracts.ZKSYNC_WBTC.address
+                ],
+                function_signature='0x38ed1739'
             )
         },
         TokenSymbol.USDT: {
@@ -63,6 +72,14 @@ class SpaceFiRoutes(TxPayloadDetailsFetcher):
                     TokenContracts.ZKSYNC_WETH.address
                 ],
                 function_signature="0x18cbafe5"
+            ),
+            TokenSymbol.USDC: TxPayloadDetails(
+                method_name='swapExactTokensForETH',
+                addresses=[
+                    TokenContracts.ZKSYNC_WBTC.address,
+                    TokenContracts.ZKSYNC_USDC.address
+                ],
+                function_signature='0x38ed1739'
             )
         }
     }
