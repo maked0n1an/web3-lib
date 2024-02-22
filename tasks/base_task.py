@@ -15,7 +15,7 @@ from async_eth_lib.models.swap.swap_query import SwapQuery
 class BaseTask:
     def __init__(self, client: Client):
         self.client = client
-    
+
     @staticmethod
     def parse_params(
         params: str,
@@ -25,14 +25,25 @@ class BaseTask:
             function_signature = params[:10]
             print('function_signature:', function_signature)
             params = params[10:]
-        
+
         count = 0
         while params:
             memory_address = hex(count * 32)[2:].zfill(3)
             print(f'{memory_address}: {params[:64]}')
             count += 1
             params = params[64:]
-    
+
+    def to_cut_hex_prefix_and_fill(self, data: str, length: int = 64):
+        """
+        Convert the string to lowercase and fill it with zeros to the specified length.
+
+        Args:
+            length (int): The desired length of the string after filling.
+
+        Returns:
+            str: The modified string.
+        """
+        return data[2:].zfill(length)
 
     def set_all_gas_params(
         self,
