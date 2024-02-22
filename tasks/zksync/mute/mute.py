@@ -56,18 +56,18 @@ class Mute(BaseTask):
             stable=route_info.bool_list
         )
 
-        tuple_params = params.get_list()
+        list_params = params.get_list()
 
         if (
             swap_info.from_token != TokenSymbol.ETH
         ):
-            tuple_params.insert(0, swap_query.amount_from.Wei)
+            list_params.insert(0, swap_query.amount_from.Wei)
 
         tx_params = TxParams(
             to=contract.address,
             data=contract.encodeABI(
                 route_info.method_name,
-                args=tuple(tuple_params)
+                args=tuple(list_params)
             ),
             maxPriorityFeePerGas=0
         )
