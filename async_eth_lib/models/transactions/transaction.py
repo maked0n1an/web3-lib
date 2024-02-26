@@ -49,7 +49,7 @@ class Transaction:
         amount = await self.account_manager.w3.eth.gas_price
 
         return TokenAmount(
-            amount,
+            amount=amount,
             decimals=self.account_manager.network.decimals,
             wei=True
         )
