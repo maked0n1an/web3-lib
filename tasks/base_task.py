@@ -299,6 +299,9 @@ class BaseTask:
         if second_token.startswith('W'):
             second_token = second_token[1:]
         
+        if first_token == TokenSymbol.USDT:
+            return 1
+        
         async with aiohttp.ClientSession() as session:
             price = await self._get_price_from_binance(session, first_token, second_token)
             if price is None:
