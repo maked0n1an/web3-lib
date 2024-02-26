@@ -49,6 +49,16 @@ class Networks(metaclass=Singleton):
         decimals=18,
         explorer='https://snowtrace.io/',
     )
+    
+    Base = Network(
+        name='base',
+        rpc="https://base.gateway.tenderly.co",
+        chain_id=8453,
+        tx_type=0,
+        coin_symbol=TokenSymbol.ETH,
+        decimals=18,
+        explorer="https://basescan.org"
+    )
 
     BSC = Network(
         name='bsc',
