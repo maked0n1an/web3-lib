@@ -35,7 +35,7 @@ class SwapInfo:
             min_percent (int | None): The minimum percentage for random amount generation.
             max_percent (int | None): The maximum percentage for random amount generation.
             multiplier_of_gas (int | None): A multiplier for gas calculation (default is None).
-            gas_price (float | None): Gas price for the transaction (default is None).
+            gas_price (float | None): Gas price for the transaction (GWei, default is None).
             gas_limit (int | None): Gas limit for the transaction (default is None).
 
         """
