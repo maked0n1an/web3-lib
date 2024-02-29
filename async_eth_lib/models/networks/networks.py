@@ -181,6 +181,16 @@ class Networks(metaclass=Singleton):
         explorer='https://explorer.zksync.io/'
     )
     
+    Zora = Network(
+        name='zora',
+        rpc='https://rpc.zora.energy',
+        chain_id=7777777,
+        tx_type=0,
+        coin_symbol=TokenSymbol.ETH,
+        decimals=18,
+        explorer='https://explorer.zora.energy/'
+    )
+    
     @classmethod
     def get_network(
         cls, 
