@@ -162,11 +162,7 @@ class Transaction:
         current_gas_price = await self.get_gas_price()
 
         if is_eip_1559_tx_type:
-            if 'gasPrice' in tx_params:
-                tx_params['maxFeePerGas'] = tx_params['gasPrice']
-                del tx_params['gasPrice']
-            else:
-                tx_params['maxFeePerGas'] = current_gas_price.Wei
+            tx_params['maxFeePerGas'] = tx_params.pop('gasPrice', current_gas_price.Wei)
 
         elif 'gasPrice' not in tx_params:
             tx_params['gasPrice'] = current_gas_price.Wei
@@ -175,11 +171,7 @@ class Transaction:
             tx_params['maxPriorityFeePerGas'] = (await self.get_max_priority_fee()).Wei
             tx_params['maxFeePerGas'] += tx_params['maxPriorityFeePerGas']
 
-        multiplier_of_gas = 1
-
-        if 'multiplier' in tx_params:
-            multiplier_of_gas = tx_params['multiplier']
-            del tx_params['multiplier']
+        multiplier_of_gas = tx_params.pop('multiplier', 1)
 
         if not tx_params.get('gas') or not int(tx_params['gas']):
             gas = await self.get_estimate_gas(tx_params=tx_params)
