@@ -4,7 +4,7 @@ from eth_typing import (
 )
 
 from async_eth_lib.models.networks.networks import Networks
-from async_eth_lib.models.others.constants import TokenSymbol
+from async_eth_lib.models.others.constants import LogStatus, TokenSymbol
 from async_eth_lib.models.others.params_types import ParamsTypes
 from async_eth_lib.models.others.token_amount import TokenAmount
 from async_eth_lib.models.swap.swap_info import SwapInfo
@@ -163,17 +163,34 @@ class Stargate(BaseTask):
             timeout=250
         )
 
+        account_network = self.client.account_manager.network
+        full_path = account_network.explorer + account_network.TxPath
+
         if receipt:
-            print(
+            status = LogStatus.BRIDGED
+            message = (
                 f'{swap_query.amount_from.Ether} {swap_info.from_token} '
                 f'was sent from {from_network.upper()} '
-                f'to {swap_info.to_network.upper()} via Stargate: '
+                f'to {swap_info.to_network.upper()} via {__class__.__name__}: '
                 f'https://layerzeroscan.com/tx/{tx.hash.hex()} '
             )
+        else:
+            status = LogStatus.ERROR
+            message = (
+                f'Failed cross-chain swap {swap_query.amount_from.Ether} to {swap_query.to_token.title} '
+                f'via {__class__.__name__}: '
+                f'{full_path + tx.hash.hex()}'
+            )
+
+        self.client.account_manager.custom_logger.log_message(
+            status=status, message=message
+        )
+
+        return receipt if receipt else False
 
     async def _estimate_fee_for_swap(
         self,
-        router_contract: ParamsTypes.Contract,        
+        router_contract: ParamsTypes.Contract,
         dst_chain_id: int,
         lz_tx_params: TxArgs,
         src_token_symbol: str | None = None,
@@ -183,8 +200,8 @@ class Stargate(BaseTask):
             network = self.client.account_manager.network.name
 
             network_data = StargateData.get_network_data(network=network)
-            
-            router = None            
+
+            router = None
             for key, value in network_data.bridge_dict.items():
                 if key != TokenSymbol.ETH:
                     router = value.bridge_contract
@@ -192,12 +209,12 @@ class Stargate(BaseTask):
             if not router:
                 router_eth_address = (
                     await router_contract.functions.stargateRouter().call()
-                )                
+                )
                 router = await self.client.contract.get(
                     contract=router_eth_address,
                     abi=StargateContracts.STARGATE_ROUTER_ETH_ABI
                 )
-                
+
         result = await router_contract.functions.quoteLayerZeroFee(
             dst_chain_id,
             1,

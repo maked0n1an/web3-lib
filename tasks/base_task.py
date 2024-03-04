@@ -4,7 +4,7 @@ import aiohttp
 from web3.types import TxParams
 
 from async_eth_lib.models.client import Client
-from async_eth_lib.models.contracts.contracts import TokenContracts
+from async_eth_lib.models.contracts.contracts import ContractsFactory
 from async_eth_lib.models.others.constants import TokenSymbol
 from async_eth_lib.models.others.params_types import ParamsTypes
 from async_eth_lib.models.others.token_amount import TokenAmount
@@ -183,7 +183,7 @@ class BaseTask:
         # Output: SwapQuery(from_token=..., to_token=..., amount_to=...)
         ```
         """
-        from_token = TokenContracts.get_token(
+        from_token = ContractsFactory.get_contract(
             network_name=self.client.account_manager.network.name,
             token_symbol=swap_info.from_token
         )
@@ -261,7 +261,7 @@ class BaseTask:
         """
 
         if not swap_query.to_token:
-            swap_query.to_token = TokenContracts.get_token(
+            swap_query.to_token = ContractsFactory.get_contract(
                 network_name=self.client.account_manager.network.name,
                 token_symbol=swap_info.to_token
             )
