@@ -24,3 +24,16 @@ class TokenSymbol(metaclass=Singleton):
     WBTC = 'WBTC'
     WETH = 'WETH'
     XDAI = 'xDAI'
+    
+class LogStatus:
+    DELAY = 'DELAY'
+    DEBUG = 'DEBUG'
+    INFO = 'INFO'
+    WARNING = 'WARNING'
+    SUCCESS = 'SUCCESS'
+    ERROR = 'ERROR'
+    CRITICAL = 'CRITICAL'
+    
+    MINTED = 'MINTED'
+    BRIDGED = 'BRIDGED'
+    SWAPPED = 'SWAPPED'
