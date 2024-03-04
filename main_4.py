@@ -14,7 +14,8 @@ from tasks.woofi.woofi import WooFi
 from tasks.zksync.mute.mute import Mute
 from tasks.zksync.space_fi.space_fi import SpaceFi
 
-from data.config import PRIVATE_KEYS
+from data.config import PRIVATE_KEYS, PROXIES
+from tasks.zora.zora_bridge import Zora
 
 
 async def main():
@@ -139,12 +140,32 @@ async def main():
     # res = await space_fi.swap(
     #     swap_info=swap_info
     # )
-
     # print(res)
-
-    # BaseTask.parse_params(
-    #     params="0x7ff36ab500000000000000000000000000000000000000000000000000000000000002370000000000000000000000000000000000000000000000000000000000000080000000000000000000000000a4cb5d09a153073fcab95fd7e4afa5b95b9f65650000000000000000000000000000000000000000000000000000000065d6a33200000000000000000000000000000000000000000000000000000000000000020000000000000000000000005aea5775959fbc2557cc8789bc1bf90a239d9a91000000000000000000000000bbeb516fb02a01611cbbe0453fe3c580d7281011"
-    # )
+    
+    wallets = [
+        {
+            "key": key,
+            "proxy": proxy,
+        } for key, proxy in zip(PRIVATE_KEYS, PROXIES)
+    ]
+    
+    for wallet in wallets:
+        private_key = wallet["key"]
+        proxy = wallet["proxy"]
+                
+        client = Client(
+            private_key=private_key, 
+            network=Networks.Zora,
+            proxy=proxy
+        )
+        zora = Zora(client=client)
+        
+        res = await zora.mint_with_rewards(
+            contract_address='0x609D22d00df3cD3C07F0ea2eF0467eA707dFc0fE'
+        )
+        print(res)
+        
+        await sleep(100, 500)
 
     """
 0x7ff36ab5
