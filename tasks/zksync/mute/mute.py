@@ -2,7 +2,7 @@ import time
 
 from web3.types import TxParams
 
-from async_eth_lib.models.contracts.contracts import TokenContracts
+from async_eth_lib.models.contracts.contracts import ContractsFactory, TokenContractFetcher
 from async_eth_lib.models.contracts.raw_contract import RawContract
 from async_eth_lib.models.others.constants import TokenSymbol
 from async_eth_lib.models.others.params_types import ParamsTypes
@@ -127,12 +127,12 @@ class Mute(BaseTask):
         else:
             to_token_symbol=swap_info.to_token
         
-        from_token = TokenContracts.get_token(
+        from_token = ContractsFactory.get_contract(
             network_name=network,
             token_symbol=from_token_symbol
         )
         
-        swap_query.to_token = TokenContracts.get_token(
+        swap_query.to_token = ContractsFactory.get_contract(
             network_name=network,
             token_symbol=to_token_symbol
         )

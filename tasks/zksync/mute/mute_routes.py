@@ -1,4 +1,4 @@
-from async_eth_lib.models.contracts.contracts import TokenContracts
+from async_eth_lib.models.contracts.contracts import ZkSyncTokenContracts
 from async_eth_lib.models.others.constants import TokenSymbol
 from async_eth_lib.models.swap.tx_payload_details_fetcher import TxPayloadDetailsFetcher
 from async_eth_lib.models.swap.tx_payload_details import TxPayloadDetails
@@ -10,25 +10,25 @@ class MuteRoutes(TxPayloadDetailsFetcher):
             TokenSymbol.USDC: TxPayloadDetails(
                 method_name='swapExactETHForTokensSupportingFeeOnTransferTokens',
                 addresses=[
-                    TokenContracts.ZKSYNC_WETH.address,
-                    TokenContracts.ZKSYNC_USDC.address
+                    ZkSyncTokenContracts.WETH.address,
+                    ZkSyncTokenContracts.USDC.address
                 ],
                 bool_list=[False, False]
             ),
             TokenSymbol.USDT: TxPayloadDetails(
                 method_name='swapExactETHForTokens',
                 addresses=[
-                    TokenContracts.ZKSYNC_WETH.address,
-                    TokenContracts.ZKSYNC_USDC.address,
-                    TokenContracts.ZKSYNC_USDT.address,
+                    ZkSyncTokenContracts.WETH.address,
+                    ZkSyncTokenContracts.USDC.address,
+                    ZkSyncTokenContracts.USDT.address,
                 ],
                 bool_list=[True, True, False]
             ),
             TokenSymbol.WBTC: TxPayloadDetails(
                 method_name='swapExactETHForTokens',
                 addresses=[
-                    TokenContracts.ZKSYNC_WETH.address,
-                    TokenContracts.ZKSYNC_WBTC.address
+                    ZkSyncTokenContracts.WETH.address,
+                    ZkSyncTokenContracts.WBTC.address
                 ],
                 bool_list=[False, False]
             )
@@ -37,25 +37,25 @@ class MuteRoutes(TxPayloadDetailsFetcher):
             TokenSymbol.ETH: TxPayloadDetails(
                 method_name='swapExactTokensForETH',
                 addresses=[
-                    TokenContracts.ZKSYNC_USDC.address,
-                    TokenContracts.ZKSYNC_WETH.address
+                    ZkSyncTokenContracts.USDC.address,
+                    ZkSyncTokenContracts.WETH.address
                 ],
                 bool_list=[True, False]
             ),
             TokenSymbol.USDT: TxPayloadDetails(
                 method_name='swapExactTokensForTokens',
                 addresses=[
-                    TokenContracts.ZKSYNC_USDC.address,
-                    TokenContracts.ZKSYNC_USDT.address,
+                    ZkSyncTokenContracts.USDC.address,
+                    ZkSyncTokenContracts.USDT.address,
                 ],
                 bool_list=[True, False]
             ),
             TokenSymbol.WBTC: TxPayloadDetails(
                 method_name='swapExactTokensForTokens',
                 addresses=[
-                    TokenContracts.ZKSYNC_USDC.address,
-                    TokenContracts.ZKSYNC_WETH.address,
-                    TokenContracts.ZKSYNC_WBTC.address,
+                    ZkSyncTokenContracts.USDC.address,
+                    ZkSyncTokenContracts.WETH.address,
+                    ZkSyncTokenContracts.WBTC.address,
                 ],
                 bool_list=[False, False, False]
             ),
@@ -64,9 +64,9 @@ class MuteRoutes(TxPayloadDetailsFetcher):
             TokenSymbol.USDC: TxPayloadDetails(
                 method_name='swapExactTokensForTokens',
                 addresses=[
-                    TokenContracts.ZKSYNC_USDT.address,
-                    # TokenContracts.ZKSYNC_WETH.address,
-                    TokenContracts.ZKSYNC_USDC.address,
+                    ZkSyncTokenContracts.USDT.address,
+                    # TokenContracts.WETH.address,
+                    ZkSyncTokenContracts.USDC.address,
                 ],
                 bool_list=[True,
                            #    False,
@@ -76,19 +76,19 @@ class MuteRoutes(TxPayloadDetailsFetcher):
             TokenSymbol.ETH: TxPayloadDetails(
                 method_name='swapExactTokensForETH',
                 addresses=[
-                    TokenContracts.ZKSYNC_USDT.address,
-                    TokenContracts.ZKSYNC_USDC.address,
-                    TokenContracts.ZKSYNC_WETH.address,
+                    ZkSyncTokenContracts.USDT.address,
+                    ZkSyncTokenContracts.USDC.address,
+                    ZkSyncTokenContracts.WETH.address,
                 ],
                 bool_list=[True, True, False]
             ),
             TokenSymbol.WBTC: TxPayloadDetails(
                 method_name='swapExactTokensForTokens',
                 addresses=[
-                    TokenContracts.ZKSYNC_USDT.address,
-                    TokenContracts.ZKSYNC_USDC.address,
-                    TokenContracts.ZKSYNC_WETH.address,
-                    TokenContracts.ZKSYNC_WBTC.address
+                    ZkSyncTokenContracts.USDT.address,
+                    ZkSyncTokenContracts.USDC.address,
+                    ZkSyncTokenContracts.WETH.address,
+                    ZkSyncTokenContracts.WBTC.address
                 ],
                 bool_list=[False, True, True, False]
             )
@@ -97,26 +97,26 @@ class MuteRoutes(TxPayloadDetailsFetcher):
             TokenSymbol.ETH: TxPayloadDetails(
                 method_name='swapExactTokensForETH',
                 addresses=[
-                    TokenContracts.ZKSYNC_WBTC.address,
-                    TokenContracts.ZKSYNC_WETH.address,
+                    ZkSyncTokenContracts.WBTC.address,
+                    ZkSyncTokenContracts.WETH.address,
                 ],
                 bool_list=[False, False]
             ),
             TokenSymbol.USDT: TxPayloadDetails(
                 method_name='swapExactTokensForTokens',
                 addresses=[
-                    TokenContracts.ZKSYNC_WBTC.address,
-                    TokenContracts.ZKSYNC_WETH.address,
-                    TokenContracts.ZKSYNC_USDT.address
+                    ZkSyncTokenContracts.WBTC.address,
+                    ZkSyncTokenContracts.WETH.address,
+                    ZkSyncTokenContracts.USDT.address
                 ],
                 bool_list=[False, False, False]
             ),
             TokenSymbol.USDC: TxPayloadDetails(
                 method_name='swapExactTokensForTokens',
                 addresses=[
-                    TokenContracts.ZKSYNC_WBTC.address,
-                    TokenContracts.ZKSYNC_WETH.address,
-                    TokenContracts.ZKSYNC_USDC.address
+                    ZkSyncTokenContracts.WBTC.address,
+                    ZkSyncTokenContracts.WETH.address,
+                    ZkSyncTokenContracts.USDC.address
                 ],
                 bool_list=[False, False, False]
             )
