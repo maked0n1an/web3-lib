@@ -6,6 +6,7 @@ from web3.eth import AsyncEth
 from web3.middleware import async_geth_poa_middleware
 from eth_account.signers.local import LocalAccount
 from fake_useragent import UserAgent
+from async_eth_lib.models.logger.logger import CustomLogger
 
 from async_eth_lib.models.networks.network import Network
 from async_eth_lib.models.networks.networks import Networks
@@ -19,11 +20,14 @@ class AccountManager:
 
     def __init__(
         self,
+        account_id: int | str = None,
         private_key: str | None = None,
         network: Network = Networks.Goerli,
         proxy: str | None = None,
-        check_proxy: bool = True
+        check_proxy: bool = True,
+        create_log_file_per_account: bool = False
     ) -> None:
+        self.account_id = account_id
         self.network = network
         self.proxy = proxy
         self._initialize_proxy(check_proxy)
@@ -40,6 +44,18 @@ class AccountManager:
         self.w3.middleware_onion.inject(async_geth_poa_middleware, layer=0)
         
         self._initialize_account(private_key)
+        self._initialize_logger(create_log_file_per_account)
+        
+    def set_new_web3(self, network: Network, proxy: str = None):
+        self.w3 = Web3(
+            Web3.AsyncHTTPProvider(
+                endpoint_uri=network.rpc,
+                request_kwargs={'proxy': proxy, 'headers': self.headers}
+            ),
+            modules={'eth': (AsyncEth,)},
+            middlewares=[]
+        )
+        self.w3.middleware_onion.inject(async_geth_poa_middleware, layer=0)
 
     def _initialize_proxy(self, check_proxy: bool):
         if not self.proxy:
@@ -64,6 +80,17 @@ class AccountManager:
             'Content-Type': 'application/json',
             'User-Agent': UserAgent().random
         }
+    
+    def _initialize_logger(
+        self, 
+        create_log_file_per_account: bool
+    ) -> None:
+        self.custom_logger = CustomLogger(
+            account_id=self.account_id,
+            address=self.account.address,
+            network=self.network.name.capitalize(),
+            create_log_file_per_account=create_log_file_per_account
+        )
 
     def _initialize_account(self, private_key: str | None):
         if private_key:
