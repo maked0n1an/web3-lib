@@ -2,7 +2,7 @@ import time
 
 from web3.types import TxParams
 
-from async_eth_lib.models.contracts.contracts import TokenContracts
+from async_eth_lib.models.contracts.contracts import TokenContractFetcher
 from async_eth_lib.models.contracts.raw_contract import RawContract
 from async_eth_lib.models.others.constants import TokenSymbol
 from async_eth_lib.models.others.token_amount import TokenAmount
@@ -46,7 +46,7 @@ class SpaceFi(BaseTask):
             second_token=swap_info.to_token
         )
 
-        to_token = TokenContracts.get_token(
+        to_token = TokenContractFetcher.get_token(
             network_name=self.client.account_manager.network.name,
             token_symbol=swap_info.to_token
         )

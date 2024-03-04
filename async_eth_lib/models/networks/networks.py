@@ -161,7 +161,7 @@ class Networks(metaclass=Singleton):
         explorer='https://sepolia.etherscan.io',
     )
     
-    Zksync = Network(
+    ZkSync = Network(
         name='zksync',
         rpc='https://multi-convincing-dust.zksync-mainnet.quiknode.pro/c94ba40682080821bbc8b4dd7ba7360329948422/',
         chain_id=324,
