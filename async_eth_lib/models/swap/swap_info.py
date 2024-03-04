@@ -54,13 +54,20 @@ class SwapInfo:
                 amount_from, amount_to, decimals=decimals)
         if min_percent and max_percent:
             self.amount_by_percent = self._get_random_amount_by_percent(
-                min_percent, max_percent
+                min_percent, max_percent, decimals=decimals
             )
 
     def _get_random_amount(self, amount_from: float, amount_to: float, decimals: int):
         random_amount = round(random.uniform(amount_from, amount_to), decimals)
         return random_amount
 
-    def _get_random_amount_by_percent(self, min_percent: int, max_percent: int):
-        random_percent_amount = random.randint(min_percent, max_percent) / 100
+    def _get_random_amount_by_percent(
+        self, 
+        min_percent: int, 
+        max_percent: int,
+        decimals: int
+    ):
+        random_percent_amount = round(
+            random.uniform(min_percent, max_percent) / 100, decimals
+        )
         return random_percent_amount
