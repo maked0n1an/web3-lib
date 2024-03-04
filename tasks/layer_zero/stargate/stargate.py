@@ -126,7 +126,7 @@ class Stargate(BaseTask):
             dst_native_amount_price = float(dst_fee.Ether) * dst_token_price
 
         if network_fee - dst_native_amount_price > max_fee:
-            return (
+            print(
                 f'Too high fee for fee: '
                 f'{network_fee - dst_native_amount_price} '
                 f'({from_network.upper()})'
@@ -164,7 +164,7 @@ class Stargate(BaseTask):
         )
 
         if receipt:
-            return (
+            print(
                 f'{swap_query.amount_from.Ether} {swap_info.from_token} '
                 f'was sent from {from_network.upper()} '
                 f'to {swap_info.to_network.upper()} via Stargate: '
