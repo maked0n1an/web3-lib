@@ -24,14 +24,18 @@ class Zora(BaseTask):
     }
 
     ZORA_CREATOR_1155_IMPL_CONTRACT = RawContract(
-        title='ZoraCreatorFixedPriceSaleStrategy',
-        address='0x609D22d00df3cD3C07F0ea2eF0467eA707dFc0fE',
+        title='ZoraCreator1155Impl',
+        address='0x57f412Ea90b59ce4023AFDE95C251E3c747EB7F8',
         abi=read_json(
             path=('data', 'abis', 'zora', 'creator_1155_abi.json')
         )
     )
 
-    ZORA_CREATOR_FIXED_PRICE_CONTRACT = '0x04E2516A2c207E84a1839755675dfd8eF6302F0a'
+    ZORA_CREATOR_FIXED_PRICE_CONTRACT = RawContract(
+        title='ZoraCreatorFixedPriceSaleStrategy',
+        address='0x04E2516A2c207E84a1839755675dfd8eF6302F0a',
+        abi='str'
+    )
 
     async def mint_with_rewards(
         self,
@@ -46,7 +50,7 @@ class Zora(BaseTask):
         address = self.client.account_manager.account.address
 
         data = TxArgs(
-            minter=self.ZORA_CREATOR_FIXED_PRICE_CONTRACT,
+            minter=self.ZORA_CREATOR_FIXED_PRICE_CONTRACT.address,
             tokenId=1,
             quantity=1,
             minterArguments='0x' + self.to_cut_hex_prefix_and_zfill(address),
