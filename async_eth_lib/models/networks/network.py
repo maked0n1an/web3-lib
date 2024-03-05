@@ -8,9 +8,9 @@ import async_eth_lib.models.others.exceptions as exceptions
 
 
 class Network:
-    TxPath: str = "tx/"
-    ContractPath: str = "contract/"
-    AddressPath: str = "address/"
+    TxPath: str = "/tx/"
+    ContractPath: str = "/contract/"
+    AddressPath: str = "/address/"
 
     def __init__(
         self,

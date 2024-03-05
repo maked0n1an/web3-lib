@@ -198,7 +198,7 @@ class Contract:
         """
 
         contract_address, contract_abi = await self.get_contract_attributes(
-            contract
+            contract=contract
         )
 
         if not abi and not contract_abi:

@@ -42,20 +42,9 @@ class AccountManager:
             middlewares=[]
         )
         self.w3.middleware_onion.inject(async_geth_poa_middleware, layer=0)
-        
+
         self._initialize_account(private_key)
         self._initialize_logger(create_log_file_per_account)
-        
-    def set_new_web3(self, network: Network, proxy: str = None):
-        self.w3 = Web3(
-            Web3.AsyncHTTPProvider(
-                endpoint_uri=network.rpc,
-                request_kwargs={'proxy': proxy, 'headers': self.headers}
-            ),
-            modules={'eth': (AsyncEth,)},
-            middlewares=[]
-        )
-        self.w3.middleware_onion.inject(async_geth_poa_middleware, layer=0)
 
     def _initialize_proxy(self, check_proxy: bool):
         if not self.proxy:
@@ -80,9 +69,9 @@ class AccountManager:
             'Content-Type': 'application/json',
             'User-Agent': UserAgent().random
         }
-    
+
     def _initialize_logger(
-        self, 
+        self,
         create_log_file_per_account: bool
     ) -> None:
         self.custom_logger = CustomLogger(
