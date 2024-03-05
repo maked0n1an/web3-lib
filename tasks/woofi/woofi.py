@@ -1,6 +1,6 @@
 from web3.types import TxParams
 
-from async_eth_lib.models.contracts.contracts import TokenContracts
+from async_eth_lib.models.contracts.contracts import ContractsFactory
 from async_eth_lib.models.others.params_types import ParamsTypes
 from async_eth_lib.models.swap.swap_info import SwapInfo
 from async_eth_lib.models.swap.swap_query import SwapQuery
@@ -92,7 +92,7 @@ class WooFi(BaseTask):
 
         swap_query = await self.compute_source_token_amount(swap_info=swap_info)
 
-        to_token = TokenContracts.get_token(
+        to_token = ContractsFactory.get_contract(
             network_name=self.client.account_manager.network.name,
             token_symbol=swap_info.to_token
         )
