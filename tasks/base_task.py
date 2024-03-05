@@ -137,7 +137,7 @@ class BaseTask:
             token_contract=token_contract
         )
         if balance.Wei <= 0:
-            return False
+            return True
 
         if not amount or amount.Wei > balance.Wei:
             amount = balance
@@ -158,10 +158,12 @@ class BaseTask:
             tx_params=tx_params,
             is_approve_infinity=is_approve_infinity
         )
-        return await tx.wait_for_tx_receipt(
+        await tx.wait_for_tx_receipt(
             web3=self.client.account_manager.w3,
             timeout=240
-        ) is not None
+        )
+        
+        return False
 
     async def compute_source_token_amount(
         self,
