@@ -14,7 +14,7 @@ class Networks(metaclass=Singleton):
         tx_type=2,
         coin_symbol=TokenSymbol.ETH,
         decimals=18,
-        explorer='https://etherscan.io/',
+        explorer='https://etherscan.io',
     )
 
     Arbitrum = Network(
@@ -27,7 +27,7 @@ class Networks(metaclass=Singleton):
         tx_type=2,
         coin_symbol=TokenSymbol.ETH,
         decimals=18,
-        explorer='https://arbiscan.io/'
+        explorer='https://arbiscan.io'
     )
 
     ArbitrumNova = Network(
@@ -37,7 +37,7 @@ class Networks(metaclass=Singleton):
         tx_type=2,
         coin_symbol=TokenSymbol.ETH,
         decimals=18,
-        explorer='https://nova.arbiscan.io/',
+        explorer='https://nova.arbiscan.io',
     )
 
     Avalanche = Network(
@@ -47,7 +47,7 @@ class Networks(metaclass=Singleton):
         tx_type=2,
         coin_symbol=TokenSymbol.AVAX,
         decimals=18,
-        explorer='https://snowtrace.io/',
+        explorer='https://snowtrace.io',
     )
 
     BSC = Network(
@@ -57,7 +57,7 @@ class Networks(metaclass=Singleton):
         tx_type=0,
         coin_symbol=TokenSymbol.BNB,
         decimals=18,
-        explorer='https://bscscan.com/'
+        explorer='https://bscscan.com'
     )
 
     Celo = Network(
@@ -67,7 +67,7 @@ class Networks(metaclass=Singleton):
         tx_type=0,
         coin_symbol=TokenSymbol.CELO,
         decimals=18,
-        explorer='https://celoscan.io/',
+        explorer='https://celoscan.io',
     )
     
     Core = Network(
@@ -77,7 +77,7 @@ class Networks(metaclass=Singleton):
         tx_type=0,
         coin_symbol=TokenSymbol.CORE,
         decimals=18,
-        explorer='https://scan.coredao.org/',
+        explorer='https://scan.coredao.org',
     )
 
     Fantom = Network(
@@ -87,7 +87,7 @@ class Networks(metaclass=Singleton):
         tx_type=0,
         coin_symbol=TokenSymbol.FTM,
         decimals=18,
-        explorer='https://ftmscan.com/',
+        explorer='https://ftmscan.com',
     )
     
     Gnosis = Network(
@@ -107,7 +107,17 @@ class Networks(metaclass=Singleton):
         tx_type=2,
         coin_symbol=TokenSymbol.HECO,
         decimals=18,
-        explorer='https://www.hecoinfo.com/en-us/',
+        explorer='https://www.hecoinfo.com/en-us',
+    )
+    
+    Kava = Network(
+        name='kava',
+        rpc="https://rpc.ankr.com/kava_evm",
+        chain_id=2222,
+        tx_type=2,
+        coin_symbol=TokenSymbol.KAVA,
+        decimals=18,
+        explorer="https://kavascan.com"
     )
 
     Moonbeam = Network(
@@ -117,7 +127,7 @@ class Networks(metaclass=Singleton):
         tx_type=2,
         coin_symbol=TokenSymbol.GLMR,
         decimals=18,
-        explorer='https://moonscan.io/',
+        explorer='https://moonscan.io',
     )
 
     Optimism = Network(
@@ -127,7 +137,7 @@ class Networks(metaclass=Singleton):
         tx_type=2,
         coin_symbol=TokenSymbol.ETH,
         decimals=18,
-        explorer='https://optimistic.etherscan.io/',
+        explorer='https://optimistic.etherscan.io',
     )
     
     Polygon = Network(
@@ -137,7 +147,7 @@ class Networks(metaclass=Singleton):
         tx_type=2,
         coin_symbol=TokenSymbol.MATIC,
         decimals=18,
-        explorer='https://polygonscan.com/',
+        explorer='https://polygonscan.com',
     )
 
     # Testnets
@@ -148,7 +158,7 @@ class Networks(metaclass=Singleton):
         tx_type=2,
         coin_symbol=TokenSymbol.ETH,
         decimals=18,
-        explorer='https://goerli.etherscan.io/',
+        explorer='https://goerli.etherscan.io',
     )
 
     Sepolia = Network(

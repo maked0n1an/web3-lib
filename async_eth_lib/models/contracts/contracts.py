@@ -18,14 +18,18 @@ class ContractsFactory:
                 return EthereumTokenContracts.get_token(token_symbol)
             case Networks.Arbitrum.name:
                 return ArbitrumTokenContracts.get_token(token_symbol)
-            case Networks.Polygon.name:
-                return PolygonTokenContracts.get_token(token_symbol)
+            case Networks.Avalanche.name:
+                return AvalancheTokenContracts.get_token(token_symbol)
             case Networks.BSC.name:
                 return BscTokenContracts.get_token(token_symbol)
             case Networks.Fantom.name:
                 return FantomTokenContracts.get_token(token_symbol)
+            # case Networks.Kava.name:
+            #     return KavaTokenContracts.get_token(token_symbol)
             case Networks.Optimism.name:
                 return OptimismTokenContracts.get_token(token_symbol)
+            case Networks.Polygon.name:
+                return PolygonTokenContracts.get_token(token_symbol)
             case Networks.ZkSync.name:
                 return ZkSyncTokenContracts.get_token(token_symbol)
             case _:
@@ -110,7 +114,7 @@ class ArbitrumTokenContracts(TokenContractFetcher):
     )
 
 
-class AvalancheContracts(TokenContractFetcher):
+class AvalancheTokenContracts(TokenContractFetcher):
     AVAX = NativeTokenContract(title=TokenSymbol.AVAX)
 
     ETH = TokenContract(
@@ -133,6 +137,11 @@ class AvalancheContracts(TokenContractFetcher):
         title=TokenSymbol.FRAX,
         address='0xD24C2Ad096400B6FBcd2ad8B24E7acBc21A1da64',
     )
+    
+    STG = TokenContract(
+        title=TokenSymbol.STG,
+        address='0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590'
+    )
 
 
 class BscTokenContracts(TokenContractFetcher):
@@ -146,6 +155,11 @@ class BscTokenContracts(TokenContractFetcher):
     BUSD = TokenContract(
         title=TokenSymbol.BUSD,
         address='0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56',
+    )
+    
+    STG = TokenContract(
+        title=TokenSymbol.STG,
+        address='0xb0d502e938ed5f4df2e681fe6e419ff29631d62b',
     )
 
 
@@ -161,6 +175,13 @@ class FantomTokenContracts(TokenContractFetcher):
         address='0x28a92dde19D9989F39A49905d7C9C2FAc7799bDf',
         decimals=6
     )
+    
+# class KavaTokenContracts(TokenContractFetcher):
+#     STG = TokenContract(
+#         title=TokenSymbol.STG,
+#         address='',
+#         decimals=18
+#     )
 
 
 class OptimismTokenContracts(TokenContractFetcher):
@@ -218,6 +239,12 @@ class PolygonTokenContracts(TokenContractFetcher):
     WBTC = TokenContract(
         title=TokenSymbol.WBTC,
         address='0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6'
+    )
+    
+    STG = TokenContract(
+        title=TokenSymbol.STG,
+        address='0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590',
+        decimals=18
     )
 
 
