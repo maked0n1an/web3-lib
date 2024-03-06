@@ -8,12 +8,12 @@ from async_eth_lib.models.others.token_amount import TokenAmount
 from async_eth_lib.models.swap.swap_info import SwapInfo
 from async_eth_lib.models.transactions.tx_args import TxArgs
 from async_eth_lib.utils.helpers import sleep
-from tasks.base_task import BaseTask
+from tasks._common.swap_task import SwapTask
 from tasks.layer_zero.stargate.stargate_contracts import StargateContracts
 from tasks.layer_zero.stargate.stargate_data import StargateData
 
 
-class Stargate(BaseTask):
+class Stargate(SwapTask):
     async def swap(
         self,
         swap_info: SwapInfo,
@@ -27,7 +27,7 @@ class Stargate(BaseTask):
         )
         if check:
             return check
-        
+
         from_network = self.client.account_manager.network.name
 
         src_bridge_data = StargateData.get_token_bridge_info(
@@ -142,7 +142,7 @@ class Stargate(BaseTask):
             status = LogStatus.BRIDGED
             message = (
                 f'{rounded_amount} {swap_info.from_token} '
-                f'was sent from {from_network.upper()} '
+                f'was sent from {account_network.name.upper()} '
                 f'to {swap_info.to_network.upper()}: '
                 f'https://layerzeroscan.com/tx/{tx.hash.hex()} '
             )
