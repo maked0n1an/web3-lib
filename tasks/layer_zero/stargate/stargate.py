@@ -1,4 +1,5 @@
 from typing import Tuple
+
 from web3.types import TxParams
 
 from async_eth_lib.models.networks.networks import Networks
@@ -125,36 +126,14 @@ class Stargate(SwapTask):
                 await sleep(20, 50)
         else:
             tx_params['value'] += swap_query.amount_from.Wei
-
-        tx = await self.client.contract.transaction.sign_and_send(
-            tx_params=tx_params
-        )
-        receipt = await tx.wait_for_tx_receipt(
-            web3=self.client.account_manager.w3,
-            timeout=250
-        )
-
-        account_network = self.client.account_manager.network
-        full_path = account_network.explorer + account_network.TxPath
-        rounded_amount = round(swap_query.amount_from.Ether, 5)
-
-        if receipt:
-            status = LogStatus.BRIDGED
-            message = (
-                f'{rounded_amount} {swap_info.from_token} '
-                f'was sent from {account_network.name.upper()} '
-                f'to {swap_info.to_network.upper()}: '
-                f'https://layerzeroscan.com/tx/{tx.hash.hex()} '
-            )
-        else:
-            status = LogStatus.ERROR
-            message = (
-                f'Failed cross-chain swap {rounded_amount} to {swap_query.to_token.title}: '
-                f'{full_path + tx.hash.hex()}'
-            )
+            
+        receipt, status, log_message = await self.perform_bridge(
+            swap_info, swap_query, tx_params, 
+            external_explorer='https://layerzeroscan.com'
+        ) 
 
         self.client.account_manager.custom_logger.log_message(
-            status=status, message=message
+            status=status, message=log_message
         )
 
         return receipt if receipt else False
