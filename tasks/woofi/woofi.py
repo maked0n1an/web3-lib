@@ -62,31 +62,9 @@ class WooFi(SwapTask):
         else:
             tx_params['value'] = swap_query.amount_from.Wei
 
-        tx = await self.client.contract.transaction.sign_and_send(
-            tx_params=tx_params
+        receipt, status, message = await self.perform_swap(
+            swap_info, swap_query, tx_params
         )
-        receipt = await tx.wait_for_tx_receipt(
-            web3=self.client.account_manager.w3
-        )
-
-        account_network = self.client.account_manager.network
-        full_path = account_network.explorer + account_network.TxPath
-        rounded_amount = round(swap_query.amount_from.Ether, 5)
-
-        if receipt:
-            status = LogStatus.SWAPPED
-            message = (
-                f'{rounded_amount} {swap_query.from_token.title} was swapped to '
-                f'{swap_query.min_to_amount.Ether} {swap_query.to_token.title}:'
-                f'{full_path + tx.hash.hex()}'
-            )
-        else:
-            status = LogStatus.ERROR
-            message = (
-                f'Failed swap {rounded_amount} {swap_query.from_token.title} '
-                f'to {swap_query.to_token.title}: '
-                f'{full_path + tx.hash.hex()}'
-            )
 
         self.client.account_manager.custom_logger.log_message(
             status=status, message=message
