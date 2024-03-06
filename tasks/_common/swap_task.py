@@ -11,6 +11,8 @@ from async_eth_lib.models.others.params_types import ParamsTypes
 from async_eth_lib.models.others.token_amount import TokenAmount
 from async_eth_lib.models.swap.swap_info import SwapInfo
 from async_eth_lib.models.swap.swap_query import SwapQuery
+from async_eth_lib.models.transactions.tx import Tx
+from async_eth_lib.utils.helpers import sleep
 
 
 class SwapTask:
@@ -291,6 +293,106 @@ class SwapTask:
             min_to_amount=min_to_amount
         )
 
+    async def perform_bridge(
+        self,
+        swap_info: SwapInfo,
+        swap_query: SwapQuery,
+        tx_params: TxParams | dict,
+        external_explorer: str = None
+    ) -> tuple[str, str]:
+        """
+        Perform a bridge operation.
+
+        Args:
+            swap_info (SwapInfo): Information about the swap.
+            swap_query (SwapQuery): Query parameters for the swap.
+            tx_params (TxParams | dict): Transaction parameters.
+            external_explorer (str, optional): External explorer URL. Defaults to None.
+
+        Returns:
+            tuple[str, str]: A tuple containing:
+                - A boolean indicating whether the bridge operation was successful.
+                - Status of the bridge operation.
+                - Message regarding the bridge operation.
+        """
+        tx_params = self.set_all_gas_params(
+            swap_info=swap_info,
+            tx_params=tx_params
+        )
+
+        receipt, tx = await self._perform_tx(tx_params)
+        account_network = self.client.account_manager.network
+
+        if external_explorer:
+            full_path = external_explorer + account_network.TxPath
+        else:
+            full_path = account_network.explorer + account_network.TxPath
+
+        rounded_amount = round(swap_query.amount_from.Ether, 5)
+
+        if receipt:
+            status = LogStatus.BRIDGED
+            message = f'{rounded_amount} {swap_info.from_token} '
+        else:
+            status = LogStatus.ERROR
+            message = f'Failed bridge {rounded_amount} {swap_info.from_token}: '
+
+        message += (
+            f'from {account_network.name.upper()} -> '
+            f'{swap_info.to_network.upper()}: '
+            f'{full_path + tx.hash.hex()}'
+        )
+
+        return bool(receipt), status, message
+
+    async def perform_swap(
+        self,
+        swap_info: SwapInfo,
+        swap_query: SwapQuery,
+        tx_params: TxParams | dict,
+    ) -> tuple[str, str]:
+        """
+        Perform a token swap operation.
+
+        Args:
+            swap_info (SwapInfo): Information about the swap.
+            swap_query (SwapQuery): Query parameters for the swap.
+            tx_params (TxParams | dict): Transaction parameters.
+
+        Returns:
+            tuple[bool, str, str]: A tuple containing:
+                - A boolean indicating whether the swap was successful.
+                - Status of the swap.
+                - Message regarding the swap.
+        """
+        tx_params = self.set_all_gas_params(
+            swap_info=swap_info,
+            tx_params=tx_params
+        )
+
+        receipt, tx = await self._perform_tx(
+            tx_params
+        )
+
+        account_network = self.client.account_manager.network
+        full_path = account_network.explorer + account_network.TxPath
+        rounded_amount = round(swap_query.amount_from.Ether, 5)
+
+        if receipt:
+            status = LogStatus.SWAPPED
+            message = f'{rounded_amount} {swap_query.from_token.title}'
+
+        else:
+            status = LogStatus.ERROR
+            message = f'Failed swap {rounded_amount} {swap_query.from_token.title} '
+
+        message += (
+            f'-> {swap_query.min_to_amount.Ether} {swap_query.to_token.title}: '
+            f'{full_path + tx.hash.hex()}'
+        )
+
+        return bool(receipt), status, message
+
     async def get_binance_ticker_price(
         self,
         first_token: str = TokenSymbol.ETH,
@@ -319,6 +421,31 @@ class SwapTask:
         print('name:', await contract.functions.name().call())
         print('symbol:', await contract.functions.symbol().call())
         print('decimals:', await contract.functions.decimals().call())
+
+    async def _perform_tx(
+        self,
+        tx_params: TxParams | dict
+    ) -> tuple[dict[str, any], Tx]:
+        """
+        Perform a token swap operation.
+
+        Args:
+            swap_info (SwapInfo): Information about the swap.
+            tx_params (TxParams | dict): Transaction parameters.
+
+        Returns:
+            tuple[dict[str, any], Tx]: A tuple containing:
+                - The receipt of the transaction.
+                - The transaction object.
+        """
+        tx = await self.client.contract.transaction.sign_and_send(
+            tx_params=tx_params
+        )
+        receipt = await tx.wait_for_tx_receipt(
+            web3=self.client.account_manager.w3
+        )
+
+        return receipt, tx
 
     async def _get_price_from_binance(
         self,
