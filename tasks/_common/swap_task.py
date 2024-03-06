@@ -332,13 +332,13 @@ class SwapTask:
 
         if receipt:
             status = LogStatus.BRIDGED
-            message = f'{rounded_amount} {swap_info.from_token} '
+            message = f'{rounded_amount} {swap_info.from_token}'
         else:
             status = LogStatus.ERROR
-            message = f'Failed bridge {rounded_amount} {swap_info.from_token}: '
+            message = f'Failed bridge {rounded_amount} {swap_info.from_token}'
 
         message += (
-            f'from {account_network.name.upper()} -> '
+            f' from {account_network.name.upper()} -> '
             f'{swap_info.to_network.upper()}: '
             f'{full_path + tx.hash.hex()}'
         )
@@ -384,10 +384,10 @@ class SwapTask:
 
         else:
             status = LogStatus.ERROR
-            message = f'Failed swap {rounded_amount} {swap_query.from_token.title} '
+            message = f'Failed swap {rounded_amount} {swap_query.from_token.title}'
 
         message += (
-            f'-> {swap_query.min_to_amount.Ether} {swap_query.to_token.title}: '
+            f' -> {swap_query.min_to_amount.Ether} {swap_query.to_token.title}: '
             f'{full_path + tx.hash.hex()}'
         )
 
