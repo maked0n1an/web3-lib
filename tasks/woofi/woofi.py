@@ -1,16 +1,17 @@
 from web3.types import TxParams
 
 from async_eth_lib.models.contracts.contracts import ContractsFactory
+from async_eth_lib.models.others.constants import LogStatus
 from async_eth_lib.models.others.params_types import ParamsTypes
 from async_eth_lib.models.swap.swap_info import SwapInfo
 from async_eth_lib.models.swap.swap_query import SwapQuery
 from async_eth_lib.models.transactions.tx_args import TxArgs
 from async_eth_lib.utils.helpers import sleep
-from tasks.base_task import BaseTask
+from tasks._common.swap_task import SwapTask
 from tasks.woofi.woofi_contracts import WoofiContracts
 
 
-class WooFi(BaseTask):
+class WooFi(SwapTask):
     async def swap(
         self,
         swap_info: SwapInfo
@@ -29,7 +30,7 @@ class WooFi(BaseTask):
         )
 
         contract = await self.client.contract.get(contract=dex_contract)
-        swap_query = await self.create_swap_query(contract=contract, swap_info=swap_info)
+        swap_query = await self._create_swap_query(contract=contract, swap_info=swap_info)
 
         args = TxArgs(
             fromToken=swap_query.from_token.address,
@@ -68,23 +69,32 @@ class WooFi(BaseTask):
             web3=self.client.account_manager.w3
         )
 
+        account_network = self.client.account_manager.network
+        full_path = account_network.explorer + account_network.TxPath
+        rounded_amount = round(swap_query.amount_from.Ether, 5)
+
         if receipt:
-            account_network = self.client.account_manager.network
-            full_path = account_network.explorer + account_network.TxPath
-            return (
-                f'{swap_query.amount_from.Ether} {swap_query.from_token.title} was swapped to '
-                f'{swap_query.min_to_amount.Ether} {swap_query.to_token.title} '
-                f'via {dex_contract.title}: '
+            status = LogStatus.SWAPPED
+            message = (
+                f'{rounded_amount} {swap_query.from_token.title} was swapped to '
+                f'{swap_query.min_to_amount.Ether} {swap_query.to_token.title}:'
+                f'{full_path + tx.hash.hex()}'
+            )
+        else:
+            status = LogStatus.ERROR
+            message = (
+                f'Failed swap {rounded_amount} {swap_query.from_token.title} '
+                f'to {swap_query.to_token.title}: '
                 f'{full_path + tx.hash.hex()}'
             )
 
-        return (
-            f'Failed swap {swap_query.amount_from.Ether} to {swap_query.to_token.title} '
-            f'via {dex_contract.title}: '
-            f'{full_path + tx.hash.hex()}'
+        self.client.account_manager.custom_logger.log_message(
+            status=status, message=message
         )
 
-    async def create_swap_query(
+        return receipt if receipt else False
+
+    async def _create_swap_query(
         self,
         contract: ParamsTypes.Contract,
         swap_info: SwapInfo
