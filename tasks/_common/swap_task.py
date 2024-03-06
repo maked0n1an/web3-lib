@@ -1,18 +1,19 @@
 import asyncio
 import aiohttp
 
+from eth_typing import HexStr
 from web3.types import TxParams
 
 from async_eth_lib.models.client import Client
 from async_eth_lib.models.contracts.contracts import ContractsFactory
-from async_eth_lib.models.others.constants import TokenSymbol
+from async_eth_lib.models.others.constants import LogStatus, TokenSymbol
 from async_eth_lib.models.others.params_types import ParamsTypes
 from async_eth_lib.models.others.token_amount import TokenAmount
 from async_eth_lib.models.swap.swap_info import SwapInfo
 from async_eth_lib.models.swap.swap_query import SwapQuery
 
 
-class BaseTask:
+class SwapTask:
     def __init__(self, client: Client):
         self.client = client
 
@@ -33,7 +34,7 @@ class BaseTask:
             count += 1
             params = params[64:]
 
-    def to_cut_hex_prefix_and_zfill(self, data: str, length: int = 64):
+    def to_cut_hex_prefix_and_zfill(self, data: str | HexStr, length: int = 64):
         """
         Convert the string to lowercase and fill it with zeros to the specified length.
 
@@ -162,7 +163,7 @@ class BaseTask:
             web3=self.client.account_manager.w3,
             timeout=240
         )
-        
+
         return False
 
     async def compute_source_token_amount(
@@ -297,13 +298,13 @@ class BaseTask:
     ) -> float | None:
         if first_token.startswith('W'):
             first_token = first_token[1:]
-        
+
         if second_token.startswith('W'):
             second_token = second_token[1:]
-        
+
         if first_token == TokenSymbol.USDT:
             return 1
-        
+
         async with aiohttp.ClientSession() as session:
             price = await self._get_price_from_binance(session, first_token, second_token)
             if price is None:
@@ -314,6 +315,7 @@ class BaseTask:
 
     async def get_token_info(self, token_address):
         contract = await self.client.contract.get_token_contract(token=token_address)
+        print('=' * 50)
         print('name:', await contract.functions.name().call())
         print('symbol:', await contract.functions.symbol().call())
         print('decimals:', await contract.functions.decimals().call())

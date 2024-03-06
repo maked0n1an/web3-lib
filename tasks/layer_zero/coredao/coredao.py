@@ -1,15 +1,16 @@
 from web3.types import TxParams
+from async_eth_lib.models.others.constants import LogStatus
+
 from async_eth_lib.models.others.params_types import ParamsTypes
 from async_eth_lib.models.others.token_amount import TokenAmount
-
 from async_eth_lib.models.swap.swap_info import SwapInfo
 from async_eth_lib.models.transactions.tx_args import TxArgs
 from async_eth_lib.utils.helpers import sleep
-from tasks.base_task import BaseTask
+from tasks._common.swap_task import SwapTask
 from tasks.layer_zero.coredao.coredao_data import CoredaoData
 
 
-class CoreDaoBridge(BaseTask):
+class CoreDaoBridge(SwapTask):
     async def bridge(
         self,
         swap_info: SwapInfo
@@ -79,13 +80,30 @@ class CoreDaoBridge(BaseTask):
             web3=self.client.account_manager.w3,
         )
 
+        account_network = self.client.account_manager.network
+        full_path = account_network.explorer + account_network.TxPath
+        rounded_amount = round(swap_query.amount_from.Ether, 5)
+
         if receipt:
-            return (
-                f'{swap_query.amount_from.Ether} {swap_info.from_token} '
-                f'was sent from {self.client.account_manager.network.name.upper()} '
-                f'to {swap_info.to_network.upper()} via CoreDao: '
+            status = LogStatus.BRIDGED
+            message = (
+                f'{rounded_amount} {swap_info.from_token} '
+                f'was sent from {account_network.name.upper()} '
+                f'to {swap_info.to_network.upper()}: '
                 f'https://layerzeroscan.com/tx/{tx.hash.hex()} '
             )
+        else:
+            status = LogStatus.ERROR
+            message = (
+                f'Failed cross-chain swap {rounded_amount} to {swap_query.to_token.title}: '
+                f'{full_path + tx.hash.hex()}'
+            )
+
+        self.client.account_manager.custom_logger.log_message(
+            status=status, message=message
+        )
+
+        return receipt if receipt else False
 
     async def _get_estimateBridgeFee(
         self,

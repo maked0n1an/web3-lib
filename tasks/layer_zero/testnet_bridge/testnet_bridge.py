@@ -1,16 +1,17 @@
 from web3.types import TxParams
+from async_eth_lib.models.others.constants import LogStatus
+
 from async_eth_lib.models.others.params_types import ParamsTypes
 from async_eth_lib.models.others.token_amount import TokenAmount
-
 from async_eth_lib.models.swap.swap_info import SwapInfo
 from async_eth_lib.models.swap.swap_query import SwapQuery
 from async_eth_lib.models.transactions.tx_args import TxArgs
 from async_eth_lib.utils.helpers import sleep
-from tasks.base_task import BaseTask
+from tasks._common.swap_task import SwapTask
 from tasks.layer_zero.testnet_bridge.testnet_bridge_data import TestnetBridgeData
 
 
-class TestnetBridge(BaseTask):
+class TestnetBridge(SwapTask):
     chain_ids = {
         'GETH': 154
     }
@@ -64,7 +65,7 @@ class TestnetBridge(BaseTask):
             swap_info=swap_info,
             tx_params=tx_params
         )
-        
+
         if not swap_query.from_token.is_native_token:
             await self.approve_interface(
                 token_contract=swap_query.from_token,
@@ -76,22 +77,39 @@ class TestnetBridge(BaseTask):
             await sleep(10, 30)
         else:
             return f'Failed: can not approve'
-        
 
         tx = await self.client.contract.transaction.sign_and_send(
             tx_params=tx_params
         )
         receipt = await tx.wait_for_tx_receipt(
-            web3=self.client.account_manager.w3
+            web3=self.client.account_manager.w3,
+            timeout=250
         )
 
+        account_network = self.client.account_manager.network
+        full_path = account_network.explorer + account_network.TxPath
+        rounded_amount = round(swap_query.amount_from.Ether, 5)
+
         if receipt:
-            return (
-                f'{swap_query.amount_from.Ether} {swap_info.from_token} '
-                f'was sent from {self.client.account_manager.network.name.upper()} '
-                f'to {swap_info.to_network.upper()} via {__class__.__name__}: '
+            status = LogStatus.BRIDGED
+            message = (
+                f'{rounded_amount} {swap_info.from_token} '
+                f'was sent from {account_network.name.upper()} '
+                f'to {swap_info.to_network.upper()}: '
                 f'https://layerzeroscan.com/tx/{tx.hash.hex()} '
             )
+        else:
+            status = LogStatus.ERROR
+            message = (
+                f'Failed cross-chain swap {rounded_amount} to {swap_query.to_token.title}: '
+                f'{full_path + tx.hash.hex()}'
+            )
+
+        self.client.account_manager.custom_logger.log_message(
+            status=status, message=message
+        )
+
+        return receipt if receipt else False
 
     async def _get_estimateSendFee(
         self,
