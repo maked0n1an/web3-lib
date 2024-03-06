@@ -2,28 +2,27 @@ import time
 
 from web3.types import TxParams
 
-from async_eth_lib.models.contracts.contracts import ContractsFactory, TokenContractFetcher
+from async_eth_lib.models.contracts.contracts import ZkSyncTokenContracts
 from async_eth_lib.models.contracts.raw_contract import RawContract
-from async_eth_lib.models.others.constants import TokenSymbol
+from async_eth_lib.models.others.constants import LogStatus, TokenSymbol
 from async_eth_lib.models.others.params_types import ParamsTypes
-from async_eth_lib.models.swap.tx_payload_details import TxPayloadDetails
 from async_eth_lib.models.swap.swap_info import SwapInfo
 from async_eth_lib.models.swap.swap_query import SwapQuery
 from async_eth_lib.models.transactions.tx_args import TxArgs
 from async_eth_lib.utils.helpers import read_json, sleep
-from tasks.base_task import BaseTask
+from tasks._common.swap_task import SwapTask
 from tasks.zksync.mute.mute_routes import MuteRoutes
 
 
-class Mute(BaseTask):
+class Mute(SwapTask):
     MUTE_UNIVERSAL = RawContract(
         title='Mute',
         address='0x8b791913eb07c32779a16750e3868aa8495f5964',
         abi=read_json(
-            path=('data', 'abis', 'zksync', 'mute','abi.json')
+            path=('data', 'abis', 'zksync', 'mute', 'abi.json')
         )
     )
-    
+
     async def swap(
         self,
         swap_info: SwapInfo
@@ -80,62 +79,41 @@ class Mute(BaseTask):
                 tx_params=tx_params
             )
             if not result:
-                return 'Not enough balance'
-            await sleep(8, 15)
+                await sleep(8, 15)
+
         else:
             tx_params['value'] = swap_query.amount_from.Wei
 
-        tx_params = self.set_all_gas_params(
-            swap_info=swap_info,
-            tx_params=tx_params
+        receipt, status, message = await self.perform_swap(
+            swap_info, swap_query, tx_params
         )
 
-        tx = await self.client.contract.transaction.sign_and_send(
-            tx_params=tx_params
+        self.client.account_manager.custom_logger.log_message(
+            status=status, message=message
         )
-        receipt = await tx.wait_for_tx_receipt(
-            web3=self.client.account_manager.w3, timeout=300
-        )
-        if receipt:
-            account_network = self.client.account_manager.network
-            full_path = account_network.explorer + account_network.TxPath
 
-            return (
-                f'{swap_query.amount_from.Ether} {swap_query.from_token.title} was swapped to '
-                f'{swap_query.min_to_amount.Ether} {swap_query.to_token.title} '
-                f'via {__class__.__name__}: '
-                f'{full_path + tx.hash.hex()}'
-            )
-
-        return 'Failed swap'
+        return receipt if receipt else False
 
     async def _create_swap_query(
         self,
         contract: ParamsTypes.Contract,
         swap_info: SwapInfo
     ) -> SwapQuery:
-        network = self.client.account_manager.network.name
         swap_query = await self.compute_source_token_amount(swap_info=swap_info)
 
         if swap_info.from_token == TokenSymbol.ETH:
-            from_token_symbol=TokenSymbol.WETH
+            from_token = ZkSyncTokenContracts.WETH
         else:
-            from_token_symbol=swap_info.from_token
+            from_token = ZkSyncTokenContracts.get_token(
+                swap_info.from_token
+            )
 
         if swap_info.to_token == TokenSymbol.ETH:
-            to_token_symbol=TokenSymbol.WETH
+            swap_query.to_token = ZkSyncTokenContracts.WETH
         else:
-            to_token_symbol=swap_info.to_token
-        
-        from_token = ContractsFactory.get_contract(
-            network_name=network,
-            token_symbol=from_token_symbol
-        )
-        
-        swap_query.to_token = ContractsFactory.get_contract(
-            network_name=network,
-            token_symbol=to_token_symbol
-        )
+            swap_query.to_token = ZkSyncTokenContracts.get_token(
+                swap_info.to_token
+            )
 
         min_amount_out = await contract.functions.getAmountOut(
             swap_query.amount_from.Wei,
