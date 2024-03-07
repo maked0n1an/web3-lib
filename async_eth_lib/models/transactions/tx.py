@@ -87,7 +87,7 @@ class Tx(AutoRepr):
         web3: Web3 | AsyncWeb3,
         timeout: int | float = 120,
         poll_latency: float = 0.1
-    ) -> dict[str, Any]:
+    ) -> TxReceipt:
         """
         Wait for the transaction receipt.
 
@@ -100,9 +100,9 @@ class Tx(AutoRepr):
             Dict[str, Any]: the transaction receipt.
 
         """
-        self.receipt = dict(await web3.eth.wait_for_transaction_receipt(
+        self.receipt = await web3.eth.wait_for_transaction_receipt(
             transaction_hash=self.hash, timeout=timeout, poll_latency=poll_latency
-        ))
+        )
 
         return self.receipt
 
