@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Any, Union
 from web3 import Web3
 from web3.contract import Contract, AsyncContract
 from web3.types import TxParams
@@ -92,8 +92,8 @@ class Contract:
 
         Returns:
             tuple[ChecksumAddress, list | None]: The checksummed contract address and ABI.
-            
-        """        
+
+        """
         abi = None
         address = None
         if type(contract) in ParamsTypes.Address.__args__:
@@ -105,13 +105,13 @@ class Contract:
 
     async def approve(
         self,
-        token_contract: ParamsTypes.TokenContract | ParamsTypes.Contract 
+        token_contract: ParamsTypes.TokenContract | ParamsTypes.Contract
             | ParamsTypes.Address,
         spender_address: ParamsTypes.Address,
         amount: ParamsTypes.Amount | None = None,
         tx_params: TxParams | dict | None = None,
-        is_approve_infinity: bool = False
-    ) -> Tx:
+        is_approve_infinity: bool = False,
+    ) -> str | bool:
         """
         Approve a spender to spend a certain amount of tokens on behalf of the user.
 
@@ -130,8 +130,8 @@ class Contract:
             token_address, _ = await self.get_contract_attributes(contract=token_contract)
             token_contract = await self.get_token_contract(
                 token=token_address
-            )            
-        
+            )
+
         decimals = await self.get_decimals(token_contract=token_contract)
         token_contract = await self.get_token_contract(token=token_contract)
         spender_address = Web3.to_checksum_address(spender_address)
@@ -139,7 +139,7 @@ class Contract:
         if not amount:
             if is_approve_infinity:
                 amount = CommonValues.InfinityInt
-                
+
             else:
                 amount = await self.get_balance(token_contract=token_contract)
 
@@ -148,7 +148,7 @@ class Contract:
 
         else:
             token_amount = amount.Wei
-            
+
         data = token_contract.encodeABI(
             'approve',
             args=TxArgs(
@@ -156,8 +156,8 @@ class Contract:
                 amount=token_amount
             ).get_tuple()
         )
-        
-        if tx_params: 
+
+        if tx_params:
             new_tx_params = {}
             if 'gas' in tx_params:
                 new_tx_params['gas'] = tx_params['gas']
@@ -167,25 +167,21 @@ class Contract:
                 new_tx_params['multiplier'] = tx_params['multiplier']
             if 'maxPriorityFeePerGas' in tx_params:
                 new_tx_params['maxPriorityFeePerGas'] = (
-                    tx_params['maxPriorityFeePerGas'] 
+                    tx_params['maxPriorityFeePerGas']
                 )
-        
+
         new_tx_params.update({
             'to': token_contract.address,
             'data': data
         })
 
         tx = await self.transaction.sign_and_send(tx_params=new_tx_params)
-        self.account_manager.custom_logger.log_message(
-            LogStatus.APPROVED,
-            (
-                'Approved: ',
-                self.account_manager.network.explorer
-                + self.account_manager.network.TxPath
-                + tx.hash.hex()
-            )
+        receipt = await tx.wait_for_tx_receipt(
+            web3=self.account_manager.w3,
+            timeout=240
         )
-        return tx
+        
+        return tx.hash.hex() if receipt else False
 
     async def get(
         self,
@@ -330,16 +326,16 @@ class Contract:
             decimals = await token_contract.functions.decimals().call()
 
         return decimals
-    
+
     def add_multiplier_of_gas(
         self,
         tx_params: TxParams | dict,
         multiplier: float | None = None
     ) -> TxParams | dict:
-        
+
         tx_params['multiplier'] = multiplier
         return tx_params
-        
+
     def set_gas_price(
         self,
         gas_price: ParamsTypes.GasPrice,
