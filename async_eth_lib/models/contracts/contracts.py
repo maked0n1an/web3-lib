@@ -38,6 +38,8 @@ class ContractsFactory:
 
 class TokenContractFetcher(metaclass=Singleton):
     NATIVE_ETH = NativeTokenContract(title=TokenSymbol.ETH)
+    
+    ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
     @classmethod
     def get_token(
@@ -249,7 +251,10 @@ class PolygonTokenContracts(TokenContractFetcher):
 
 
 class ZkSyncTokenContracts(TokenContractFetcher):
-    ETH = TokenContractFetcher.NATIVE_ETH
+    ETH = NativeTokenContract(
+        title=TokenSymbol.ETH,
+        address=TokenContractFetcher.ZERO_ADDRESS
+    )
 
     WETH = TokenContract(
         title=TokenSymbol.WETH,
