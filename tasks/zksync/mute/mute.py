@@ -89,7 +89,7 @@ class Mute(SwapTask):
             if hexed_tx_hash:
                 self.client.account_manager.custom_logger.log_message(
                     LogStatus.APPROVED,
-                    message=f'{swap_query.from_token} {swap_query.amount_from}'
+                    message=f"{swap_query.from_token.title} {swap_query.amount_from.Ether}"
                 )
                 await sleep(8, 15)
         else:
