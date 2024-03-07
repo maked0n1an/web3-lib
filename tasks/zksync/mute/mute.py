@@ -27,11 +27,13 @@ class Mute(SwapTask):
         self,
         swap_info: SwapInfo
     ) -> str:
-        self.validate_swap_inputs(
+        check = self.validate_swap_inputs(
             first_arg=swap_info.from_token,
             second_arg=swap_info.to_token,
             param_type='tokens'
         )
+        if check:
+            return check
 
         contract = await self.client.contract.get(
             contract=self.MUTE_UNIVERSAL

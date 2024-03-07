@@ -67,6 +67,7 @@ class CustomLogger:
                 CustomLogDataAndRecord(log_format_dict['log_format'])
             )
 
+            logging.addLevelName(210, LogStatus.APPROVED)
             logging.addLevelName(201, LogStatus.MINTED)
             logging.addLevelName(202, LogStatus.BRIDGED)
             logging.addLevelName(203, LogStatus.SWAPPED)
@@ -167,6 +168,7 @@ class CustomLogDataAndRecord(CustomLogFormattedRecord):
         LogStatus.SUCCESS: SUCCESS_FORMAT,
         LogStatus.ERROR: RED + LOG_LEVELNAME_FORMAT + RESET,  
         
+        LogStatus.APPROVED: SUCCESS_FORMAT,
         LogStatus.MINTED: SUCCESS_FORMAT,
         LogStatus.BRIDGED: SUCCESS_FORMAT,
         LogStatus.SWAPPED: SUCCESS_FORMAT

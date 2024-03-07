@@ -106,7 +106,7 @@ class SwapTask:
         spender_address: ParamsTypes.Address,
         amount: ParamsTypes.Amount | None = None,
         tx_params: TxParams | dict | None = None,
-        is_approve_infinity: bool = None
+        is_approve_infinity: bool = False
     ) -> bool:
         """
         Approve spending of a specific amount by a spender on behalf of the owner.

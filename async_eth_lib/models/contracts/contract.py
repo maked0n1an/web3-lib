@@ -5,6 +5,7 @@ from web3.types import TxParams
 from eth_typing import ChecksumAddress
 
 from async_eth_lib.models.account.account_manager import AccountManager
+from async_eth_lib.models.others.constants import LogStatus
 from async_eth_lib.models.others.dataclasses import CommonValues, DefaultAbis
 from async_eth_lib.models.others.params_types import ParamsTypes
 from async_eth_lib.models.others.token_amount import TokenAmount
@@ -148,11 +149,13 @@ class Contract:
         else:
             token_amount = amount.Wei
             
-        data = token_contract.encodeABI('approve',
-                                        args=TxArgs(
-                                            spender=spender_address,
-                                            amount=token_amount
-                                        ).get_tuple())
+        data = token_contract.encodeABI(
+            'approve',
+            args=TxArgs(
+                spender=spender_address,
+                amount=token_amount
+            ).get_tuple()
+        )
         
         if tx_params: 
             new_tx_params = {}
@@ -173,11 +176,14 @@ class Contract:
         })
 
         tx = await self.transaction.sign_and_send(tx_params=new_tx_params)
-        print(
-            'Approved: ',
-            self.account_manager.network.explorer
-            + self.account_manager.network.TxPath
-            + tx.hash.hex()
+        self.account_manager.custom_logger.log_message(
+            LogStatus.APPROVED,
+            (
+                'Approved: ',
+                self.account_manager.network.explorer
+                + self.account_manager.network.TxPath
+                + tx.hash.hex()
+            )
         )
         return tx
 
