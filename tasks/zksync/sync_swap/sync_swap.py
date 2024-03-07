@@ -31,6 +31,14 @@ class SyncSwap(SwapTask):
         self,
         swap_info: SwapInfo
     ) -> bool:
+        check = self.validate_swap_inputs(
+            first_arg=swap_info.from_token,
+            second_arg=swap_info.to_token,
+            param_type='tokens'
+        )
+        if check:
+            return check
+        
         contract = await self.client.contract.get(
             contract=self.SYNC_SWAP_ROUTER
         )

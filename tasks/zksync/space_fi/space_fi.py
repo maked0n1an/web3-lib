@@ -25,13 +25,15 @@ class SpaceFi(SwapTask):
         self,
         swap_info: SwapInfo
     ) -> str:
-        self.validate_swap_inputs(
+        check = self.validate_swap_inputs(
             first_arg=swap_info.from_token,
             second_arg=swap_info.to_token,
             param_type='tokens'
         )
+        if check:
+            return check
+        
         account_address = self.client.account_manager.account.address
-
         contract = await self.client.contract.get(
             contract=self.SPACE_FI_ROUTER
         )
