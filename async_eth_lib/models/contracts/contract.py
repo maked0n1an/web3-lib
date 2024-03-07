@@ -110,7 +110,7 @@ class Contract:
         spender_address: ParamsTypes.Address,
         amount: ParamsTypes.Amount | None = None,
         tx_params: TxParams | dict | None = None,
-        is_approve_infinity: bool = False,
+        is_approve_infinity: bool = False
     ) -> str | bool:
         """
         Approve a spender to spend a certain amount of tokens on behalf of the user.
@@ -181,7 +181,7 @@ class Contract:
             timeout=240
         )
         
-        return tx.hash.hex() if receipt else False
+        return tx.hash.hex() if receipt['status'] else False
 
     async def get(
         self,
