@@ -25,13 +25,17 @@ class SpaceFi(SwapTask):
         self,
         swap_info: SwapInfo
     ) -> str:
-        check = self.validate_swap_inputs(
+        check_message = self.validate_swap_inputs(
             first_arg=swap_info.from_token,
             second_arg=swap_info.to_token,
             param_type='tokens'
         )
-        if check:
-            return check
+        if check_message:
+            self.client.account_manager.custom_logger.log_message(
+                status=LogStatus.ERROR, message=check_message
+            )
+
+            return False
         
         account_address = self.client.account_manager.account.address
         contract = await self.client.contract.get(
@@ -102,19 +106,24 @@ class SpaceFi(SwapTask):
         )  
         
         if not swap_query.from_token.is_native_token:
-            result = await self.approve_interface(
+            hexed_tx_hash = await self.approve_interface(
                 token_contract=swap_query.from_token,
-                spender_address=contract_address,
+                spender_address=contract.address,
                 amount=swap_query.amount_from,
-                tx_params=tx_params,
-                is_approve_infinity=False
+                swap_info=swap_info,
+                tx_params=tx_params
             )
-            if not result:
+
+            if hexed_tx_hash:
+                self.client.account_manager.custom_logger.log_message(
+                    LogStatus.APPROVED,
+                    message=f'{swap_query.from_token} {swap_query.amount_from}'
+                )
                 await sleep(8, 20)
         else:
             tx_params['value'] = swap_query.amount_from.Wei     
 
-        receipt, status, message = await self.perform_swap(
+        receipt_status, status, message = await self.perform_swap(
             swap_info, swap_query, tx_params
         )
 
@@ -122,4 +131,4 @@ class SpaceFi(SwapTask):
             status=status, message=message
         )
 
-        return receipt if receipt else False
+        return receipt_status

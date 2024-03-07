@@ -2,7 +2,11 @@ import asyncio
 import aiohttp
 
 from eth_typing import HexStr
-from web3.types import TxParams
+from web3.types import (
+    TxParams,
+    TxReceipt,
+    _Hash32,
+)
 
 from async_eth_lib.models.client import Client
 from async_eth_lib.models.contracts.contracts import ContractsFactory
@@ -79,24 +83,6 @@ class SwapTask:
         second_arg: str,
         param_type: str = 'args'
     ) -> str:
-        """
-        Validate inputs for a swap operation.
-
-        Args:
-            first_arg (str): The first argument.
-            second_arg (str): The second argument.
-            param_type (str): The type of arguments (default is 'args').
-
-        Returns:
-            str: A message indicating the result of the validation.
-
-        Example:
-        ```python
-        result = validate_swap_inputs('ETH', 'USDT', param_type='symbols')
-        print(result)
-        # Output: 'The symbols for swap() are different: ETH != USDT'
-        ```
-        """
         if first_arg.upper() == second_arg.upper():
             return f'The {param_type} for swap() are equal: {first_arg} == {second_arg}'
 
@@ -104,9 +90,10 @@ class SwapTask:
         self,
         token_contract: ParamsTypes.TokenContract,
         spender_address: ParamsTypes.Address,
+        swap_info: SwapInfo,
         amount: ParamsTypes.Amount | None = None,
         tx_params: TxParams | dict | None = None,
-        is_approve_infinity: bool = False
+        is_approve_infinity: bool = None
     ) -> bool:
         """
         Approve spending of a specific amount by a spender on behalf of the owner.
@@ -136,6 +123,11 @@ class SwapTask:
         # Output: True
         ```
         """
+        tx_params = self.set_all_gas_params(
+            swap_info=swap_info,
+            tx_params=tx_params
+        )
+        
         balance = await self.client.contract.get_balance(
             token_contract=token_contract
         )
@@ -161,9 +153,8 @@ class SwapTask:
             tx_params=tx_params,
             is_approve_infinity=is_approve_infinity
         )
-        
+
         return bool(hexed_tx_hash)
-        
 
     async def compute_source_token_amount(
         self,
@@ -296,7 +287,7 @@ class SwapTask:
         swap_query: SwapQuery,
         tx_params: TxParams | dict,
         external_explorer: str = None
-    ) -> tuple[str, str]:
+    ) -> tuple[int, str, str]:
         """
         Perform a bridge operation.
 
@@ -317,7 +308,8 @@ class SwapTask:
             tx_params=tx_params
         )
 
-        receipt, tx = await self._perform_tx(tx_params)
+        tx_hash, receipt = await self._perform_tx(tx_params)
+        
         account_network = self.client.account_manager.network
 
         if external_explorer:
@@ -327,7 +319,7 @@ class SwapTask:
 
         rounded_amount = round(swap_query.amount_from.Ether, 5)
 
-        if receipt:
+        if receipt['status']:
             status = LogStatus.BRIDGED
             message = f'{rounded_amount} {swap_info.from_token}'
         else:
@@ -337,17 +329,17 @@ class SwapTask:
         message += (
             f' from {account_network.name.upper()} -> '
             f'{swap_info.to_network.upper()}: '
-            f'{full_path + tx.hash.hex()}'
+            f'{full_path + tx_hash.hex()}'
         )
-
-        return bool(receipt), status, message
+        
+        return receipt['status'], status, message
 
     async def perform_swap(
         self,
         swap_info: SwapInfo,
         swap_query: SwapQuery,
         tx_params: TxParams | dict,
-    ) -> tuple[str, str]:
+    ) -> tuple[int, str, str]:
         """
         Perform a token swap operation.
 
@@ -366,29 +358,27 @@ class SwapTask:
             swap_info=swap_info,
             tx_params=tx_params
         )
-
-        receipt, tx = await self._perform_tx(
-            tx_params
-        )
+        
+        tx_hash, receipt = await self._perform_tx(tx_params)
 
         account_network = self.client.account_manager.network
         full_path = account_network.explorer + account_network.TxPath
         rounded_amount = round(swap_query.amount_from.Ether, 5)
 
-        if receipt:
-            status = LogStatus.SWAPPED
+        if receipt['status']:
+            log_status = LogStatus.SWAPPED
             message = f'{rounded_amount} {swap_query.from_token.title}'
 
         else:
-            status = LogStatus.ERROR
+            log_status = LogStatus.ERROR
             message = f'Failed swap {rounded_amount} {swap_query.from_token.title}'
 
         message += (
             f' -> {swap_query.min_to_amount.Ether} {swap_query.to_token.title}: '
-            f'{full_path + tx.hash.hex()}'
+            f'{full_path + tx_hash.hex()}'
         )
 
-        return bool(receipt), status, message
+        return receipt['status'], log_status, message
 
     async def get_binance_ticker_price(
         self,
@@ -422,7 +412,7 @@ class SwapTask:
     async def _perform_tx(
         self,
         tx_params: TxParams | dict
-    ) -> tuple[dict[str, any], Tx]:
+    ) -> tuple[_Hash32, TxReceipt]:
         """
         Perform a token swap operation.
 
@@ -431,9 +421,10 @@ class SwapTask:
             tx_params (TxParams | dict): Transaction parameters.
 
         Returns:
-            tuple[dict[str, any], Tx]: A tuple containing:
+            tuple[_Hash32, TxReceipt].
+            - A tuple containing:
+                - The hash of the transaction.
                 - The receipt of the transaction.
-                - The transaction object.
         """
         tx = await self.client.contract.transaction.sign_and_send(
             tx_params=tx_params
@@ -442,7 +433,7 @@ class SwapTask:
             web3=self.client.account_manager.w3
         )
 
-        return receipt, tx
+        return tx.hash, receipt
 
     async def _get_price_from_binance(
         self,

@@ -21,13 +21,17 @@ class Stargate(SwapTask):
         max_fee: float = 0.7,
         dst_fee: float | TokenAmount | None = None
     ) -> bool:
-        check = self.validate_swap_inputs(
+        check_message = self.validate_swap_inputs(
             first_arg=self.client.account_manager.network.name,
             second_arg=swap_info.to_network,
             param_type='networks'
         )
-        if check:
-            return check
+        if check_message:
+            self.client.account_manager.custom_logger.log_message(
+                status=LogStatus.ERROR, message=check_message
+            )
+
+            return False
 
         from_network = self.client.account_manager.network.name
 
@@ -115,28 +119,33 @@ class Stargate(SwapTask):
         )
 
         if not swap_query.from_token.is_native_token:
-            result = await self.approve_interface(
+            hexed_tx_hash = await self.approve_interface(
                 token_contract=swap_query.from_token,
                 spender_address=src_bridge_data.bridge_contract.address,
                 amount=swap_query.amount_from,
-                tx_params=tx_params,
-                is_approve_infinity=False
+                swap_info=swap_info,
+                tx_params=tx_params
             )
-            if not result:
+        
+            if hexed_tx_hash:
+                self.client.account_manager.custom_logger.log_message(
+                    LogStatus.APPROVED,
+                    message=f'{swap_query.from_token} {swap_query.amount_from}'
+                )
                 await sleep(20, 50)
         else:
             tx_params['value'] += swap_query.amount_from.Wei
             
-        receipt, status, log_message = await self.perform_bridge(
+        receipt_status, log_status, log_message = await self.perform_bridge(
             swap_info, swap_query, tx_params, 
             external_explorer='https://layerzeroscan.com'
         ) 
 
         self.client.account_manager.custom_logger.log_message(
-            status=status, message=log_message
+            status=log_status, message=log_message
         )
 
-        return receipt if receipt else False
+        return receipt_status
 
     async def get_data_for_swap(
         self,

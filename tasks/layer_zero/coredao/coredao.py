@@ -16,13 +16,17 @@ class CoreDaoBridge(SwapTask):
         self,
         swap_info: SwapInfo
     ) -> str:
-        check = self.validate_swap_inputs(
+        check_message = self.validate_swap_inputs(
             first_arg=self.client.account_manager.network.name,
             second_arg=swap_info.to_network,
             param_type='networks'
         )
-        if check:
-            return check
+        if check_message:
+            self.client.account_manager.custom_logger.log_message(
+                status=LogStatus.ERROR, message=check_message
+            )
+
+            return False
 
         src_bridge_data = CoredaoData.get_token_bridge_info(
             network=self.client.account_manager.network.name,
@@ -57,18 +61,13 @@ class CoreDaoBridge(SwapTask):
             value=value.Wei
         )
 
-        tx_params = self.set_all_gas_params(
-            swap_info=swap_info,
-            tx_params=tx_params
-        )
-
-        if not swap_query.from_token.is_native_token:
+        if not swap_query.from_token.is_native_token:            
             hexed_tx_hash = await self.approve_interface(
                 token_contract=swap_query.from_token,
                 spender_address=src_bridge_data.bridge_contract.address,
                 amount=swap_query.amount_from,
-                tx_params=tx_params,
-                is_approve_infinity=False
+                swap_info=swap_info,
+                tx_params=tx_params
             )
         
             if hexed_tx_hash:
@@ -80,16 +79,16 @@ class CoreDaoBridge(SwapTask):
         else:
             tx_params['value'] += swap_query.amount_from.Wei
 
-        receipt, status, log_message = await self.perform_bridge(
+        receipt_status, log_status, log_message = await self.perform_bridge(
             swap_info, swap_query, tx_params, 
             external_explorer='https://layerzeroscan.com'
         )
 
         self.client.account_manager.custom_logger.log_message(
-            status=status, message=log_message
+            status=log_status, message=log_message
         )
 
-        return receipt if receipt else False
+        return receipt_status
 
     async def _get_estimateBridgeFee(
         self,
