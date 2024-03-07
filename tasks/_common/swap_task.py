@@ -154,19 +154,16 @@ class SwapTask:
         if amount.Wei <= approved.Wei:
             return True
 
-        tx = await self.client.contract.approve(
+        hexed_tx_hash = await self.client.contract.approve(
             token_contract=token_contract,
             spender_address=spender_address,
             amount=amount,
             tx_params=tx_params,
             is_approve_infinity=is_approve_infinity
         )
-        await tx.wait_for_tx_receipt(
-            web3=self.client.account_manager.w3,
-            timeout=240
-        )
-
-        return False
+        
+        return bool(hexed_tx_hash)
+        
 
     async def compute_source_token_amount(
         self,
