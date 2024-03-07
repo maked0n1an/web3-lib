@@ -1,5 +1,7 @@
 from web3.types import TxParams
 
+from async_eth_lib.models.others.constants import LogStatus
+
 from async_eth_lib.models.others.params_types import ParamsTypes
 from async_eth_lib.models.others.token_amount import TokenAmount
 from async_eth_lib.models.swap.swap_info import SwapInfo
@@ -61,14 +63,20 @@ class CoreDaoBridge(SwapTask):
         )
 
         if not swap_query.from_token.is_native_token:
-            await self.approve_interface(
+            hexed_tx_hash = await self.approve_interface(
                 token_contract=swap_query.from_token,
                 spender_address=src_bridge_data.bridge_contract.address,
                 amount=swap_query.amount_from,
                 tx_params=tx_params,
                 is_approve_infinity=False
             )
-            await sleep(3, 7)
+        
+            if hexed_tx_hash:
+                self.client.account_manager.custom_logger.log_message(
+                    LogStatus.APPROVED,
+                    message=f'{swap_query.from_token} {swap_query.amount_from}'
+                )
+                await sleep(7, 12)
         else:
             tx_params['value'] += swap_query.amount_from.Wei
 
