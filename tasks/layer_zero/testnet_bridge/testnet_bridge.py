@@ -1,5 +1,8 @@
 from web3.types import TxParams
-from async_eth_lib.models.others.constants import LogStatus
+
+from async_eth_lib.models.others.constants import (
+    LogStatus, TokenSymbol
+)
 
 from async_eth_lib.models.others.params_types import ParamsTypes
 from async_eth_lib.models.others.token_amount import TokenAmount
@@ -13,7 +16,7 @@ from tasks.layer_zero.testnet_bridge.testnet_bridge_data import TestnetBridgeDat
 
 class TestnetBridge(SwapTask):
     chain_ids = {
-        'GETH': 154
+        TokenSymbol.GETH: 154
     }
 
     async def bridge(
