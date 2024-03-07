@@ -130,7 +130,7 @@ class SwapTask:
             token_contract=token_contract
         )
         if balance.Wei <= 0:
-            return True
+            return False
 
         if not amount or amount.Wei > balance.Wei:
             amount = balance
@@ -383,13 +383,20 @@ class SwapTask:
         first_token: str = TokenSymbol.ETH,
         second_token: str = TokenSymbol.USDT
     ) -> float | None:
+        stable_coins = [
+            TokenSymbol.USDT,
+            TokenSymbol.USDC,
+            TokenSymbol.USDC_E,
+            TokenSymbol.BUSD
+        ]
+        
         if first_token.startswith('W'):
             first_token = first_token[1:]
 
         if second_token.startswith('W'):
             second_token = second_token[1:]
 
-        if first_token == TokenSymbol.USDT:
+        if first_token in stable_coins:
             return 1
 
         async with aiohttp.ClientSession() as session:
