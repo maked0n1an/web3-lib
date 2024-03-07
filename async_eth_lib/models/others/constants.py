@@ -36,6 +36,7 @@ class LogStatus:
     ERROR = 'ERROR'
     CRITICAL = 'CRITICAL'
     
+    APPROVED = 'APPROVED'
     MINTED = 'MINTED'
     BRIDGED = 'BRIDGED'
     SWAPPED = 'SWAPPED'
