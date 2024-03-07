@@ -36,7 +36,7 @@ class SpaceFi(SwapTask):
             )
 
             return False
-        
+
         account_address = self.client.account_manager.account.address
         contract = await self.client.contract.get(
             contract=self.SPACE_FI_ROUTER
@@ -55,23 +55,15 @@ class SpaceFi(SwapTask):
             token_symbol=swap_info.to_token
         )
 
-        from_token_price = await self.get_binance_ticker_price(
-            first_token=swap_info.from_token
-        )
+        from_token_price = await self.get_binance_ticker_price(swap_info.from_token)
+        second_token_price = await self.get_binance_ticker_price(swap_info.to_token)
 
-        if swap_query.from_token.is_native_token:
-            amount = float(swap_query.amount_from.Ether) * from_token_price \
-                * (1 - swap_info.slippage / 100)
-        else:
-            second_token_price = await self.get_binance_ticker_price(
-                first_token=swap_info.to_token
-            )
-
-            amount = float(swap_query.amount_from.Ether) * from_token_price \
-                / second_token_price * (1 - swap_info.slippage / 100)
+        min_to_amount = float(swap_query.amount_from.Ether) * from_token_price \
+            / second_token_price * (1 - swap_info.slippage / 100)
 
         swap_query.min_to_amount = TokenAmount(
-            amount=amount, decimals=swap_query.to_token.decimals
+            amount=min_to_amount, 
+            decimals=await self.client.contract.get_decimals(swap_query.to_token)
         )
 
         if swap_info.from_token != TokenSymbol.ETH:
@@ -103,8 +95,8 @@ class SpaceFi(SwapTask):
             to=contract.address,
             data=data,
             maxPriorityFeePerGas=0
-        )  
-        
+        )
+
         if not swap_query.from_token.is_native_token:
             hexed_tx_hash = await self.approve_interface(
                 token_contract=swap_query.from_token,
@@ -117,11 +109,11 @@ class SpaceFi(SwapTask):
             if hexed_tx_hash:
                 self.client.account_manager.custom_logger.log_message(
                     LogStatus.APPROVED,
-                    message=f'{swap_query.from_token} {swap_query.amount_from}'
+                    message=f"{swap_query.from_token.title} {swap_query.amount_from.Ether}"
                 )
                 await sleep(8, 20)
         else:
-            tx_params['value'] = swap_query.amount_from.Wei     
+            tx_params['value'] = swap_query.amount_from.Wei
 
         receipt_status, status, message = await self.perform_swap(
             swap_info, swap_query, tx_params

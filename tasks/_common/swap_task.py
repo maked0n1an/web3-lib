@@ -15,8 +15,6 @@ from async_eth_lib.models.others.params_types import ParamsTypes
 from async_eth_lib.models.others.token_amount import TokenAmount
 from async_eth_lib.models.swap.swap_info import SwapInfo
 from async_eth_lib.models.swap.swap_query import SwapQuery
-from async_eth_lib.models.transactions.tx import Tx
-from async_eth_lib.utils.helpers import sleep
 
 
 class SwapTask:
@@ -127,7 +125,7 @@ class SwapTask:
             swap_info=swap_info,
             tx_params=tx_params
         )
-        
+
         balance = await self.client.contract.get_balance(
             token_contract=token_contract
         )
@@ -309,7 +307,7 @@ class SwapTask:
         )
 
         tx_hash, receipt = await self._perform_tx(tx_params)
-        
+
         account_network = self.client.account_manager.network
 
         if external_explorer:
@@ -331,7 +329,7 @@ class SwapTask:
             f'{swap_info.to_network.upper()}: '
             f'{full_path + tx_hash.hex()}'
         )
-        
+
         return receipt['status'], status, message
 
     async def perform_swap(
@@ -358,7 +356,7 @@ class SwapTask:
             swap_info=swap_info,
             tx_params=tx_params
         )
-        
+
         tx_hash, receipt = await self._perform_tx(tx_params)
 
         account_network = self.client.account_manager.network
