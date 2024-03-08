@@ -1,6 +1,7 @@
 import time
 
 from web3.types import TxParams
+import web3.exceptions as web3_exceptions
 
 from async_eth_lib.models.contracts.contracts import ZkSyncTokenContracts
 from async_eth_lib.models.contracts.raw_contract import RawContract
@@ -94,16 +95,31 @@ class Mute(SwapTask):
                 await sleep(8, 15)
         else:
             tx_params['value'] = swap_query.amount_from.Wei
+        try:
+            receipt_status, status, message = await self.perform_swap(
+                swap_info, swap_query, tx_params
+            )
 
-        receipt_status, status, message = await self.perform_swap(
-            swap_info, swap_query, tx_params
-        )
+            self.client.account_manager.custom_logger.log_message(
+                status=status, message=message
+            )
 
-        self.client.account_manager.custom_logger.log_message(
-            status=status, message=message
-        )
-
-        return receipt_status
+            return receipt_status
+        except web3_exceptions.ContractCustomError as e:
+            self.client.account_manager.custom_logger.log_message(
+                    status=LogStatus.ERROR, message='Try to make slippage more'
+            )                
+        except Exception as e:
+            error = str(e)
+            if 'insufficient funds for gas + value' in error:
+                self.client.account_manager.custom_logger.log_message(
+                    status=LogStatus.ERROR, message='Insufficient funds for gas + value'
+                )
+            else:
+                self.client.account_manager.custom_logger.log_message(
+                    status=LogStatus.ERROR, message=error
+                )
+        return False 
 
     async def _create_swap_query(
         self,

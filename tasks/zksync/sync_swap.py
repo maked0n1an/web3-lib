@@ -1,9 +1,10 @@
 import time
 
 from web3 import Web3
+import web3.exceptions as web3_exceptions
 from web3.types import TxParams
 
-from async_eth_lib.models.contracts.contracts import ZkSyncTokenContracts
+from async_eth_lib.models.contracts.contracts import TokenContractFetcher, ZkSyncTokenContracts
 from async_eth_lib.models.contracts.raw_contract import RawContract
 from async_eth_lib.models.others.constants import LogStatus, TokenSymbol
 from async_eth_lib.models.others.token_amount import TokenAmount
@@ -45,16 +46,17 @@ class SyncSwap(SwapTask):
             )
 
             return False
-
+        
         contract = await self.client.contract.get(contract=self.SYNC_SWAP_ROUTER)
         swap_query = await self.compute_source_token_amount(swap_info=swap_info)
+        from_token_is_eth = swap_info.from_token == TokenSymbol.ETH
 
-        if swap_info.from_token == TokenSymbol.ETH:
+        if from_token_is_eth:
             swap_query.from_token = ZkSyncTokenContracts.WETH
 
         if swap_info.to_token == TokenSymbol.ETH:
             swap_query.to_token = ZkSyncTokenContracts.WETH
-        else:
+        else: 
             swap_query.to_token = ZkSyncTokenContracts.get_token(
                 token_symbol=swap_info.to_token
             )
@@ -74,6 +76,13 @@ class SyncSwap(SwapTask):
         ) or self.LIQUIDITY_POOLS.get(
             (swap_info.from_token.upper(), swap_info.to_token.upper())
         )
+        if not pool:
+            self.client.account_manager.custom_logger.log_message(
+                status=LogStatus.ERROR,
+                message=f"{swap_info.from_token} -> {swap_info.to_token}: not existed pool"
+            )
+            return False
+
         zfilled_from_token = self.to_cut_hex_prefix_and_zfill(
             swap_query.from_token.address
         )
@@ -81,8 +90,8 @@ class SyncSwap(SwapTask):
             self.client.account_manager.account.address
         )
         tokenIn = (
-            ZkSyncTokenContracts.ETH.address
-            if swap_query.from_token.is_native_token
+            TokenContractFetcher.ZERO_ADDRESS
+            if from_token_is_eth
             else swap_query.from_token.address
         )
 
@@ -98,11 +107,11 @@ class SyncSwap(SwapTask):
                                 zfilled_address +
                                 (
                                     "2"
-                                    if swap_query.from_token.is_native_token
+                                    if from_token_is_eth
                                     else "1"
                                 ).zfill(64)
                             ),
-                            callback=ZkSyncTokenContracts.ETH.address,
+                            callback=TokenContractFetcher.ZERO_ADDRESS,
                             callbackData="0x",
                         ).get_tuple()
                     ],
@@ -120,7 +129,7 @@ class SyncSwap(SwapTask):
             maxPriorityFeePerGas=0,
         )
 
-        if not swap_query.from_token.is_native_token:
+        if swap_info.from_token != TokenSymbol.ETH:
             approved = await self.approve_interface(
                 token_contract=swap_query.from_token,
                 spender_address=contract.address,
@@ -142,12 +151,30 @@ class SyncSwap(SwapTask):
                 return False
         else:
             tx_params["value"] = swap_query.amount_from.Wei
-
-        receipt_status, status, message = await self.perform_swap(
-            swap_info, swap_query, tx_params
-        )
-        self.client.account_manager.custom_logger.log_message(
-            status=status, message=message
-        )
-
-        return receipt_status
+            
+        try:
+            receipt_status, status, message = await self.perform_swap(
+                swap_info, swap_query, tx_params
+            )            
+            self.client.account_manager.custom_logger.log_message(
+                status=status, message=message
+            )
+            
+            return receipt_status
+        except web3_exceptions.ContractCustomError as e:
+            error = str(e)
+            if '0xc9f52c71' in error:
+                self.client.account_manager.custom_logger.log_message(
+                    status=LogStatus.ERROR, message='Try to make slippage more'
+                )
+        except Exception as e:
+            error = str(e)
+            if 'insufficient funds for gas + value' in error:
+                self.client.account_manager.custom_logger.log_message(
+                    status=LogStatus.ERROR, message='Insufficient funds for gas + value'
+                )
+            else:
+                self.client.account_manager.custom_logger.log_message(
+                    status=LogStatus.ERROR, message=error
+                )
+        return False    
