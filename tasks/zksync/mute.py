@@ -9,10 +9,11 @@ from async_eth_lib.models.others.constants import LogStatus, TokenSymbol
 from async_eth_lib.models.others.params_types import ParamsTypes
 from async_eth_lib.models.swap.swap_info import SwapInfo
 from async_eth_lib.models.swap.swap_query import SwapQuery
+from async_eth_lib.models.swap.tx_payload_details import TxPayloadDetails
+from async_eth_lib.models.swap.tx_payload_details_fetcher import TxPayloadDetailsFetcher
 from async_eth_lib.models.transactions.tx_args import TxArgs
 from async_eth_lib.utils.helpers import read_json, sleep
 from tasks._common.swap_task import SwapTask
-from tasks.zksync.mute.mute_routes import MuteRoutes
 
 
 class Mute(SwapTask):
@@ -107,8 +108,8 @@ class Mute(SwapTask):
             return receipt_status
         except web3_exceptions.ContractCustomError as e:
             self.client.account_manager.custom_logger.log_message(
-                    status=LogStatus.ERROR, message='Try to make slippage more'
-            )                
+                status=LogStatus.ERROR, message='Try to make slippage more'
+            )
         except Exception as e:
             error = str(e)
             if 'insufficient funds for gas + value' in error:
@@ -119,7 +120,7 @@ class Mute(SwapTask):
                 self.client.account_manager.custom_logger.log_message(
                     status=LogStatus.ERROR, message=error
                 )
-        return False 
+        return False
 
     async def _create_swap_query(
         self,
@@ -153,3 +154,123 @@ class Mute(SwapTask):
             to_token_price=min_amount_out[0],
             swap_info=swap_info
         )
+
+
+class MuteRoutes(TxPayloadDetailsFetcher):
+    tx_payloads = {
+        TokenSymbol.ETH: {
+            TokenSymbol.USDC: TxPayloadDetails(
+                method_name='swapExactETHForTokensSupportingFeeOnTransferTokens',
+                addresses=[
+                    ZkSyncTokenContracts.WETH.address,
+                    ZkSyncTokenContracts.USDC.address
+                ],
+                bool_list=[False, False]
+            ),
+            TokenSymbol.USDT: TxPayloadDetails(
+                method_name='swapExactETHForTokens',
+                addresses=[
+                    ZkSyncTokenContracts.WETH.address,
+                    ZkSyncTokenContracts.USDC.address,
+                    ZkSyncTokenContracts.USDT.address,
+                ],
+                bool_list=[True, True, False]
+            ),
+            TokenSymbol.WBTC: TxPayloadDetails(
+                method_name='swapExactETHForTokens',
+                addresses=[
+                    ZkSyncTokenContracts.WETH.address,
+                    ZkSyncTokenContracts.WBTC.address
+                ],
+                bool_list=[False, False]
+            )
+        },
+        TokenSymbol.USDC: {
+            TokenSymbol.ETH: TxPayloadDetails(
+                method_name='swapExactTokensForETH',
+                addresses=[
+                    ZkSyncTokenContracts.USDC.address,
+                    ZkSyncTokenContracts.WETH.address
+                ],
+                bool_list=[True, False]
+            ),
+            TokenSymbol.USDT: TxPayloadDetails(
+                method_name='swapExactTokensForTokens',
+                addresses=[
+                    ZkSyncTokenContracts.USDC.address,
+                    ZkSyncTokenContracts.USDT.address,
+                ],
+                bool_list=[True, False]
+            ),
+            TokenSymbol.WBTC: TxPayloadDetails(
+                method_name='swapExactTokensForTokens',
+                addresses=[
+                    ZkSyncTokenContracts.USDC.address,
+                    ZkSyncTokenContracts.WETH.address,
+                    ZkSyncTokenContracts.WBTC.address,
+                ],
+                bool_list=[False, False, False]
+            ),
+        },
+        TokenSymbol.USDT: {
+            TokenSymbol.USDC: TxPayloadDetails(
+                method_name='swapExactTokensForTokens',
+                addresses=[
+                    ZkSyncTokenContracts.USDT.address,
+                    # TokenContracts.WETH.address,
+                    ZkSyncTokenContracts.USDC.address,
+                ],
+                bool_list=[True,
+                           #    False,
+                           False
+                           ]
+            ),
+            TokenSymbol.ETH: TxPayloadDetails(
+                method_name='swapExactTokensForETH',
+                addresses=[
+                    ZkSyncTokenContracts.USDT.address,
+                    ZkSyncTokenContracts.USDC.address,
+                    ZkSyncTokenContracts.WETH.address,
+                ],
+                bool_list=[True, True, False]
+            ),
+            TokenSymbol.WBTC: TxPayloadDetails(
+                method_name='swapExactTokensForTokens',
+                addresses=[
+                    ZkSyncTokenContracts.USDT.address,
+                    ZkSyncTokenContracts.USDC.address,
+                    ZkSyncTokenContracts.WETH.address,
+                    ZkSyncTokenContracts.WBTC.address
+                ],
+                bool_list=[False, True, True, False]
+            )
+        },
+        TokenSymbol.WBTC: {
+            TokenSymbol.ETH: TxPayloadDetails(
+                method_name='swapExactTokensForETH',
+                addresses=[
+                    ZkSyncTokenContracts.WBTC.address,
+                    ZkSyncTokenContracts.WETH.address,
+                ],
+                bool_list=[False, False]
+            ),
+            TokenSymbol.USDT: TxPayloadDetails(
+                method_name='swapExactTokensForTokens',
+                addresses=[
+                    ZkSyncTokenContracts.WBTC.address,
+                    ZkSyncTokenContracts.WETH.address,
+                    ZkSyncTokenContracts.USDT.address
+                ],
+                bool_list=[False, False, False]
+            ),
+            TokenSymbol.USDC: TxPayloadDetails(
+                method_name='swapExactTokensForTokens',
+                addresses=[
+                    ZkSyncTokenContracts.WBTC.address,
+                    ZkSyncTokenContracts.WETH.address,
+                    ZkSyncTokenContracts.USDC.address
+                ],
+                bool_list=[False, False, False]
+            )
+        }
+    }
