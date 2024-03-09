@@ -6,7 +6,7 @@ class PathDetailsFetcher:
     PATHS: dict[str, dict[str: PathDetails]] = {}
 
     @classmethod
-    def get_tx_payload_details(
+    def get_path_details(
         cls,
         first_token: str,
         second_token: str
@@ -17,7 +17,7 @@ class PathDetailsFetcher:
         if first_token not in cls.PATHS:
             raise exceptions.TxPayloadDetailsNotAdded(
                 f"The '{first_token}' token has not been "
-                f"added to {cls.__name__} tx_payloads dict"
+                f"added to {cls.__name__} PATHS dict"
             )
 
         available_token_routes = cls.PATHS[first_token]
@@ -25,7 +25,7 @@ class PathDetailsFetcher:
         if second_token not in available_token_routes:
             raise exceptions.TxPayloadDetailsNotAdded(
                 f"The '{second_token}' as second token has not been "
-                f"added to {cls.__name__} {first_token} tx_payloads dict"
+                f"added to {cls.__name__} {first_token} PATHS dict"
             )
 
         return available_token_routes[second_token]
