@@ -365,14 +365,14 @@ class SwapTask:
 
         if receipt['status']:
             log_status = LogStatus.SWAPPED
-            message = f'{rounded_amount} {swap_query.from_token.title}'
+            message = f'{rounded_amount} {swap_info.from_token}'
 
         else:
             log_status = LogStatus.ERROR
-            message = f'Failed swap {rounded_amount} {swap_query.from_token.title}'
+            message = f'Failed swap {rounded_amount} {swap_info.from_token}'
 
         message += (
-            f' -> {swap_query.min_to_amount.Ether} {swap_query.to_token.title}: '
+            f' -> {swap_query.min_to_amount.Ether} {swap_info.to_token}: '
             f'{full_path + tx_hash.hex()}'
         )
 
