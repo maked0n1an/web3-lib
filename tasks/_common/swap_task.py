@@ -226,7 +226,8 @@ class SwapTask:
         self,
         swap_query: SwapQuery,
         to_token_price: float,
-        swap_info: SwapInfo
+        swap_info: SwapInfo,
+        is_to_token_price_wei: bool = False
     ) -> SwapQuery:
         """
         Compute the minimum destination amount for a given swap.
@@ -269,7 +270,7 @@ class SwapTask:
         min_to_amount = TokenAmount(
             amount=to_token_price * (1 - swap_info.slippage / 100),
             decimals=decimals,
-            wei=True
+            wei=is_to_token_price_wei
         )
 
         return SwapQuery(
