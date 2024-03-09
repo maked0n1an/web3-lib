@@ -7,7 +7,6 @@ from web3.types import TxParams
 from async_eth_lib.models.contracts.contracts import TokenContractFetcher, ZkSyncTokenContracts
 from async_eth_lib.models.contracts.raw_contract import RawContract
 from async_eth_lib.models.others.constants import LogStatus, TokenSymbol
-from async_eth_lib.models.others.token_amount import TokenAmount
 from async_eth_lib.models.swap.swap_info import SwapInfo
 from async_eth_lib.models.transactions.tx_args import TxArgs
 from async_eth_lib.utils.helpers import read_json, sleep
@@ -49,6 +48,7 @@ class SyncSwap(SwapTask):
         
         contract = await self.client.contract.get(contract=self.SYNC_SWAP_ROUTER)
         swap_query = await self.compute_source_token_amount(swap_info=swap_info)
+        
         is_from_token_eth = swap_info.from_token == TokenSymbol.ETH
 
         if is_from_token_eth:
@@ -65,12 +65,14 @@ class SyncSwap(SwapTask):
         second_token_price = await self.get_binance_ticker_price(swap_info.to_token)
 
         min_to_amount = float(swap_query.amount_from.Ether) * from_token_price \
-            / second_token_price * (1 - swap_info.slippage / 100)
+            / second_token_price 
 
-        swap_query.min_to_amount = TokenAmount(
-            amount=min_to_amount,
-            decimals=await self.client.contract.get_decimals(swap_query.to_token)
+        swap_query = await self.compute_min_destination_amount(
+            swap_query=swap_query,
+            to_token_price=min_to_amount,
+            swap_info=swap_info
         )
+        
         pool = self.LIQUIDITY_POOLS.get(
             (swap_info.to_token.upper(), swap_info.from_token.upper())
         ) or self.LIQUIDITY_POOLS.get(
@@ -153,11 +155,11 @@ class SyncSwap(SwapTask):
             tx_params["value"] = swap_query.amount_from.Wei
             
         try:
-            receipt_status, status, message = await self.perform_swap(
+            receipt_status, log_status, message = await self.perform_swap(
                 swap_info, swap_query, tx_params
             )            
             self.client.account_manager.custom_logger.log_message(
-                status=status, message=message
+                status=log_status, message=message
             )
             
             return receipt_status
