@@ -109,14 +109,14 @@ class WooFi(SwapTask):
 
         swap_query = await self.compute_source_token_amount(swap_info=swap_info)
 
-        to_token = ContractsFactory.get_contract(
+        swap_query.to_token = ContractsFactory.get_contract(
             network_name=self.client.account_manager.network.name,
             token_symbol=swap_info.to_token
         )
 
         price_of_to_token = await contract.functions.tryQuerySwap(
             swap_query.from_token.address,
-            to_token.address,
+            swap_query.to_token.address,
             swap_query.amount_from.Wei
         ).call()
 
