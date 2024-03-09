@@ -49,9 +49,9 @@ class SyncSwap(SwapTask):
         
         contract = await self.client.contract.get(contract=self.SYNC_SWAP_ROUTER)
         swap_query = await self.compute_source_token_amount(swap_info=swap_info)
-        from_token_is_eth = swap_info.from_token == TokenSymbol.ETH
+        is_from_token_eth = swap_info.from_token == TokenSymbol.ETH
 
-        if from_token_is_eth:
+        if is_from_token_eth:
             swap_query.from_token = ZkSyncTokenContracts.WETH
 
         if swap_info.to_token == TokenSymbol.ETH:
@@ -91,7 +91,7 @@ class SyncSwap(SwapTask):
         )
         tokenIn = (
             TokenContractFetcher.ZERO_ADDRESS
-            if from_token_is_eth
+            if is_from_token_eth
             else swap_query.from_token.address
         )
 
@@ -107,7 +107,7 @@ class SyncSwap(SwapTask):
                                 zfilled_address +
                                 (
                                     "2"
-                                    if from_token_is_eth
+                                    if is_from_token_eth
                                     else "1"
                                 ).zfill(64)
                             ),
