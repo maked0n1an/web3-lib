@@ -8,9 +8,10 @@ from async_eth_lib.models.contracts.raw_contract import RawContract
 from async_eth_lib.models.others.constants import LogStatus, TokenSymbol
 from async_eth_lib.models.others.token_amount import TokenAmount
 from async_eth_lib.models.swap.swap_info import SwapInfo
+from async_eth_lib.models.swap.tx_payload_details import TxPayloadDetails
+from async_eth_lib.models.swap.tx_payload_details_fetcher import TxPayloadDetailsFetcher
 from async_eth_lib.utils.helpers import read_json, sleep
 from tasks._common.swap_task import SwapTask
-from tasks.zksync.space_fi.space_fi_routes import SpaceFiRoutes
 
 
 class SpaceFi(SwapTask):
@@ -63,7 +64,7 @@ class SpaceFi(SwapTask):
             / second_token_price * (1 - swap_info.slippage / 100)
 
         swap_query.min_to_amount = TokenAmount(
-            amount=min_to_amount, 
+            amount=min_to_amount,
             decimals=await self.client.contract.get_decimals(swap_query.to_token)
         )
 
@@ -124,11 +125,11 @@ class SpaceFi(SwapTask):
                 status=status, message=message
             )
 
-            return receipt_status   
+            return receipt_status
         except web3_exceptions.ContractCustomError as e:
             self.client.account_manager.custom_logger.log_message(
-                    status=LogStatus.ERROR, message='Try to make slippage more'
-            )                
+                status=LogStatus.ERROR, message='Try to make slippage more'
+            )
         except Exception as e:
             error = str(e)
             if 'insufficient funds for gas + value' in error:
@@ -139,4 +140,85 @@ class SpaceFi(SwapTask):
                 self.client.account_manager.custom_logger.log_message(
                     status=LogStatus.ERROR, message=error
                 )
-        return False 
+        return False
+
+
+class SpaceFiRoutes(TxPayloadDetailsFetcher):
+    tx_payloads = {
+        TokenSymbol.ETH: {
+            TokenSymbol.USDC: TxPayloadDetails(
+                method_name='swapExactETHForToken',
+                addresses=[
+                    ZkSyncTokenContracts.WETH.address,
+                    ZkSyncTokenContracts.USDC.address
+                ],
+                function_signature="0x7ff36ab5"
+            ),
+            TokenSymbol.USDT: TxPayloadDetails(
+                method_name='swapExactETHForToken',
+                addresses=[
+                    ZkSyncTokenContracts.WETH.address,
+                    ZkSyncTokenContracts.USDT.address
+                ],
+                function_signature="0x7ff36ab5"
+            ),
+            TokenSymbol.WBTC: TxPayloadDetails(
+                method_name='swapExactETHForToken',
+                addresses=[
+                    ZkSyncTokenContracts.WETH.address,
+                    ZkSyncTokenContracts.WBTC.address
+                ],
+                function_signature="0x7ff36ab5"
+            )
+        },
+        TokenSymbol.USDC: {
+            TokenSymbol.ETH: TxPayloadDetails(
+                method_name='swapExactTokensForETH',
+                addresses=[
+                    ZkSyncTokenContracts.USDC.address,
+                    ZkSyncTokenContracts.SPACE.address,
+                    ZkSyncTokenContracts.WETH.address
+                ],
+                function_signature="0x18cbafe5"
+            ),
+            TokenSymbol.WBTC: TxPayloadDetails(
+                method_name='swapExactTokensForETH',
+                addresses=[
+                    ZkSyncTokenContracts.USDC.address,
+                    ZkSyncTokenContracts.WETH.address,
+                    ZkSyncTokenContracts.WBTC.address
+                ],
+                function_signature='0x38ed1739'
+            )
+        },
+        TokenSymbol.USDT: {
+            TokenSymbol.ETH: TxPayloadDetails(
+                method_name='swapExactTokensForETH',
+                addresses=[
+                    ZkSyncTokenContracts.USDT.address,
+                    ZkSyncTokenContracts.SPACE.address,
+                    ZkSyncTokenContracts.WETH.address
+                ],
+                function_signature="0x18cbafe5"
+            )
+        },
+        TokenSymbol.WBTC: {
+            TokenSymbol.ETH: TxPayloadDetails(
+                method_name='swapExactTokensForETH',
+                addresses=[
+                    ZkSyncTokenContracts.WBTC.address,
+                    ZkSyncTokenContracts.USDC.address,
+                    ZkSyncTokenContracts.WETH.address
+                ],
+                function_signature="0x18cbafe5"
+            ),
+            TokenSymbol.USDC: TxPayloadDetails(
+                method_name='swapExactTokensForETH',
+                addresses=[
+                    ZkSyncTokenContracts.WBTC.address,
+                    ZkSyncTokenContracts.USDC.address
+                ],
+                function_signature='0x38ed1739'
+            )
+        }
+    }
