@@ -221,10 +221,9 @@ class Stargate(SwapTask):
 
         value = await self._estimate_fee_for_swap(
             router_contract=contract,
-            src_token_symbol=swap_info.from_token,
             dst_chain_id=dst_chain_id,
             lz_tx_params=lz_tx_params,
-            data=data
+            src_token_symbol=swap_info.from_token,
         )
 
         return data, value
