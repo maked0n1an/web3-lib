@@ -127,13 +127,13 @@ class Maverick(SwapTask):
 class MaverickData(PathDetailsFetcher):
     LIQUIDITY_POOLS = {
         (TokenSymbol.ETH, TokenSymbol.USDC):
-            "0x41c8cf74c27554a8972d3bf3d2bd4a14d8b604ab",
-        (TokenSymbol.ETH, TokenSymbol.BUSD):
-            "",
-        (TokenSymbol.ETH, TokenSymbol.BUSD):
-            "",
-        (TokenSymbol.ETH, TokenSymbol.WBTC):
-            "",
+            "0x41c8cf74c27554a8972d3bf3d2bd4a14d8b604ab",            
+        (TokenSymbol.USDC, TokenSymbol.BUSD):
+            "0xe799043fb52ff46cc57ce8a8b1ac3f151ba270f7",
+        (TokenSymbol.USDC, TokenSymbol.ETH):
+            "0x57681331b6cb8df134dccb4b54dc30e8fcdf0ad8",
+        (TokenSymbol.BUSD, TokenSymbol.ETH):
+            "0x3ae63fb198652e294b8de4c2ef659d95d5ff28be"
     }
 
     PATHS = {
@@ -147,5 +147,38 @@ class MaverickData(PathDetailsFetcher):
                 ],
                 function_signature="0xc04b8d59"
             ),
+            TokenSymbol.BUSD: PathDetails(
+                method_name='exactInput',
+                addresses=[
+                    ZkSyncTokenContracts.WETH.address,
+                    LIQUIDITY_POOLS[(TokenSymbol.USDC, TokenSymbol.ETH)],
+                    ZkSyncTokenContracts.USDC.address,
+                    LIQUIDITY_POOLS[(TokenSymbol.USDC, TokenSymbol.BUSD)],
+                    ZkSyncTokenContracts.ceBUSD.address,
+                ],
+                function_signature="0xc04b8d59"
+            ),
+        },
+        TokenSymbol.BUSD: {
+            TokenSymbol.ETH: PathDetails(
+                method_name='exactInput',
+                addresses=[
+                    ZkSyncTokenContracts.ceBUSD.address,
+                    LIQUIDITY_POOLS[(TokenSymbol.BUSD, TokenSymbol.ETH)],
+                    ZkSyncTokenContracts.WETH.address,
+                ],
+                function_signature='0xc04b8d59'
+            )
+        },
+        TokenSymbol.USDC: {
+            TokenSymbol.ETH: PathDetails(
+                method_name='exactInput',
+                addresses=[
+                    ZkSyncTokenContracts.USDC.address,
+                    LIQUIDITY_POOLS[(TokenSymbol.USDC, TokenSymbol.ETH)],
+                    ZkSyncTokenContracts.WETH.address,
+                ],
+                function_signature='0xc04b8d59'
+            )
         }
     }
