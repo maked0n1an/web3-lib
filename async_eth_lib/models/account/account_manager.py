@@ -29,6 +29,7 @@ class AccountManager:
     ) -> None:
         self.account_id = account_id
         self.network = network
+        self.network.rpc = random.choice(network.rpc)
         self.proxy = proxy
         self._initialize_proxy(check_proxy)
         self._initialize_headers()
