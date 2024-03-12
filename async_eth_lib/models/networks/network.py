@@ -23,7 +23,7 @@ class Network:
         explorer: str | None = None,
     ) -> None:
         self.name: str = name.lower()
-        self.rpc: str = rpc if isinstance(rpc, str) else random.choice(rpc)
+        self.rpc: str | List[str] = rpc
         self.chain_id: int | None = chain_id
         self.tx_type: int = tx_type
         self.coin_symbol: str | None = coin_symbol
