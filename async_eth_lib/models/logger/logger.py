@@ -19,7 +19,7 @@ class CustomLogger:
         create_log_file_per_account: bool = False
     ) -> None:
         self.account_id = account_id
-        self.address = address
+        self.masked_address = address[:6] + "..." + address[-4:]        
         self.network = network
         self.create_log_file_per_account = create_log_file_per_account
         if create_log_file_per_account:
@@ -104,7 +104,7 @@ class CustomLogger:
         message_with_calling_line = f"{calling_line} - {message}"
         extra = {
             "account_id": self.account_id,
-            "address": self.address,
+            "address": self.masked_address,
             "network": self.network
         }
 

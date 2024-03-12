@@ -29,7 +29,11 @@ class AccountManager:
     ) -> None:
         self.account_id = account_id
         self.network = network
-        self.network.rpc = random.choice(network.rpc)
+        self.network.rpc = (
+            random.choice(network.rpc)
+            if isinstance(self.network.rpc, list)
+            else self.network.rpc
+        )
         self.proxy = proxy
         self._initialize_proxy(check_proxy)
         self._initialize_headers()
@@ -71,6 +75,18 @@ class AccountManager:
             'User-Agent': UserAgent().random
         }
 
+    def _initialize_account(self, private_key: str | None):
+        if private_key:
+            self.account: LocalAccount = self.w3.eth.account.from_key(
+                private_key=private_key)
+
+        elif private_key == '':
+            self.account = None
+
+        else:
+            self.account = self.w3.eth.account.create(
+                extra_entropy=str(random.randint(1, 999_999_999)))
+
     def _initialize_logger(
         self,
         create_log_file_per_account: bool
@@ -81,15 +97,3 @@ class AccountManager:
             network=self.network.name.capitalize(),
             create_log_file_per_account=create_log_file_per_account
         )
-
-    def _initialize_account(self, private_key: str | None):
-        if private_key:
-            self.account = self.w3.eth.account.from_key(
-                private_key=private_key)
-
-        elif private_key == '':
-            self.account = None
-
-        else:
-            self.account = self.w3.eth.account.create(
-                extra_entropy=str(random.randint(1, 999_999_999)))
