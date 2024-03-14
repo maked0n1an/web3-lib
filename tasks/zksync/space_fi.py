@@ -8,8 +8,8 @@ from async_eth_lib.models.contracts.raw_contract import RawContract
 from async_eth_lib.models.others.constants import LogStatus, TokenSymbol
 from async_eth_lib.models.others.token_amount import TokenAmount
 from async_eth_lib.models.swap.swap_info import SwapInfo
-from async_eth_lib.models.swap.path_details import TxPayloadDetails
-from async_eth_lib.models.swap.path_details_fetcher import TxPayloadDetailsFetcher
+from async_eth_lib.models.swap.tx_payload_details import TxPayloadDetails
+from async_eth_lib.models.swap.tx_payload_details_fetcher import TxPayloadDetailsFetcher
 from async_eth_lib.utils.helpers import read_json, sleep
 from tasks._common.swap_task import SwapTask
 
