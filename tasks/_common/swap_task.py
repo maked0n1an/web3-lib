@@ -79,7 +79,8 @@ class SwapTask:
         self,
         first_arg: str,
         second_arg: str,
-        param_type: str = 'args'
+        param_type: str = 'args',
+        function: str = 'swap'
     ) -> str:
         """
         Validate inputs for a swap operation.
@@ -88,19 +89,20 @@ class SwapTask:
             first_arg (str): The first argument.
             second_arg (str): The second argument.
             param_type (str): The type of arguments (default is 'args').
+            message (str): The message (default is 'swap')
 
         Returns:
             str: A message indicating the result of the validation.
 
         Example:
         ```python
-        result = validate_swap_inputs('ETH', 'USDT', param_type='symbols')
+        result = validate_swap_inputs('ETH', 'ETH', param_type='symbols')
         print(result)
-        # Output: 'The symbols for swap() are different: ETH != USDT'
+        # Output: 'The symbols for swap() are equal: ETH == ETH'
         ```
         """
         if first_arg.upper() == second_arg.upper():
-            return f'The {param_type} for swap() are equal: {first_arg} == {second_arg}'
+            return f'The {param_type} for {function}() are equal: {first_arg} == {second_arg}'
 
     async def approve_interface(
         self,
