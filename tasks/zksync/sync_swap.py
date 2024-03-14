@@ -4,7 +4,7 @@ from web3 import Web3
 import web3.exceptions as web3_exceptions
 from web3.types import TxParams
 
-from async_eth_lib.models.contracts.contracts import TokenContractFetcher, ZkSyncTokenContracts
+from async_eth_lib.models.contracts.contracts import TokenContractData, ZkSyncTokenContracts
 from async_eth_lib.models.contracts.raw_contract import RawContract
 from async_eth_lib.models.others.constants import LogStatus, TokenSymbol
 from async_eth_lib.models.swap.swap_info import SwapInfo
@@ -92,7 +92,7 @@ class SyncSwap(SwapTask):
             self.client.account_manager.account.address
         )
         tokenIn = (
-            TokenContractFetcher.ZERO_ADDRESS
+            TokenContractData.ZERO_ADDRESS
             if is_from_token_eth
             else swap_query.from_token.address
         )
@@ -113,7 +113,7 @@ class SyncSwap(SwapTask):
                                     else "1"
                                 ).zfill(64)
                             ),
-                            callback=TokenContractFetcher.ZERO_ADDRESS,
+                            callback=TokenContractData.ZERO_ADDRESS,
                             callbackData="0x",
                         ).get_tuple()
                     ],

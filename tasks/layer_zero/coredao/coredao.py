@@ -1,6 +1,6 @@
 from web3.types import TxParams
 
-from async_eth_lib.models.contracts.contracts import TokenContractFetcher
+from async_eth_lib.models.contracts.contracts import TokenContractData
 from async_eth_lib.models.others.constants import LogStatus
 from async_eth_lib.models.others.params_types import ParamsTypes
 from async_eth_lib.models.others.token_amount import TokenAmount
@@ -42,7 +42,7 @@ class CoreDaoBridge(SwapTask):
 
         callParams = TxArgs(
             refundAddress=self.client.account_manager.account.address,
-            zroPaymentAddress=TokenContractFetcher.ZERO_ADDRESS
+            zroPaymentAddress=TokenContractData.ZERO_ADDRESS
         )
 
         args = TxArgs(
