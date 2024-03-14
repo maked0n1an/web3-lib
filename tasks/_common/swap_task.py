@@ -110,7 +110,7 @@ class SwapTask:
         amount: ParamsTypes.Amount | None = None,
         tx_params: TxParams | dict | None = None,
         is_approve_infinity: bool = None
-    ) -> bool:
+    ) -> str | bool:
         """
         Approve spending of a specific amount by a spender on behalf of the owner.
 
@@ -169,12 +169,8 @@ class SwapTask:
             tx_params=tx_params,
             is_approve_infinity=is_approve_infinity
         )
-        await tx.wait_for_tx_receipt(
-            web3=self.client.account_manager.w3,
-            timeout=240
-        )
 
-        return False
+        return tx
 
     async def compute_source_token_amount(
         self,
