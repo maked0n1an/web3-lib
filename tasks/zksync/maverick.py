@@ -191,7 +191,7 @@ class MaverickData(TxPayloadDetailsFetcher):
                     LIQUIDITY_POOLS[(TokenSymbol.USDC, TokenSymbol.ETH)],
                     ZkSyncTokenContracts.USDC.address,
                     LIQUIDITY_POOLS[(TokenSymbol.USDC, TokenSymbol.BUSD)],
-                    ZkSyncTokenContracts.ceBUSD.address,
+                    ZkSyncTokenContracts.BUSD.address,
                 ],
                 function_signature="0xc04b8d59"
             ),
@@ -200,7 +200,7 @@ class MaverickData(TxPayloadDetailsFetcher):
             TokenSymbol.ETH: TxPayloadDetails(
                 method_name='exactInput',
                 addresses=[
-                    ZkSyncTokenContracts.ceBUSD.address,
+                    ZkSyncTokenContracts.BUSD.address,
                     LIQUIDITY_POOLS[(TokenSymbol.BUSD, TokenSymbol.ETH)],
                     ZkSyncTokenContracts.WETH.address,
                 ],
