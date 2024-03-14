@@ -29,8 +29,8 @@ class ContractsFactory:
                 return OptimismTokenContracts.get_token(token_symbol)
             case Networks.Polygon.name:
                 return PolygonTokenContracts.get_token(token_symbol)
-            # case Networks.ZkSync.name:
-            #     return ZkSyncTokenContracts.get_token(token_symbol)
+            case Networks.ZkSync.name:
+                return ZkSyncTokenContracts.get_token(token_symbol)
             case _:
                 raise ValueError("Network not supported")
 

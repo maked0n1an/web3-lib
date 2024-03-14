@@ -115,8 +115,15 @@ class SpaceFi(SwapTask):
                     message=f"{swap_query.from_token.title} {swap_query.amount_from.Ether}"
                 )
                 await sleep(8, 20)
+            else:
+                self.client.account_manager.custom_logger.log_message(
+                    LogStatus.ERROR,
+                    message=f"Can not approve"
+                )
+                return False
         else:
             tx_params['value'] = swap_query.amount_from.Wei
+            
         try:
             receipt_status, log_status, message = await self.perform_swap(
                 swap_info, swap_query, tx_params
