@@ -1,6 +1,6 @@
 from web3.types import TxParams
 
-from async_eth_lib.models.contracts.contracts import TokenContractFetcher
+from async_eth_lib.models.contracts.contracts import TokenContractData
 from async_eth_lib.models.others.constants import (
     LogStatus
 )
@@ -54,7 +54,7 @@ class TestnetBridge(SwapTask):
             _toAddress=self.client.account_manager.account.address,
             _amount=swap_query.amount_from.Wei,
             _refundAddress=self.client.account_manager.account.address,
-            _zroPaymentAddress=TokenContractFetcher.ZERO_ADDRESS,
+            _zroPaymentAddress=TokenContractData.ZERO_ADDRESS,
             _adapterParams='0x'
         )
 
