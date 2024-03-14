@@ -1,6 +1,5 @@
-from async_eth_lib.models.networks.networks import Networks
 import async_eth_lib.models.others.exceptions as exceptions
-
+from async_eth_lib.models.networks.networks import Networks
 from async_eth_lib.models.others.constants import TokenSymbol
 from async_eth_lib.models.others.common import Singleton
 from async_eth_lib.models.contracts.raw_contract import (
@@ -30,15 +29,15 @@ class ContractsFactory:
                 return OptimismTokenContracts.get_token(token_symbol)
             case Networks.Polygon.name:
                 return PolygonTokenContracts.get_token(token_symbol)
-            case Networks.ZkSync.name:
-                return ZkSyncTokenContracts.get_token(token_symbol)
+            # case Networks.ZkSync.name:
+            #     return ZkSyncTokenContracts.get_token(token_symbol)
             case _:
                 raise ValueError("Network not supported")
 
 
-class TokenContractFetcher(metaclass=Singleton):
+class TokenContractData(metaclass=Singleton):
     NATIVE_ETH = NativeTokenContract(title=TokenSymbol.ETH)
-    
+
     ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
     @classmethod
@@ -62,12 +61,19 @@ class TokenContractFetcher(metaclass=Singleton):
         return getattr(cls, contract_name)
 
 
-class EthereumTokenContracts(TokenContractFetcher):
-    ETH = TokenContractFetcher.NATIVE_ETH
+class USDVContract:
+    USDV = TokenContract(
+        title=TokenSymbol.USDV,
+        address='0x323665443CEf804A3b5206103304BD4872EA4253',
+    )
 
 
-class ArbitrumTokenContracts(TokenContractFetcher):
-    ETH = TokenContractFetcher.NATIVE_ETH
+class EthereumTokenContracts(TokenContractData):
+    ETH = TokenContractData.NATIVE_ETH
+
+
+class ArbitrumTokenContracts(TokenContractData, USDVContract):
+    ETH = TokenContractData.NATIVE_ETH
 
     ARB = TokenContract(
         title=TokenSymbol.ARB,
@@ -116,7 +122,7 @@ class ArbitrumTokenContracts(TokenContractFetcher):
     )
 
 
-class AvalancheTokenContracts(TokenContractFetcher):
+class AvalancheTokenContracts(TokenContractData, USDVContract):
     AVAX = NativeTokenContract(title=TokenSymbol.AVAX)
 
     ETH = TokenContract(
@@ -139,14 +145,14 @@ class AvalancheTokenContracts(TokenContractFetcher):
         title=TokenSymbol.FRAX,
         address='0xD24C2Ad096400B6FBcd2ad8B24E7acBc21A1da64',
     )
-    
+
     STG = TokenContract(
         title=TokenSymbol.STG,
         address='0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590'
     )
 
 
-class BscTokenContracts(TokenContractFetcher):
+class BscTokenContracts(TokenContractData, USDVContract):
     BNB = NativeTokenContract(title=TokenSymbol.BNB)
 
     USDT = TokenContract(
@@ -158,14 +164,14 @@ class BscTokenContracts(TokenContractFetcher):
         title=TokenSymbol.BUSD,
         address='0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56',
     )
-    
+
     STG = TokenContract(
         title=TokenSymbol.STG,
         address='0xb0d502e938ed5f4df2e681fe6e419ff29631d62b',
     )
 
 
-class FantomTokenContracts(TokenContractFetcher):
+class FantomTokenContracts(TokenContractData):
     USDC = TokenContract(
         title=TokenSymbol.USDC,
         address='0x04068DA6C83AFCFA0e13ba15A6696662335D5B75',
@@ -177,7 +183,7 @@ class FantomTokenContracts(TokenContractFetcher):
         address='0x28a92dde19D9989F39A49905d7C9C2FAc7799bDf',
         decimals=6
     )
-    
+
 # class KavaTokenContracts(TokenContractFetcher):
 #     STG = TokenContract(
 #         title=TokenSymbol.STG,
@@ -186,8 +192,8 @@ class FantomTokenContracts(TokenContractFetcher):
 #     )
 
 
-class OptimismTokenContracts(TokenContractFetcher):
-    ETH = TokenContractFetcher.NATIVE_ETH
+class OptimismTokenContracts(TokenContractData, USDVContract):
+    ETH = TokenContractData.NATIVE_ETH
 
     USDC = TokenContract(
         title=TokenSymbol.USDC,
@@ -212,7 +218,7 @@ class OptimismTokenContracts(TokenContractFetcher):
     )
 
 
-class PolygonTokenContracts(TokenContractFetcher):
+class PolygonTokenContracts(TokenContractData, USDVContract):
     MATIC = NativeTokenContract(title=TokenSymbol.MATIC)
 
     USDC = TokenContract(
@@ -242,7 +248,7 @@ class PolygonTokenContracts(TokenContractFetcher):
         title=TokenSymbol.WBTC,
         address='0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6'
     )
-    
+
     STG = TokenContract(
         title=TokenSymbol.STG,
         address='0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590',
@@ -250,12 +256,12 @@ class PolygonTokenContracts(TokenContractFetcher):
     )
 
 
-class ZkSyncTokenContracts(TokenContractFetcher):
+class ZkSyncTokenContracts(TokenContractData):
     ETH = NativeTokenContract(
         title=TokenSymbol.ETH,
-        address=TokenContractFetcher.ZERO_ADDRESS
+        address=TokenContractData.ZERO_ADDRESS
     )
-    
+
     ceBUSD = TokenContract(
         title=TokenSymbol.BUSD,
         address='0x2039bb4116B4EFc145Ec4f0e2eA75012D6C0f181'

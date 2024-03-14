@@ -1,7 +1,8 @@
 from web3.types import TxParams
 
+from async_eth_lib.models.contracts.contracts import TokenContractFetcher
 from async_eth_lib.models.others.constants import (
-    LogStatus, TokenSymbol
+    LogStatus
 )
 
 from async_eth_lib.models.others.params_types import ParamsTypes
@@ -16,7 +17,7 @@ from tasks.layer_zero.testnet_bridge.testnet_bridge_data import TestnetBridgeDat
 
 class TestnetBridge(SwapTask):
     chain_ids = {
-        TokenSymbol.GETH: 154
+        'GETH': 154
     }
 
     async def bridge(
@@ -35,12 +36,12 @@ class TestnetBridge(SwapTask):
 
             return False
 
-        token_bridge_info = TestnetBridgeData.get_token_bridge_info(
+        src_bridge_data = TestnetBridgeData.get_token_bridge_info(
             network=self.client.account_manager.network.name,
             token_symbol=swap_info.from_token
         )
         contract = await self.client.contract.get(
-            contract=token_bridge_info.bridge_contract
+            contract=src_bridge_data.bridge_contract
         )
 
         swap_query = await self.compute_source_token_amount(
@@ -53,7 +54,7 @@ class TestnetBridge(SwapTask):
             _toAddress=self.client.account_manager.account.address,
             _amount=swap_query.amount_from.Wei,
             _refundAddress=self.client.account_manager.account.address,
-            _zroPaymentAddress='0x0000000000000000000000000000000000000000',
+            _zroPaymentAddress=TokenContractFetcher.ZERO_ADDRESS,
             _adapterParams='0x'
         )
 
@@ -64,15 +65,10 @@ class TestnetBridge(SwapTask):
         )
 
         tx_params = TxParams(
-            to=token_bridge_info.bridge_contract.address,
+            to=contract.address,
             data=contract.encodeABI('sendFrom', args=args.get_tuple()),
             value=value.Wei
         )
-        tx_params = self.set_all_gas_params(
-            swap_info=swap_info,
-            tx_params=tx_params
-        )
-
         if not swap_query.from_token.is_native_token:
             hexed_tx_hash = await self.approve_interface(
                 token_contract=swap_query.from_token,
@@ -89,7 +85,7 @@ class TestnetBridge(SwapTask):
                 )
                 await sleep(20, 50)
         else:
-            tx_params['value'] = swap_query.amount_from.Wei
+            tx_params['value'] += swap_query.amount_from.Wei        
 
         receipt_status, log_status, log_message = await self.perform_bridge(
             swap_info, swap_query, tx_params, 

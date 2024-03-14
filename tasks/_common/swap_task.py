@@ -38,7 +38,7 @@ class SwapTask:
             count += 1
             params = params[64:]
 
-    def to_cut_hex_prefix_and_zfill(self, data: str | HexStr, length: int = 64):
+    def to_cut_hex_prefix_and_zfill(self, data: str, length: int = 64):
         """
         Convert the string to lowercase and fill it with zeros to the specified length.
 
@@ -81,14 +81,32 @@ class SwapTask:
         second_arg: str,
         param_type: str = 'args'
     ) -> str:
+        """
+        Validate inputs for a swap operation.
+
+        Args:
+            first_arg (str): The first argument.
+            second_arg (str): The second argument.
+            param_type (str): The type of arguments (default is 'args').
+
+        Returns:
+            str: A message indicating the result of the validation.
+
+        Example:
+        ```python
+        result = validate_swap_inputs('ETH', 'USDT', param_type='symbols')
+        print(result)
+        # Output: 'The symbols for swap() are different: ETH != USDT'
+        ```
+        """
         if first_arg.upper() == second_arg.upper():
             return f'The {param_type} for swap() are equal: {first_arg} == {second_arg}'
 
     async def approve_interface(
         self,
+        swap_info: SwapInfo,
         token_contract: ParamsTypes.TokenContract,
         spender_address: ParamsTypes.Address,
-        swap_info: SwapInfo,
         amount: ParamsTypes.Amount | None = None,
         tx_params: TxParams | dict | None = None,
         is_approve_infinity: bool = None
@@ -121,16 +139,11 @@ class SwapTask:
         # Output: True
         ```
         """
-        tx_params = self.set_all_gas_params(
-            swap_info=swap_info,
-            tx_params=tx_params
-        )
-
         balance = await self.client.contract.get_balance(
             token_contract=token_contract
         )
         if balance.Wei <= 0:
-            return False
+            return True
 
         if not amount or amount.Wei > balance.Wei:
             amount = balance
@@ -143,16 +156,25 @@ class SwapTask:
 
         if amount.Wei <= approved.Wei:
             return True
+        
+        tx_params = self.set_all_gas_params(
+            swap_info=swap_info,
+            tx_params=tx_params
+        )
 
-        hexed_tx_hash = await self.client.contract.approve(
+        tx = await self.client.contract.approve(
             token_contract=token_contract,
             spender_address=spender_address,
             amount=amount,
             tx_params=tx_params,
             is_approve_infinity=is_approve_infinity
         )
+        await tx.wait_for_tx_receipt(
+            web3=self.client.account_manager.w3,
+            timeout=240
+        )
 
-        return bool(hexed_tx_hash)
+        return False
 
     async def compute_source_token_amount(
         self,
@@ -280,6 +302,41 @@ class SwapTask:
             min_to_amount=min_to_amount
         )
 
+    async def get_binance_ticker_price(
+        self,
+        first_token: str = TokenSymbol.ETH,
+        second_token: str = TokenSymbol.USDT
+    ) -> float | None:
+        if first_token.startswith('W'):
+            first_token = first_token[1:]
+
+        if second_token.startswith('W'):
+            second_token = second_token[1:]
+
+        match first_token:
+            case TokenSymbol.USDT:
+                return 1
+            case TokenSymbol.USDC:
+                return 1
+            case TokenSymbol.USDV:
+                return 1
+            case TokenSymbol.USDC_E:
+                return 1
+
+        async with aiohttp.ClientSession() as session:
+            price = await self._get_price_from_binance(session, first_token, second_token)
+            if price is None:
+                price = await self._get_price_from_binance(session, first_token, second_token)
+                return 1 / price
+
+            return price
+
+    async def get_token_info(self, token_address):
+        contract = await self.client.contract.get_token_contract(token=token_address)
+        print('name:', await contract.functions.name().call())
+        print('symbol:', await contract.functions.symbol().call())
+        print('decimals:', await contract.functions.decimals().call())
+
     async def perform_bridge(
         self,
         swap_info: SwapInfo,
@@ -333,87 +390,26 @@ class SwapTask:
 
         return receipt['status'], status, message
 
-    async def perform_swap(
+    async def _get_price_from_binance(
         self,
-        swap_info: SwapInfo,
-        swap_query: SwapQuery,
-        tx_params: TxParams | dict,
-    ) -> tuple[int, str, str]:
-        """
-        Perform a token swap operation.
-
-        Args:
-            swap_info (SwapInfo): Information about the swap.
-            swap_query (SwapQuery): Query parameters for the swap.
-            tx_params (TxParams | dict): Transaction parameters.
-
-        Returns:
-            tuple[bool, str, str]: A tuple containing:
-                - A boolean indicating whether the swap was successful.
-                - Status of the swap.
-                - Message regarding the swap.
-        """
-        tx_params = self.set_all_gas_params(
-            swap_info=swap_info,
-            tx_params=tx_params
-        )
-
-        tx_hash, receipt = await self._perform_tx(tx_params)
-
-        account_network = self.client.account_manager.network
-        full_path = account_network.explorer + account_network.TxPath
-        rounded_amount = round(swap_query.amount_from.Ether, 5)
-
-        if receipt['status']:
-            log_status = LogStatus.SWAPPED
-            message = f'{rounded_amount} {swap_info.from_token}'
-
-        else:
-            log_status = LogStatus.ERROR
-            message = f'Failed swap {rounded_amount} {swap_info.from_token}'
-
-        message += (
-            f' -> {swap_query.min_to_amount.Ether} {swap_info.to_token}: '
-            f'{full_path + tx_hash.hex()}'
-        )
-
-        return receipt['status'], log_status, message
-
-    async def get_binance_ticker_price(
-        self,
-        first_token: str = TokenSymbol.ETH,
-        second_token: str = TokenSymbol.USDT
+        session: aiohttp.ClientSession,
+        first_token: str,
+        second_token: str
     ) -> float | None:
-        stable_coins = [
-            TokenSymbol.USDT,
-            TokenSymbol.USDC,
-            TokenSymbol.USDC_E,
-            TokenSymbol.BUSD
-        ]
-        
-        if first_token.startswith('W'):
-            first_token = first_token[1:]
-
-        if second_token.startswith('W'):
-            second_token = second_token[1:]
-
-        if first_token in stable_coins:
-            return 1
-
-        async with aiohttp.ClientSession() as session:
-            price = await self._get_price_from_binance(session, first_token, second_token)
-            if price is None:
-                price = await self._get_price_from_binance(session, first_token, second_token)
-                return 1 / price
-
-            return price
-
-    async def get_token_info(self, token_address):
-        contract = await self.client.contract.get_token_contract(token=token_address)
-        print('=' * 50)
-        print('name:', await contract.functions.name().call())
-        print('symbol:', await contract.functions.symbol().call())
-        print('decimals:', await contract.functions.decimals().call())
+        first_token, second_token = first_token.upper(), second_token.upper()
+        for _ in range(5):
+            try:
+                response = await session.get(
+                    f'https://api.binance.com/api/v3/ticker/price?symbol={first_token}{second_token}')
+                if response.status != 200:
+                    return None
+                result_dict = await response.json()
+                if 'price' in result_dict:
+                    return float(result_dict['price'])
+            except Exception as e:
+                await asyncio.sleep(3)
+        raise ValueError(
+            f'Can not get {first_token}{second_token} price from Binance')
 
     async def _perform_tx(
         self,
@@ -440,24 +436,3 @@ class SwapTask:
         )
 
         return tx.hash, receipt
-
-    async def _get_price_from_binance(
-        self,
-        session: aiohttp.ClientSession,
-        first_token: str,
-        second_token: str
-    ) -> float | None:
-        first_token, second_token = first_token.upper(), second_token.upper()
-        for _ in range(5):
-            try:
-                response = await session.get(
-                    f'https://api.binance.com/api/v3/ticker/price?symbol={first_token}{second_token}')
-                if response.status != 200:
-                    return None
-                result_dict = await response.json()
-                if 'price' in result_dict:
-                    return float(result_dict['price'])
-            except Exception as e:
-                await asyncio.sleep(3)
-        raise ValueError(
-            f'Can not get {first_token}{second_token} price from Binance')
