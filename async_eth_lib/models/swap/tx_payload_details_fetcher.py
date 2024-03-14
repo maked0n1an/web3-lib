@@ -1,5 +1,5 @@
 import async_eth_lib.models.others.exceptions as exceptions
-from async_eth_lib.models.swap.path_details import TxPayloadDetails
+from async_eth_lib.models.swap.tx_payload_details import TxPayloadDetails
 
 
 class TxPayloadDetailsFetcher:
