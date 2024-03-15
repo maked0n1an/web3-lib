@@ -26,7 +26,7 @@ class SpaceFi(SwapTask):
     async def swap(
         self,
         swap_info: SwapInfo
-    ) -> str:
+    ) -> bool:
         check_message = self.validate_swap_inputs(
             first_arg=swap_info.from_token,
             second_arg=swap_info.to_token,
