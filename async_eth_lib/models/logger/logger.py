@@ -71,6 +71,7 @@ class CustomLogger:
             logging.addLevelName(201, LogStatus.MINTED)
             logging.addLevelName(202, LogStatus.BRIDGED)
             logging.addLevelName(203, LogStatus.SWAPPED)
+            logging.addLevelName(204, LogStatus.FAILED)
 
             self.LOGGERS["main_logger"] = main_logger
 
@@ -171,7 +172,8 @@ class CustomLogDataAndRecord(CustomLogFormattedRecord):
         LogStatus.APPROVED: SUCCESS_FORMAT,
         LogStatus.MINTED: SUCCESS_FORMAT,
         LogStatus.BRIDGED: SUCCESS_FORMAT,
-        LogStatus.SWAPPED: SUCCESS_FORMAT
+        LogStatus.SWAPPED: SUCCESS_FORMAT,
+        LogStatus.FAILED: RED + LOG_LEVELNAME_FORMAT + RESET 
     }
 
     def format(self, record):
