@@ -53,6 +53,10 @@ class Transaction:
             decimals=self.account_manager.network.decimals,
             wei=True
         )
+        
+    async def get_base_fee(self, increase_gas: float = 1.):
+        last_block = await self.account_manager.w3.eth.get_block('latest')
+        return int(last_block['baseFeePerGas'] * increase_gas)
 
     async def get_max_priority_fee_(
         self,
