@@ -358,7 +358,7 @@ class SwapTask:
             tx_params=tx_params
         )
 
-        tx_hash, receipt = await self._perform_tx(tx_params)
+        tx_hash, receipt = await self.perform_tx(tx_params)
 
         account_network = self.client.account_manager.network
         full_path = account_network.explorer + account_network.TxPath
@@ -398,7 +398,7 @@ class SwapTask:
         Returns:
             tuple[str, str]: A tuple containing:
                 - A boolean indicating whether the bridge operation was successful.
-                - Status of the bridge operation.
+                - Log status of the bridge operation.
                 - Message regarding the bridge operation.
         """
         tx_params = self.set_all_gas_params(
@@ -406,7 +406,7 @@ class SwapTask:
             tx_params=tx_params
         )
 
-        tx_hash, receipt = await self._perform_tx(tx_params)
+        tx_hash, receipt = await self.perform_tx(tx_params)
 
         account_network = self.client.account_manager.network
 
@@ -418,10 +418,10 @@ class SwapTask:
         rounded_amount = round(swap_query.amount_from.Ether, 5)
 
         if receipt['status']:
-            status = LogStatus.BRIDGED
+            log_status = LogStatus.BRIDGED
             message = f'{rounded_amount} {swap_info.from_token}'
         else:
-            status = LogStatus.ERROR
+            log_status = LogStatus.ERROR
             message = f'Failed bridge {rounded_amount} {swap_info.from_token}'
 
         message += (
@@ -430,7 +430,7 @@ class SwapTask:
             f'{full_path + tx_hash.hex()}'
         )
 
-        return receipt['status'], status, message
+        return receipt['status'], log_status, message
 
     async def _get_price_from_binance(
         self,
@@ -453,7 +453,7 @@ class SwapTask:
         raise ValueError(
             f'Can not get {first_token}{second_token} price from Binance')
 
-    async def _perform_tx(
+    async def perform_tx(
         self,
         tx_params: TxParams | dict
     ) -> tuple[_Hash32, TxReceipt]:
