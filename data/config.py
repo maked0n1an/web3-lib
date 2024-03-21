@@ -12,6 +12,3 @@ else:
     ROOT_DIR = Path(__file__).parent.parent.absolute()
     
 ABIS_DIR = os.path.join(ROOT_DIR, 'data', 'abis')
-
-with open('private_keys.txt', 'r') as file:
-    PRIVATE_KEYS = [row.strip() for row in file]
