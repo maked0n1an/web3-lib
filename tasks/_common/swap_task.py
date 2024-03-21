@@ -245,7 +245,7 @@ class SwapTask:
     async def compute_min_destination_amount(
         self,
         swap_query: SwapQuery,
-        min_to_amount: float,
+        min_to_amount: int,
         swap_info: SwapInfo,
         is_to_token_price_wei: bool = False
     ) -> SwapQuery:
