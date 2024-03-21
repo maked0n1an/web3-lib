@@ -132,11 +132,11 @@ class Stargate(SwapTask):
                 await sleep(20, 50)
         else:
             tx_params['value'] += swap_query.amount_from.Wei
-            
+
         receipt_status, log_status, log_message = await self.perform_bridge(
-            swap_info, swap_query, tx_params, 
+            swap_info, swap_query, tx_params,
             external_explorer='https://layerzeroscan.com'
-        ) 
+        )
 
         self.client.account_manager.custom_logger.log_message(
             status=log_status, message=log_message
@@ -168,20 +168,12 @@ class Stargate(SwapTask):
             )
 
             data = contract.encodeABI('swapETH', args=tx_args.get_tuple())
-            
-            value = await self._quote_layer_zero_fee(
-                router_contract=contract,
-                src_token_symbol=swap_info.from_token,
-                dst_chain_id=dst_chain_id,
-                lz_tx_params=lz_tx_params,
-                data=data
-            )
 
         elif swap_info.from_token == TokenSymbol.USDV:
             address = self.client.account_manager.account.address
             swap_query = await self.compute_min_destination_amount(
                 swap_query=swap_query,
-                to_token_price=1,
+                min_to_amount=swap_query.amount_from.Wei,
                 swap_info=swap_info
             )
 
@@ -209,10 +201,11 @@ class Stargate(SwapTask):
 
             value = await self._quote_send_fee(
                 router_contract=contract,
-                swap_query=swap_query,    
+                swap_query=swap_query,
                 dst_chain_id=dst_chain_id,
-                adapter_params=adapter_params        
-            )            
+                adapter_params=adapter_params
+            )
+            return data, value
 
         elif swap_info.from_token == TokenSymbol.STG:
             adapter_params = '0x00010000000000000000000000000000000000000000000000000000000000014c08'
@@ -232,6 +225,7 @@ class Stargate(SwapTask):
                 dst_chain_id=dst_chain_id,
                 adapter_params=adapter_params
             )
+            return data, value
 
         else:
             lz_tx_params = TxArgs(
@@ -259,12 +253,12 @@ class Stargate(SwapTask):
 
             data = contract.encodeABI('swap', args=tx_args.get_tuple())
 
-            value = await self._quote_layer_zero_fee(
-                router_contract=contract,
-                src_token_symbol=swap_info.from_token,
-                dst_chain_id=dst_chain_id,
-                lz_tx_params=lz_tx_params,
-            )
+        value = await self._quote_layer_zero_fee(
+            router_contract=contract,
+            src_token_symbol=swap_info.from_token,
+            dst_chain_id=dst_chain_id,
+            lz_tx_params=lz_tx_params,
+        )
 
         return data, value
 
