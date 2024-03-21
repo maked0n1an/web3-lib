@@ -1,6 +1,7 @@
 from typing import Tuple
 
 from web3.types import TxParams
+from eth_abi import abi
 
 from async_eth_lib.models.contracts.contracts import TokenContractData
 from async_eth_lib.models.networks.networks import Networks
@@ -320,17 +321,23 @@ class Stargate(SwapTask):
         adapter_params: str,
         use_lz_token: bool = False,
     ) -> TokenAmount:
+        address = self.to_cut_hex_prefix_and_zfill(
+            self.client.account_manager.account.address
+        )
+        # address = abi.encode(
+        #     ["address"],
+        #     [self.client.account_manager.account.address]
+        # )
+        
         result = await router_contract.functions.quoteSendFee(
             [
-                self.to_cut_hex_prefix_and_zfill(
-                    self.client.account_manager.account.address
-                ),
+                address,
                 swap_query.amount_from.Wei,
                 swap_query.min_to_amount.Wei,
                 dst_chain_id
             ],
             adapter_params,
-            False,
+            use_lz_token,
             "0x"
         ).call()
 
