@@ -151,7 +151,7 @@ class Mute(SwapTask):
 
         return await self.compute_min_destination_amount(
             swap_query=swap_query,
-            to_token_price=min_amount_out[0],
+            min_to_amount=min_amount_out[0],
             swap_info=swap_info,
             is_to_token_price_wei=True
         )

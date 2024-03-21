@@ -69,7 +69,7 @@ class SyncSwap(SwapTask):
 
         swap_query = await self.compute_min_destination_amount(
             swap_query=swap_query,
-            to_token_price=min_to_amount,
+            min_to_amount=min_to_amount,
             swap_info=swap_info
         )
         
