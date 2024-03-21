@@ -168,6 +168,14 @@ class Stargate(SwapTask):
             )
 
             data = contract.encodeABI('swapETH', args=tx_args.get_tuple())
+            
+            value = await self._quote_layer_zero_fee(
+                router_contract=contract,
+                src_token_symbol=swap_info.from_token,
+                dst_chain_id=dst_chain_id,
+                lz_tx_params=lz_tx_params,
+                data=data
+            )
 
         elif swap_info.from_token == TokenSymbol.USDV:
             address = self.client.account_manager.account.address
