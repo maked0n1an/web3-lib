@@ -287,7 +287,7 @@ class SwapTask:
                 token_contract=swap_query.to_token
             )
 
-        min_to_amount = TokenAmount(
+        min_amount_out = TokenAmount(
             amount=min_to_amount * (1 - swap_info.slippage / 100),
             decimals=decimals,
             wei=is_to_token_price_wei
@@ -297,7 +297,7 @@ class SwapTask:
             from_token=swap_query.from_token,
             amount_from=swap_query.amount_from,
             to_token=swap_query.to_token,
-            min_to_amount=min_to_amount
+            min_to_amount=min_amount_out
         )
 
     async def get_binance_ticker_price(
