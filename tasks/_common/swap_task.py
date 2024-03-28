@@ -278,14 +278,9 @@ class SwapTask:
                 token_symbol=swap_info.to_token
             )
 
-        decimals = 0
-        if swap_query.to_token.is_native_token:
-            decimals = self.client.account_manager.network.decimals
-
-        else:
-            decimals = await self.client.contract.get_decimals(
-                token_contract=swap_query.to_token
-            )
+        decimals = await self.client.contract.get_decimals(
+            token_contract=swap_query.to_token
+        )
 
         min_amount_out = TokenAmount(
             amount=min_to_amount * (1 - swap_info.slippage / 100),
