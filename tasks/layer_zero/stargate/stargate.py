@@ -175,7 +175,8 @@ class Stargate(SwapTask):
             swap_query = await self.compute_min_destination_amount(
                 swap_query=swap_query,
                 min_to_amount=swap_query.amount_from.Wei,
-                swap_info=swap_info
+                swap_info=swap_info,
+                is_to_token_price_wei=True
             )
 
             tx_args = TxArgs(
