@@ -165,7 +165,7 @@ class Stargate(SwapTask):
                 _toAddress=self.client.account_manager.account.address,
                 _amountLD=swap_query.amount_from.Wei,
                 _minAmountLd=int(swap_query.amount_from.Wei *
-                                 (100 - swap_info.slippage) / 100),
+                                 (1 - swap_info.slippage / 100)),
             )
 
             data = contract.encodeABI('swapETH', args=tx_args.get_tuple())
